@@ -1,0 +1,212 @@
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node/CommonJS
+        module.exports = factory(require());
+    } else {
+        // Browser globals
+        window.SimpleCrop = factory();
+    }
+}(function () {
+    /**
+     *
+     * @param title 组件标题
+     * @param src   图片路径
+     * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
+     * @param times 实际尺寸/显示尺寸
+     * @param maskSize 裁剪容器实际尺寸
+     */
+    function SimpleCrop(params){
+
+        this.id = 'crop-'+new Date().getTime();
+        this.title = params.title;
+        this.src = params.src;
+        this.size = params.size;
+
+        if(this.size.width>this.size.height){
+            this.times = this.size.width*1.0/400;
+        }else{
+            this.times = this.size.height*1.0/400;
+        }
+        this.maskSize = {};
+        this.maskSize.width = 800*this.times;
+        this.maskSize.height = 600*this.times;
+
+        this.size.left = (this.maskSize.width-this.size.width)/2;
+        this.size.top = (this.maskSize.height-this.size.height)/2;
+
+        this.construct();
+        this.load();
+        this.bindEvent();
+    }
+
+    //html结构
+    SimpleCrop.prototype.construct = function(){
+        var html = '';
+        html += '<div class="crop-component">';
+        html += '<p class="crop-title">'+this.title+'<span class="crop-close"></span></p>';
+        html += '<div class="crop-mask">'
+        html += '<canvas class="crop-content" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
+        html += '<canvas class="crop-cover" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
+        html += '</div>';
+        html += '<div class="crop-scale">';
+        html += '<div class="one-times-icon"></div>';
+        html += '<div class="scale-container">';
+        html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
+        html += '</div>';
+        html += '<div class="two-times-icon"></div>';
+        html += '</div>';
+        html += '<div class="crop-btns">';
+        html += '<div class="upload-btn-container">';
+        html += '<button class="upload-btn">重新上传</button>';
+        html += '<input type="file" accept="image/png,image/jpeg">';
+        html += '</div>';
+        html += '<button class="crop-btn">确定裁剪</button>';
+        html += '</div>';
+        html += '</div>';
+
+        var $target = document.createElement('div');
+        $target.id = this.id;
+        $target.classList.add('crop-whole-cover');
+        $target.innerHTML = html;
+
+        this.$target = $target;
+        document.body.appendChild($target);
+
+        var $cropCover = document.querySelector('#'+this.id+' .crop-cover');
+        var cropCoverContext = $cropCover.getContext('2d');
+        cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
+        cropCoverContext.fillRect(0,0,$cropCover.width,$cropCover.height);
+        cropCoverContext.fillStyle = '#0BFF00';
+        var width = 4*this.times+this.size.width;
+        var height = 4*this.times+this.size.height;
+        //console.log(width+' '+height+' '+this.maskSize.width+' '+this.maskSize.height);
+        cropCoverContext.fillRect((this.maskSize.width-width)/2,(this.maskSize.height-height)/2,width,height);
+        cropCoverContext.clearRect((this.maskSize.width-this.size.width)/2,(this.maskSize.height-this.size.height)/2,this.size.width,this.size.height);
+    };
+
+    //加载图片
+    SimpleCrop.prototype.load = function(callback){
+        var self = this;
+        if(!self.$image){
+            self.$image = new Image();
+        }
+        self.$image.src = self.src;
+        self.$image.onload = function(){
+            self.contentRect = {
+                left:self.size.left,
+                top:self.size.top,
+                width:self.$image.width,
+                height:self.$image.height
+            };
+            self.cropContentContext.drawImage(self.$image,self.contentRect.left,self.contentRect.top,self.contentRect.width,self.contentRect.height);
+        }
+    };
+
+    //绑定事件
+    SimpleCrop.prototype.bindEvent = function(){
+        //获取事件相关dom元素
+        var self = this;
+        self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
+        self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
+        self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
+        self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
+        self.$cropMask = document.querySelector('#'+self.id+' .crop-mask');
+        self.$cropContent = document.querySelector('#'+self.id+' .crop-content');
+        self.cropContentContext = self.$cropContent.getContext('2d');
+
+        //事件相关属性
+        self.downPoint = [];
+        self.scaleDownX = 0;
+        self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
+        self.scaleCurLeft = self.scaleInitLeft;
+        self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
+
+        //裁剪区域鼠标按下
+        self.$cropMask.addEventListener('mousedown',function(ev){
+            self.downPoint = [ev.clientX,ev.clientY];
+        },false);
+        //裁剪区域鼠标移动
+        self.$cropMask.addEventListener('mousemove',function(ev){
+            var point = [ev.clientX,ev.clientY];
+            if(self.downPoint.length==2){
+                var moveX = point[0] - self.downPoint[0];
+                var moveY = point[1] - self.downPoint[1];
+
+                var newContentRect = {
+                    left:self.contentRect.left+moveX*self.times,
+                    top:self.contentRect.top+moveY*self.times,
+                    width:self.contentRect.width,
+                    height:self.contentRect.height
+                };
+
+                var transform = '';
+                if(newContentRect.left>self.size.left||(newContentRect.left+newContentRect.width)<(self.size.left+self.size.width)){
+                    //do nothing
+                }else{
+                    var lastMoveX = parseFloat(self.$cropContent.getAttribute('moveX'));
+                    if(!lastMoveX){
+                        lastMoveX = 0;
+                    }
+                    var curMoveX = lastMoveX+moveX;
+                    transform += 'translateX('+curMoveX+'px) ';
+                    self.$cropContent.setAttribute('moveX',curMoveX);
+                }
+                if(newContentRect.top>self.size.top||(newContentRect.top+newContentRect.height)<(self.size.top+self.size.height)){
+                    //do nothing
+                }else{
+                    var lastMoveY = parseFloat(self.$cropContent.getAttribute('moveY'));
+                    if(!lastMoveY){
+                        lastMoveY = 0;
+                    }
+                    var curMoveY = lastMoveY+moveY;
+                    transform += 'translateY('+curMoveY+'px) ';
+                    self.$cropContent.setAttribute('moveY',curMoveY);
+                }
+                if(transform){
+                    self.$cropContent.style.transform = transform;
+                    self.contentRect = newContentRect;
+                }
+                self.downPoint = point;
+            }
+        },false);
+        //裁剪区域鼠标松开
+        self.$cropMask.addEventListener('mouseup',function(ev){
+            self.downPoint = [];
+        },false);
+
+        var scaleWidth =
+        //滑动按钮鼠标按下
+        self.$scaleBtn.addEventListener('mousedown',function(ev){
+            self.scaleDownX = ev.clientX;
+        },false);
+        //滑动按钮鼠标滑动
+        self.$scaleContainer.addEventListener('mousemove',function(ev){
+            var pointX = ev.clientX;
+            if(self.scaleDownX>0){
+                var moveX = pointX - self.scaleDownX;
+                var newCurLeft = self.scaleCurLeft+moveX;
+                if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                    var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                    if(!lastMoveX){
+                        lastMoveX = 0;
+                    }
+                    var curMoveX = lastMoveX+moveX;
+                    self.$scaleBtn.style.transform = 'translateX('+curMoveX+'px)';
+                    self.$scaleValue.style.width = curMoveX+'px';
+                    self.$scaleBtn.setAttribute('moveX',curMoveX);
+                    self.scaleCurLeft = newCurLeft;
+                }
+                self.scaleDownX = pointX;
+            }
+        },false);
+        //滑动按钮鼠标按下
+        self.$scaleContainer.addEventListener('mouseup',function(ev){
+            self.scaleDownX = 0;
+        },false);
+    };
+
+    return SimpleCrop;
+}));

@@ -6,23 +6,27 @@
     <link rel="stylesheet" href="./dist/template.css">
 </head>
 <body>
-    <div class="crop-component">
-        <p class="crop-title">上传图片过大，请裁剪<span class="crop-close"></span></p>
-        <div class="crop-mask">
-            <canvas class="crop-content"></canvas>
-            <canvas class="crop-cover"></canvas>
-        </div>
-        <div class="crop-scale">
-            <div class="one-times-icon"></div>
-            <div class="scale-num"><span class="scale-value" style="width:50px;"></span><span class="scale-btn" style="left:42px;"></span></div>
-            <div class="two-times-icon"></div>
-        </div>
-        <div class="crop-btns">
-            <div class="upload-btn-container">
-                <button class="upload-btn">重新上传</button>
-                <input type="file" accept="image/png,image/jpeg">
+    <div class="crop-whole-cover">
+        <div class="crop-component">
+            <p class="crop-title">上传图片过大，请裁剪<span class="crop-close"></span></p>
+            <div class="crop-mask">
+                <canvas class="crop-content" width="800" height="600"></canvas>
+                <canvas class="crop-cover" width="800" height="600"></canvas>
             </div>
-            <button class="crop-btn">确定裁剪</button>
+            <div class="crop-scale">
+                <div class="one-times-icon"></div>
+                <div class="scale-container">
+                    <div class="scale-num"><span class="scale-value" style="width:50px;"></span><span class="scale-btn" style="left:42px;"></span></div>
+                </div>
+                <div class="two-times-icon"></div>
+            </div>
+            <div class="crop-btns">
+                <div class="upload-btn-container">
+                    <button class="upload-btn">重新上传</button>
+                    <input type="file" accept="image/png,image/jpeg">
+                </div>
+                <button class="crop-btn">确定裁剪</button>
+            </div>
         </div>
     </div>
 </body>

@@ -6,6 +6,20 @@
             box-shadow: 0 4px 16px 0 rgba(0,0,0,0.22);
     border-radius: 4px;
     font-size:0;
+    position: fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    margin:auto;
+}
+.crop-whole-cover{
+    position: fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color:rgba(0,0,0,.6)
 }
 .crop-component .crop-title{
     margin:0;
@@ -35,6 +49,8 @@
     background-image:url(./img/mosaic-bk.jpg);
     background-repeat:repeat;
     position: relative;
+    cursor:move;
+    overflow: hidden;
 }
 .crop-component .crop-cover,
 .crop-component .crop-content{
@@ -45,6 +61,7 @@
     bottom:0;
     width:100%;
     height:100%;
+    cursor:move;
 }
 .crop-component .crop-scale{
     font-size:0;
@@ -77,15 +94,24 @@
     background-image:url(./img/two-times-icon@1x.png);
     background-size:100% 100%;
 }
+.crop-component .crop-scale .scale-container{
+    position: relative;
+    width:310px;
+    height:30px;
+    cursor:pointer;
+}
 .crop-component .crop-scale .scale-num{
     display:inline-block;
     width:280px;
     height:3px;
     background-color:#D8D8D8;
     border-radius: 1px;
-    margin-left:15px;
-    margin-right:15px;
-    position: relative;
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    margin:auto;
 }
 .crop-component .crop-scale .scale-value{
     display:inline-block;
@@ -106,7 +132,6 @@
     border: 1px solid #F2F2F2;
     -webkit-box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
             box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
-    cursor:pointer;
 }
 .crop-component .crop-btns{
     width:100%;
@@ -138,6 +163,7 @@
 .crop-component .crop-btns .upload-btn-container{
     width:180px;
     height:48px;
+    position: relative;
 }
 .crop-component .crop-btns .upload-btn{
     font-size: 18px;
