@@ -1,0 +1,152 @@
+.crop-component{
+    width:800px;
+    height:839px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 16px 0 rgba(0,0,0,0.22);
+    border-radius: 4px;
+    font-size:0;
+}
+.crop-component .crop-title{
+    margin:0;
+    padding:0;
+    display:inline-block;
+    width:100%;
+    line-height: 50px;
+    height:50px;
+    text-align: center;
+    font-size: 16px;
+    color: #222222;
+    position: relative;
+}
+.crop-component .crop-close{
+    display:inline-block;
+    width:14px;
+    height:14px;
+    position: absolute;
+    right:32px;
+    top:18px;
+    background-image:url(./img/crop-close@1x.png);
+    background-size:100% 100%;
+}
+.crop-component .crop-mask{
+    width:100%;
+    height:600px;
+    background-image:url(./img/mosaic-bk.jpg);
+    background-repeat:repeat;
+    position: relative;
+}
+.crop-component .crop-cover,
+.crop-component .crop-content{
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    height:100%;
+}
+.crop-component .crop-scale{
+    font-size:0;
+    width:100%;
+    height:80px;
+    border-bottom:1px solid #CCC;
+    display:flex;
+    /* 主轴对齐方式 */
+    justify-content:center;
+    /* 交叉轴对齐方式 */
+    align-items:center;
+}
+.crop-component .crop-scale .one-times-icon{
+    display:inline-block;
+    width:16px;
+    height:13px;
+    background-image:url(./img/one-times-icon@1x.png);
+    background-size:100% 100%;
+}
+.crop-component .crop-scale .two-times-icon{
+    display:inline-block;
+    width:22px;
+    height:17px;
+    background-image:url(./img/two-times-icon@1x.png);
+    background-size:100% 100%;
+}
+.crop-component .crop-scale .scale-num{
+    display:inline-block;
+    width:280px;
+    height:3px;
+    background-color:#D8D8D8;
+    border-radius: 1px;
+    margin-left:15px;
+    margin-right:15px;
+    position: relative;
+}
+.crop-component .crop-scale .scale-value{
+    display:inline-block;
+    height:100%;
+    background-color: #222;
+    border-radius: 1px;
+}
+.crop-component .crop-scale .scale-btn{
+    position: absolute;
+    top:-7px;
+    display:inline-block;
+    box-sizing: border-box;
+    width:17px;
+    height:17px;
+    border-radius:17px;
+    background-color: #FFF;
+    border: 1px solid #F2F2F2;
+    box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
+    cursor:pointer;
+}
+.crop-component .crop-btns{
+    width:100%;
+    height:109px;
+    font-size:0;
+    display: flex;
+    /* 主轴对齐方式 */
+    justify-content:center;
+    /* 交叉轴对齐方式 */
+    align-items:center;
+}
+.crop-component .crop-btns .crop-btn,
+.crop-component .crop-btns .upload-btn{
+    width:180px;
+    height:48px;
+    border: 1px solid #222222;
+    border-radius: 48px;
+    cursor:pointer;
+    position: relative;
+    box-sizing: border-box;
+}
+.crop-component .crop-btns .upload-btn-container{
+    width:180px;
+    height:48px;
+}
+.crop-component .crop-btns .upload-btn{
+    font-size: 18px;
+    color: #222;
+    text-align: center;
+    line-height: 48px;
+    background-color:#fff;
+}
+.crop-component .crop-btns .upload-btn-container input{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.crop-component .crop-btns .crop-btn{
+    font-size: 18px;
+    line-height: 48px;
+    color: #FFF;
+    text-align: center;
+    background-color:#000;
+    margin-left:27px;
+}
