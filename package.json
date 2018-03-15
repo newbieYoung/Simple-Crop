@@ -1,0 +1,26 @@
+{
+  "name": "simple-crop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "gulp-css-base64": "^1.3.4"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-css-base64": "^1.3.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/newbieYoung/Simple-Crop.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/newbieYoung/Simple-Crop/issues"
+  },
+  "homepage": "https://github.com/newbieYoung/Simple-Crop#readme"
+}
