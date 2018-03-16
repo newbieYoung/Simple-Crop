@@ -82,7 +82,6 @@
         cropCoverContext.fillStyle = '#0BFF00';
         var width = 4*this.times+this.size.width;
         var height = 4*this.times+this.size.height;
-        //console.log(width+' '+height+' '+this.maskSize.width+' '+this.maskSize.height);
         cropCoverContext.fillRect((this.maskSize.width-width)/2,(this.maskSize.height-height)/2,width,height);
         cropCoverContext.clearRect((this.maskSize.width-this.size.width)/2,(this.maskSize.height-this.size.height)/2,this.size.width,this.size.height);
     };
@@ -111,6 +110,8 @@
         var self = this;
         self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
         self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
+        self.$scaleOneTimes = document.querySelector('#'+self.id+' .one-times-icon');
+        self.$scaleTwoTimes = document.querySelector('#'+self.id+' .two-times-icon');
         self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
         self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
         self.$cropMask = document.querySelector('#'+self.id+' .crop-mask');
@@ -142,32 +143,33 @@
                     height:self.contentRect.height
                 };
 
-                var transform = '';
+                var isChanged = false;
                 if(newContentRect.left>self.size.left||(newContentRect.left+newContentRect.width)<(self.size.left+self.size.width)){
-                    //do nothing
+                    newContentRect.left = self.contentRect.left;
                 }else{
                     var lastMoveX = parseFloat(self.$cropContent.getAttribute('moveX'));
                     if(!lastMoveX){
                         lastMoveX = 0;
                     }
                     var curMoveX = lastMoveX+moveX;
-                    transform += 'translateX('+curMoveX+'px) ';
                     self.$cropContent.setAttribute('moveX',curMoveX);
+                    isChanged = true;
                 }
                 if(newContentRect.top>self.size.top||(newContentRect.top+newContentRect.height)<(self.size.top+self.size.height)){
-                    //do nothing
+                    newContentRect.top = self.contentRect.top;
                 }else{
                     var lastMoveY = parseFloat(self.$cropContent.getAttribute('moveY'));
                     if(!lastMoveY){
                         lastMoveY = 0;
                     }
                     var curMoveY = lastMoveY+moveY;
-                    transform += 'translateY('+curMoveY+'px) ';
                     self.$cropContent.setAttribute('moveY',curMoveY);
+                    isChanged = true;
                 }
-                if(transform){
-                    self.$cropContent.style.transform = transform;
+                if(isChanged){
                     self.contentRect = newContentRect;
+                    self.cropContentContext.clearRect(0,0,self.$cropContent.width,self.$cropContent.height);
+                    self.cropContentContext.drawImage(self.$image,self.contentRect.left,self.contentRect.top,self.contentRect.width,self.contentRect.height);
                 }
                 self.downPoint = point;
             }
@@ -176,8 +178,11 @@
         self.$cropMask.addEventListener('mouseup',function(ev){
             self.downPoint = [];
         },false);
+        //裁剪区域超出范围
+        self.$cropMask.addEventListener('mouseleave',function(ev){
+            self.downPoint = [];
+        },false);
 
-        var scaleWidth =
         //滑动按钮鼠标按下
         self.$scaleBtn.addEventListener('mousedown',function(ev){
             self.scaleDownX = ev.clientX;
@@ -194,18 +199,37 @@
                         lastMoveX = 0;
                     }
                     var curMoveX = lastMoveX+moveX;
-                    self.$scaleBtn.style.transform = 'translateX('+curMoveX+'px)';
-                    self.$scaleValue.style.width = curMoveX+'px';
-                    self.$scaleBtn.setAttribute('moveX',curMoveX);
-                    self.scaleCurLeft = newCurLeft;
+                    self.scaleDownX = pointX;
+                    self.scaleMove(curMoveX);
                 }
-                self.scaleDownX = pointX;
             }
         },false);
-        //滑动按钮鼠标按下
+        //滑动按钮超出范围
+        self.$scaleContainer.addEventListener('mouseleave',function(ev){
+            self.scaleDownX = 0;
+        },false);
+        //滑动按钮鼠标松开
         self.$scaleContainer.addEventListener('mouseup',function(ev){
             self.scaleDownX = 0;
         },false);
+        //一倍图按钮点击
+        self.$scaleOneTimes.addEventListener('click',function(ev){
+            self.scaleMove(0);
+        },false);
+        //二倍图按钮点击
+        self.$scaleTwoTimes.addEventListener('click',function(ev){
+            self.scaleMove(self.scaleWidth);
+        },false);
+    };
+
+    //滑动按钮移动
+    SimpleCrop.prototype.scaleMove = function(curMoveX){
+        this.$scaleBtn.style.transform = 'translateX('+curMoveX+'px)';
+        this.$scaleValue.style.width = curMoveX+'px';
+        this.$scaleBtn.setAttribute('moveX',curMoveX);
+        this.scaleCurLeft = this.scaleInitLeft+curMoveX;
+        var scaleTimes = 1+curMoveX*1.0/this.scaleWidth;
+        this.$cropContent.style.transform = 'scale('+scaleTimes+')';
     };
 
     return SimpleCrop;

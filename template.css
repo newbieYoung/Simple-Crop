@@ -62,6 +62,7 @@
     width:100%;
     height:100%;
     cursor:move;
+    transform-origin: 0% 0%;
 }
 .crop-component .crop-scale{
     font-size:0;
@@ -86,6 +87,7 @@
     height:13px;
     background-image:url(./img/one-times-icon@1x.png);
     background-size:100% 100%;
+    cursor:pointer;
 }
 .crop-component .crop-scale .two-times-icon{
     display:inline-block;
@@ -93,12 +95,15 @@
     height:17px;
     background-image:url(./img/two-times-icon@1x.png);
     background-size:100% 100%;
+    cursor:pointer;
 }
 .crop-component .crop-scale .scale-container{
     position: relative;
-    width:310px;
+    width:280px;
     height:30px;
     cursor:pointer;
+    margin-left:15px;
+    margin-right:15px;
 }
 .crop-component .crop-scale .scale-num{
     display:inline-block;
