@@ -42,6 +42,7 @@
     top:18px;
     background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAnUlEQVR4AX3SvQkCQRDF8SnAVPNLLMImrMBejO1gP9hgA4Ptwh7MLOE6MFDnCYNycP8HxyXvx8JjTMk5H8YYG+NEd19Kmb4opfT2/721tiXk4Ojdp3cfppeEGP+Qev6dTVF5iQFdLAIYEOBa6wkQ4tcCcfTSH5px7ZUhZl57ZT1emyaHtREh1u0RivTed4H9u+m1SbcXZ0QRFvL+9QMdTP/NWfh9BgAAAABJRU5ErkJggg==);
     background-size:100% 100%;
+    cursor:pointer;
 }
 .crop-component .crop-mask{
     width:100%;

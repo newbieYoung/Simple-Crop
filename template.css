@@ -42,6 +42,7 @@
     top:18px;
     background-image:url(./img/crop-close@1x.png);
     background-size:100% 100%;
+    cursor:pointer;
 }
 .crop-component .crop-mask{
     width:100%;
