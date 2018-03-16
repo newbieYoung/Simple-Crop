@@ -17,6 +17,7 @@
      * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
      * @param times 实际尺寸/显示尺寸
      * @param maskSize 裁剪容器实际尺寸
+     * @param callback 确定裁剪回掉函数
      */
     function SimpleCrop(params){
 
@@ -38,6 +39,7 @@
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
         this.borderWidth = 2;
+        this.callback = params.callback;
 
         this.construct();
         this.load();
@@ -105,10 +107,26 @@
         }
     };
 
+    //显示
+    SimpleCrop.prototype.show = function(src){
+        if(!src){
+            this.$target.style.display = 'block';
+        }else{
+            this.src = src;
+            this.load();
+        }
+    },
+
+    //隐藏
+    SimpleCrop.prototype.hide = function(){
+        this.$target.style.display = 'none';
+    },
+
     //绑定事件
     SimpleCrop.prototype.bindEvent = function(){
         //获取事件相关dom元素
         var self = this;
+        self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
         self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
         self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
         self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
@@ -228,7 +246,7 @@
 
         //点击关闭
         self.$closeBtn.addEventListener('click',function(){
-            self.$target.style.display = 'none';
+            self.hide();
         },false);
 
         //重新上传
@@ -241,6 +259,17 @@
                 });
             }
         },false);
+
+        //确定裁剪
+        self.$cropBtn.addEventListener('click',function(){
+            self.$resultCanvas = document.createElement('canvas');
+            self.$resultCanvas.width = self.size.width;
+            self.$resultCanvas.height = self.size.height;
+            self.resultContext = self.$resultCanvas.getContext('2d');
+            var rect = self.coverRectToContentRect(self.size);
+            self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+            self.callback();
+        },false);
     };
 
     //滑动按钮移动
@@ -252,6 +281,7 @@
         this.scaleTimes = 1+curMoveX*1.0/this.scaleWidth;
         this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
 
+        console.log('----');
         var coverTect = this.contentRectToCoverRect(this.contentRect);
         coverTect = this.rectLimit(coverTect);
         this.contentRect = this.coverRectToContentRect(coverTect);
@@ -295,7 +325,7 @@
         var maxLen = this.maskSize.width>this.maskSize.height?this.maskSize.width:this.maskSize.height;
         if(coverRect.left>=this.size.left||Math.abs(coverRect.left-this.size.left)<=maxLen*1.0/50){
             coverRect.left = this.size.left;
-        }else if((coverRect.left+coverRect.width)<(this.size.left+this.maskSize.width)){
+        }else if((coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
             coverRect.left = this.size.left+this.size.width-coverRect.width;
         }
         if(coverRect.top>=this.size.top||Math.abs(coverRect.top-this.size.top)<=maxLen*1.0/50){
