@@ -62,7 +62,6 @@
     width:100%;
     height:100%;
     cursor:move;
-    transform-origin: 0% 0%;
 }
 .crop-component .crop-scale{
     font-size:0;
