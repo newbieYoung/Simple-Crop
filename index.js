@@ -206,6 +206,7 @@
             self.downPoint = [];
         },false);
 
+
         //滑动按钮鼠标按下
         self.$scaleBtn.addEventListener('mousedown',function(ev){
             self.scaleDownX = ev.clientX;
@@ -224,6 +225,30 @@
                     var curMoveX = lastMoveX+moveX;
                     self.scaleDownX = pointX;
                     self.scaleMove(curMoveX);
+                }
+            }
+        },false);
+        //缩放条点击
+        self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
+            ev.stopPropagation();
+        },false);
+        self.$scaleContainer.addEventListener('click',function(ev){
+            var rect = self.$scaleBtn.getBoundingClientRect();
+            if(self.scaleDownX<=0){
+                self.scaleDownX = rect.left+rect.width*1.0/2;
+            }
+            if(self.scaleDownX>0){
+                var pointX = ev.clientX;
+                var moveX = pointX - self.scaleDownX;
+                var newCurLeft = self.scaleCurLeft+moveX;
+                if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                    var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                    if(!lastMoveX){
+                        lastMoveX = 0;
+                    }
+                    var curMoveX = lastMoveX+moveX;
+                    self.scaleMove(curMoveX);
+                    self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
                 }
             }
         },false);
@@ -281,7 +306,6 @@
         this.scaleTimes = 1+curMoveX*1.0/this.scaleWidth;
         this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
 
-        console.log('----');
         var coverTect = this.contentRectToCoverRect(this.contentRect);
         coverTect = this.rectLimit(coverTect);
         this.contentRect = this.coverRectToContentRect(coverTect);
