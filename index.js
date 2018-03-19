@@ -293,7 +293,7 @@
             var files = evt.target.files;
             if(files.length>0){
                 if(self.uploadCallback){
-                    self.uploadCallback();
+                    self.uploadCallback(files[0]);
                 }else{
                     self.fileToSrc(files[0],function(src){
                         self.src = src;
