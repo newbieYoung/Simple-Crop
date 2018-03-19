@@ -19,6 +19,7 @@
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
      * @param cropCallback 确定裁剪回调函数
+     * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
      */
     function SimpleCrop(params){
@@ -43,6 +44,7 @@
         this.borderWidth = 2;
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
+        this.uploadCallback = params.uploadCallback;
 
         if(!params.zIndex){
             params.zIndex = 9999;
@@ -290,10 +292,14 @@
         self.$uploadBtn.addEventListener('change',function(evt){
             var files = evt.target.files;
             if(files.length>0){
-                self.fileToSrc(files[0],function(src){
-                    self.src = src;
-                    self.load();
-                });
+                if(self.uploadCallback){
+                    self.uploadCallback();
+                }else{
+                    self.fileToSrc(files[0],function(src){
+                        self.src = src;
+                        self.load();
+                    });
+                }
             }
             self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
         },false);
