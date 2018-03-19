@@ -18,7 +18,8 @@
      * @param times 实际尺寸/显示尺寸
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
-     * @param callback 确定裁剪回掉函数
+     * @param corpCallback 确定裁剪回调函数
+     * @param closeCallback 关闭回调函数
      */
     function SimpleCrop(params){
 
@@ -40,7 +41,8 @@
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
         this.borderWidth = 2;
-        this.callback = params.callback;
+        this.corpCallback = params.corpCallback;
+        this.closeCallback = params.closeCallback;
 
         if(!params.zIndex){
             params.zIndex = 9999;
@@ -96,7 +98,7 @@
     };
 
     //加载图片
-    SimpleCrop.prototype.load = function(callback){
+    SimpleCrop.prototype.load = function(){
         var self = this;
         if(!self.$image){
             self.$image = new Image();
@@ -134,6 +136,7 @@
         var self = this;
         self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
         self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
+        self.$uploadInput = document.querySelector('#'+self.id+' .upload-btn-container input');
         self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
         self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
         self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
@@ -278,6 +281,9 @@
         //点击关闭
         self.$closeBtn.addEventListener('click',function(){
             self.hide();
+            if(self.closeCallback){
+                self.closeCallback();
+            }
         },false);
 
         //重新上传
@@ -289,6 +295,7 @@
                     self.load();
                 });
             }
+            self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
         },false);
 
         //确定裁剪
@@ -299,7 +306,7 @@
             self.resultContext = self.$resultCanvas.getContext('2d');
             var rect = self.coverRectToContentRect(self.size);
             self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
-            self.callback();
+            self.corpCallback();
         },false);
     };
 
