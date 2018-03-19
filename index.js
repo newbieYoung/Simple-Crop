@@ -116,12 +116,11 @@
 
     //显示
     SimpleCrop.prototype.show = function(src){
-        if(!src){
-            this.$target.style.display = 'block';
-        }else{
+        if(src){
             this.src = src;
             this.load();
         }
+        this.$target.style.display = 'block';
     },
 
     //隐藏
