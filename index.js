@@ -17,6 +17,7 @@
      * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
      * @param times 实际尺寸/显示尺寸
      * @param maskSize 裁剪容器实际尺寸
+     * @param zIndex 样式层级
      * @param callback 确定裁剪回掉函数
      */
     function SimpleCrop(params){
@@ -40,6 +41,11 @@
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
         this.borderWidth = 2;
         this.callback = params.callback;
+
+        if(!params.zIndex){
+            params.zIndex = 9999;
+        }
+        this.zIndex = params.zIndex;
 
         this.construct();
         this.load();
@@ -75,6 +81,7 @@
         this.$target.id = this.id;
         this.$target.classList.add('crop-whole-cover');
         this.$target.innerHTML = html;
+        this.$target.style.zIndex = this.zIndex;
         document.body.appendChild(this.$target);
 
         var $cropCover = document.querySelector('#'+this.id+' .crop-cover');
