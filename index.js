@@ -97,8 +97,8 @@
         self.$image.src = self.src;
         self.$image.onload = function(){
             self.contentRect = {
-                left:self.size.left,
-                top:self.size.top,
+                left:(self.maskSize.width-self.$image.width)*1.0/2,
+                top:(self.maskSize.height-self.$image.height)*1.0/2,
                 width:self.$image.width,
                 height:self.$image.height
             };
