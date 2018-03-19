@@ -1,5 +1,6 @@
 {
   "name": "simple-crop",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "authors": [
