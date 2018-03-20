@@ -21,6 +21,8 @@
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
+     * @param minScale 最小缩放倍数
+     * @param maxScale 最大缩放倍数
      */
     function SimpleCrop(params){
 
@@ -46,14 +48,19 @@
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
 
+        if(params.minScale&&params.maxScale){
+            this.minScale = params.minScale;
+            this.maxScale = params.maxScale;
+        }
+
         if(!params.zIndex){
             params.zIndex = 9999;
         }
         this.zIndex = params.zIndex;
 
         this.construct();
-        this.load();
         this.bindEvent();
+        this.load();
     }
 
     //html结构
@@ -113,8 +120,21 @@
                 width:self.$image.width,
                 height:self.$image.height
             };
+
+            if(!self.minScale||!self.maxScale){//默认最大缩放倍数为1，最小缩放倍数为图片刚好填满裁切区域
+                self.maxScale = 1;
+                if(self.size.width*1.0/self.size.height>self.$image.width*1.0/self.$image.height){
+                    self.minScale = self.size.width*1.0/self.$image.width;
+                }else{
+                    self.minScale = self.size.height*1.0/self.$image.height;
+                }
+            }
+
             self.cropContentContext.clearRect(0,0,self.maskSize.width,self.maskSize.height);
             self.cropContentContext.drawImage(self.$image,self.contentRect.left,self.contentRect.top,self.$image.width,self.$image.height);
+            //缩放滑动条回归初始状态
+            var evt = new MouseEvent('click');
+            self.$scaleOneTimes.dispatchEvent(evt);
         }
     };
 
@@ -202,8 +222,7 @@
                 }
                 if(isChanged){
                     self.contentRect = newContentRect;
-                    self.cropContentContext.clearRect(0,0,self.maskSize.width,self.maskSize.height);
-                    self.cropContentContext.drawImage(self.$image,self.contentRect.left,self.contentRect.top,self.$image.width,self.$image.height);
+                    self.drawContentImage()
                 }
                 self.downPoint = point;
             }
@@ -271,11 +290,11 @@
         self.$scaleContainer.addEventListener('mouseup',function(ev){
             self.scaleDownX = 0;
         },false);
-        //一倍图按钮点击
+        //最小缩放按钮点击
         self.$scaleOneTimes.addEventListener('click',function(ev){
             self.scaleMove(0);
         },false);
-        //二倍图按钮点击
+        //最大缩放按钮点击
         self.$scaleTwoTimes.addEventListener('click',function(ev){
             self.scaleMove(self.scaleWidth);
         },false);
@@ -310,8 +329,12 @@
             self.$resultCanvas.width = self.size.width;
             self.$resultCanvas.height = self.size.height;
             self.resultContext = self.$resultCanvas.getContext('2d');
-            var rect = self.coverRectToContentRect(self.size);
-            self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+            if(self.scaleTimes>=1){
+                var rect = self.coverRectToContentRect(self.size);
+                self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+            }else{
+                self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
+            }
             self.cropCallback();
         },false);
     };
@@ -322,16 +345,41 @@
         this.$scaleValue.style.width = curMoveX+'px';
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
-        this.scaleTimes = 1+curMoveX*1.0/this.scaleWidth;
-        this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
+        this.scaleTimes = this.minScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.minScale);
 
         var coverTect = this.contentRectToCoverRect(this.contentRect);
         coverTect = this.rectLimit(coverTect);
         this.contentRect = this.coverRectToContentRect(coverTect);
 
-        this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
-        this.cropContentContext.drawImage(this.$image,this.contentRect.left,this.contentRect.top,this.$image.width,this.$image.height);
+        if(this.scaleTimes>=1){
+            this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
+        }
+        this.drawContentImage();
     };
+
+    //绘制内容图像
+    SimpleCrop.prototype.drawContentImage = function(){
+        if(this.scaleTimes>=1){
+            this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
+            this.cropContentContext.drawImage(this.$image,this.contentRect.left,this.contentRect.top,this.$image.width,this.$image.height);
+        }else{
+            /**
+             * 缩小和放大的坐标转换规律一样，但是绘制方法有区别；
+             * 主要是因为放大时画布超出可视容器，画布中不显示的，可视容器同样也不需要显示，正常绘制即可；
+             * 但是缩小时画布尺寸小于可视容器，画布中不显示，可视容器不一定不显示，此时就需要假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制。
+             * @type {Element}
+             */
+            var $tempCanvas = document.createElement('canvas');
+            $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
+            $tempCanvas.height = this.maskSize.height*1.0/this.scaleTimes;
+            var tempContext = $tempCanvas.getContext('2d');
+            var tempLeft = ($tempCanvas.width-this.maskSize.width)*1.0/2+this.contentRect.left;
+            var tempTop = ($tempCanvas.height-this.maskSize.height)*1.0/2+this.contentRect.top;
+            tempContext.drawImage(this.$image,tempLeft,tempTop,this.$image.width,this.$image.height);
+            this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
+            this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
+        }
+    },
 
     //坐标转换
     SimpleCrop.prototype.contentRectToCoverRect = function(contentRect){

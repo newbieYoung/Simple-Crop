@@ -13,10 +13,10 @@
                 title:'上传图片过大，请裁剪',
                 src:'./img/test.jpg',
                 size:{
-                    width:400,
-                    height:400
+                    width:800,
+                    height:800
                 },
-                corpCallback:function(){
+                cropCallback:function(){
                     this.$resultCanvas.style.marginRight = '10px';
                     document.body.appendChild(this.$resultCanvas);
                 }
