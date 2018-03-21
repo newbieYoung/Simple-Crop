@@ -23,6 +23,7 @@
      * @param closeCallback 关闭回调函数
      * @param minScale 最小缩放倍数
      * @param maxScale 最大缩放倍数
+     * @param coverDraw 裁剪框绘制辅助线
      */
     function SimpleCrop(params){
 
@@ -47,6 +48,12 @@
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
+
+        if(params.coverDraw){
+            this.coverDraw = params.coverDraw;
+        }else{
+            this.coverDraw = this.defaultCoverDraw;
+        }
 
         if(params.minScale&&params.maxScale){
             this.minScale = params.minScale;
@@ -95,15 +102,53 @@
         this.$target.style.zIndex = this.zIndex;
         document.body.appendChild(this.$target);
 
-        var $cropCover = document.querySelector('#'+this.id+' .crop-cover');
-        var cropCoverContext = $cropCover.getContext('2d');
-        cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
-        cropCoverContext.fillRect(0,0,$cropCover.width,$cropCover.height);
-        cropCoverContext.fillStyle = '#0BFF00';
+        //绘制裁剪框
+        this.$cropCover = document.querySelector('#'+this.id+' .crop-cover');
+        this.cropCoverContext = this.$cropCover.getContext('2d');
+        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
+        this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
+        this.cropCoverContext.fillStyle = '#0BFF00';
         var width = this.borderWidth*2*this.times+this.size.width;
         var height = this.borderWidth*2*this.times+this.size.height;
-        cropCoverContext.fillRect((this.maskSize.width-width)*1.0/2,(this.maskSize.height-height)*1.0/2,width,height);
-        cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
+        this.cropCoverContext.fillRect((this.maskSize.width-width)*1.0/2,(this.maskSize.height-height)*1.0/2,width,height);
+        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
+        //绘制辅助线
+        this.coverDraw();
+    };
+
+    //默认绘制辅助线
+    SimpleCrop.prototype.defaultCoverDraw = function(){
+        this.cropCoverContext.setLineDash([15, 20]);
+        this.cropCoverContext.lineWidth = 4;
+
+        this.cropCoverContext.beginPath();
+        var rect1 = {
+            left:(this.maskSize.width-this.size.width)*1.0/2,
+            top:(this.maskSize.height-this.size.height)*1.0/2+this.size.height*0.125,
+            right:(this.maskSize.width-this.size.width)*1.0/2+this.size.width,
+            bottom:(this.maskSize.height-this.size.height)*1.0/2+this.size.height-this.size.height*0.125
+        }
+        this.cropCoverContext.moveTo(rect1.left,rect1.top);
+        this.cropCoverContext.lineTo(rect1.right,rect1.top);
+        this.cropCoverContext.moveTo(rect1.left,rect1.bottom);
+        this.cropCoverContext.lineTo(rect1.right,rect1.bottom);
+        this.cropCoverContext.strokeStyle = '#ffffff';
+        this.cropCoverContext.stroke();
+
+        this.cropCoverContext.beginPath();
+        var rect2 = {
+            left:(this.maskSize.width-this.size.width)*1.0/2+this.size.width*0.2,
+            top:(this.maskSize.height-this.size.height)*1.0/2+this.size.height*0.2,
+            right:(this.maskSize.width-this.size.width)*1.0/2+this.size.width-this.size.width*0.2 ,
+            bottom:(this.maskSize.height-this.size.height)*1.0/2+this.size.height-this.size.height*0.2
+        }
+        this.cropCoverContext.moveTo(rect2.left,rect2.top);
+        this.cropCoverContext.lineTo(rect2.right,rect2.top);
+        this.cropCoverContext.lineTo(rect2.right,rect2.bottom);
+        this.cropCoverContext.lineTo(rect2.left,rect2.bottom);
+        this.cropCoverContext.lineTo(rect2.left,rect2.top);
+        this.cropCoverContext.strokeStyle = '#ffeb3b';
+        this.cropCoverContext.stroke();
     };
 
     //加载图片
