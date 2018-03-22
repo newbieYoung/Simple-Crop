@@ -23,6 +23,7 @@
      * @param closeCallback 关闭回调函数
      * @param minScale 最小缩放倍数
      * @param maxScale 最大缩放倍数
+     * @param isScaleFixed 缩放倍数范围是否固定
      * @param coverDraw 裁剪框绘制辅助线
      */
     function SimpleCrop(params){
@@ -31,6 +32,7 @@
         this.title = params.title;
         this.src = params.src;
         this.size = params.size;
+        this.isScaleFixed = false;
 
         if(this.size.width>this.size.height){
             this.times = this.size.width*1.0/400;
@@ -58,6 +60,7 @@
         if(params.minScale&&params.maxScale){
             this.minScale = params.minScale;
             this.maxScale = params.maxScale;
+            this.isScaleFixed = true;//如果缩放倍数范围是传参设置的，那么固定
         }
 
         if(!params.zIndex){
@@ -166,7 +169,7 @@
                 height:self.$image.height
             };
 
-            if(!self.minScale||!self.maxScale){//默认最大缩放倍数为1，最小缩放倍数为图片刚好填满裁切区域
+            if(!self.isScaleFixed){//默认最大缩放倍数为1，最小缩放倍数为图片刚好填满裁切区域
                 self.maxScale = 1;
                 if(self.size.width*1.0/self.size.height>self.$image.width*1.0/self.$image.height){
                     self.minScale = self.size.width*1.0/self.$image.width;
