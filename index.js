@@ -138,7 +138,6 @@
         this.cropCoverContext.lineTo(rect1.right,rect1.bottom);
         this.cropCoverContext.strokeStyle = '#ffffff';
         this.cropCoverContext.stroke();
-        console.log(rect1);
 
         this.cropCoverContext.beginPath();
         var rect2 = {
