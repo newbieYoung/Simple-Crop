@@ -122,7 +122,8 @@
     //默认绘制辅助线
     SimpleCrop.prototype.defaultCoverDraw = function(){
         this.cropCoverContext.setLineDash([15, 20]);
-        this.cropCoverContext.lineWidth = 4;
+        var maxSize = this.size.width>this.size.height?this.size.width:this.size.height;
+        this.cropCoverContext.lineWidth = maxSize/200;
 
         this.cropCoverContext.beginPath();
         var rect1 = {
@@ -137,6 +138,7 @@
         this.cropCoverContext.lineTo(rect1.right,rect1.bottom);
         this.cropCoverContext.strokeStyle = '#ffffff';
         this.cropCoverContext.stroke();
+        console.log(rect1);
 
         this.cropCoverContext.beginPath();
         var rect2 = {
