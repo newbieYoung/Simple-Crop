@@ -170,12 +170,15 @@
                 height:self.$image.height
             };
 
-            if(!self.isScaleFixed){//默认最大缩放倍数为1，最小缩放倍数为图片刚好填满裁切区域
-                self.maxScale = 1;
+            if(!self.isScaleFixed){//默认最大缩放倍数为2，最小缩放倍数为图片刚好填满裁切区域
+                self.maxScale = 2;
                 if(self.size.width*1.0/self.size.height>self.$image.width*1.0/self.$image.height){
                     self.minScale = self.size.width*1.0/self.$image.width;
                 }else{
                     self.minScale = self.size.height*1.0/self.$image.height;
+                }
+                if(self.minScale>=self.maxScale){
+                    self.maxScale = self.minScale;
                 }
             }
 
