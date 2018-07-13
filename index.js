@@ -18,13 +18,15 @@
      * @param times 实际尺寸/显示尺寸
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
-     * @param cropCallback 确定裁剪回调函数
-     * @param uploadCallback 重新上传回调函数
-     * @param closeCallback 关闭回调函数
      * @param minScale 最小缩放倍数
      * @param maxScale 最大缩放倍数
      * @param isScaleFixed 缩放倍数范围是否固定
      * @param coverDraw 裁剪框绘制辅助线
+     * @param scaleSlider 缩放滑动组件
+     * @param funcBtns 功能按钮数组
+     * @param cropCallback 确定裁剪回调函数
+     * @param uploadCallback 重新上传回调函数
+     * @param closeCallback 关闭回调函数
      */
     function SimpleCrop(params){
 
@@ -34,11 +36,7 @@
         this.size = params.size;
         this.isScaleFixed = false;
 
-        if(this.size.width>this.size.height){
-            this.times = this.size.width*1.0/400;
-        }else{
-            this.times = this.size.height*1.0/400;
-        }
+        this.times = this.size.width>this.size.height?this.size.width*1.0/400:this.size.height*1.0/400;
         this.maskSize = {};
         this.maskSize.width = 800*this.times;
         this.maskSize.height = 600*this.times;
@@ -51,22 +49,25 @@
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
 
-        if(params.coverDraw){
-            this.coverDraw = params.coverDraw;
-        }else{
-            this.coverDraw = this.defaultCoverDraw;
-        }
-
         if(params.minScale&&params.maxScale){
             this.minScale = params.minScale;
             this.maxScale = params.maxScale;
             this.isScaleFixed = true;//如果缩放倍数范围是传参设置的，那么固定
         }
 
-        if(!params.zIndex){
-            params.zIndex = 9999;
+        this.zIndex = params.zIndex?params.zIndex:9999;
+        this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
+        this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+
+        /**
+         * 默认功能按钮为重新上传、裁剪
+         * upload 重新上传
+         * crop 裁减
+         * close 取消
+         */
+        if(!params.funcBtns){
+            this.funcBtns = ['close','upload','crop'];
         }
-        this.zIndex = params.zIndex;
 
         this.construct();
         this.bindEvent();
@@ -77,25 +78,45 @@
     SimpleCrop.prototype.construct = function(){
         var html = '';
         html += '<div class="crop-component">';
-        html += '<p class="crop-title">'+this.title+'<span class="crop-close"></span></p>';
+
+        if(this.title){
+            html += '<p class="crop-title">'+this.title+'</p>';
+        }
+
         html += '<div class="crop-mask">'
         html += '<canvas class="crop-content" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
         html += '<canvas class="crop-cover" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
         html += '</div>';
-        html += '<div class="crop-scale">';
-        html += '<div class="one-times-icon"></div>';
-        html += '<div class="scale-container">';
-        html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
-        html += '</div>';
-        html += '<div class="two-times-icon"></div>';
-        html += '</div>';
-        html += '<div class="crop-btns">';
-        html += '<div class="upload-btn-container">';
-        html += '<button class="upload-btn">重新上传</button>';
-        html += '<input type="file" accept="image/png,image/jpeg">';
-        html += '</div>';
-        html += '<button class="crop-btn">确定裁剪</button>';
-        html += '</div>';
+
+        if(this.scaleSlider){
+            html += '<div class="crop-scale">';
+            html += '<div class="one-times-icon"></div>';
+            html += '<div class="scale-container">';
+            html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
+            html += '</div>';
+            html += '<div class="two-times-icon"></div>';
+            html += '</div>';
+        }
+
+        if(this.funcBtns.length>0){
+            html += '<div class="crop-btns">';
+
+            if(this.funcBtns.includes('upload')){
+                html += '<div class="upload-btn-container">';
+                html += '<button class="upload-btn"></button>';
+                html += '<input type="file" accept="image/png,image/jpeg">';
+                html += '</div>';
+            }
+            if(this.funcBtns.includes('crop')){
+                html += '<button class="crop-btn"></button>';
+            }
+            if(this.funcBtns.includes('close')){
+                html += '<button class="crop-close"></button>';
+            }
+
+            html += '</div>';
+        }
+
         html += '</div>';
 
         this.$target = document.createElement('div');
@@ -208,26 +229,139 @@
     SimpleCrop.prototype.bindEvent = function(){
         //获取事件相关dom元素
         var self = this;
-        self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
-        self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
-        self.$uploadInput = document.querySelector('#'+self.id+' .upload-btn-container input');
-        self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
-        self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
-        self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
-        self.$scaleOneTimes = document.querySelector('#'+self.id+' .one-times-icon');
-        self.$scaleTwoTimes = document.querySelector('#'+self.id+' .two-times-icon');
-        self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
-        self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
+
+        //裁剪
+        if(self.funcBtns.includes('crop')){
+            self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
+            self.$cropBtn.addEventListener('click',function(){
+                self.$resultCanvas = document.createElement('canvas');
+                self.$resultCanvas.width = self.size.width;
+                self.$resultCanvas.height = self.size.height;
+                self.resultContext = self.$resultCanvas.getContext('2d');
+                if(self.scaleTimes>=1){
+                    var rect = self.coverRectToContentRect(self.size);
+                    self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+                }else{
+                    self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
+                }
+                self.cropCallback();
+            },false);
+        }
+
+        //上传
+        if(self.funcBtns.includes('upload')){
+            self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
+            self.$uploadInput = document.querySelector('#'+self.id+' .upload-btn-container input');
+            self.$uploadBtn.addEventListener('change',function(evt){
+                var files = evt.target.files;
+                if(files.length>0){
+                    if(self.uploadCallback){
+                        self.uploadCallback(files[0]);
+                    }else{
+                        self.fileToSrc(files[0],function(src){
+                            self.src = src;
+                            self.load();
+                        });
+                    }
+                }
+                self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
+            },false);
+        }
+
+        //关闭
+        if(self.funcBtns.includes('close')){
+            self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
+            self.$closeBtn.addEventListener('click',function(){
+                self.hide();
+                if(self.closeCallback){
+                    self.closeCallback();
+                }
+            },false);
+        }
+
+        //滑动缩放
+        if(self.scaleSlider){
+            self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
+            self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
+            self.$scaleOneTimes = document.querySelector('#'+self.id+' .one-times-icon');
+            self.$scaleTwoTimes = document.querySelector('#'+self.id+' .two-times-icon');
+            self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
+            self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
+
+            self.scaleDownX = 0;
+            self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
+            self.scaleCurLeft = self.scaleInitLeft;
+            self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
+
+
+            //滑动按钮鼠标按下
+            self.$scaleBtn.addEventListener('mousedown',function(ev){
+                self.scaleDownX = ev.clientX;
+            },false);
+            //滑动按钮鼠标滑动
+            self.$scaleContainer.addEventListener('mousemove',function(ev){
+                var pointX = ev.clientX;
+                if(self.scaleDownX>0){
+                    var moveX = pointX - self.scaleDownX;
+                    var newCurLeft = self.scaleCurLeft+moveX;
+                    if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                        if(!lastMoveX){
+                            lastMoveX = 0;
+                        }
+                        var curMoveX = lastMoveX+moveX;
+                        self.scaleDownX = pointX;
+                        self.scaleMove(curMoveX);
+                    }
+                }
+            },false);
+            //缩放条点击
+            self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
+                ev.stopPropagation();
+            },false);
+            self.$scaleContainer.addEventListener('click',function(ev){
+                var rect = self.$scaleBtn.getBoundingClientRect();
+                if(self.scaleDownX<=0){
+                    self.scaleDownX = rect.left+rect.width*1.0/2;
+                }
+                if(self.scaleDownX>0){
+                    var pointX = ev.clientX;
+                    var moveX = pointX - self.scaleDownX;
+                    var newCurLeft = self.scaleCurLeft+moveX;
+                    if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                        if(!lastMoveX){
+                            lastMoveX = 0;
+                        }
+                        var curMoveX = lastMoveX+moveX;
+                        self.scaleMove(curMoveX);
+                        self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
+                    }
+                }
+            },false);
+            //滑动按钮超出范围
+            self.$scaleContainer.addEventListener('mouseleave',function(ev){
+                self.scaleDownX = 0;
+            },false);
+            //滑动按钮鼠标松开
+            self.$scaleContainer.addEventListener('mouseup',function(ev){
+                self.scaleDownX = 0;
+            },false);
+            //最小缩放按钮点击
+            self.$scaleOneTimes.addEventListener('click',function(ev){
+                self.scaleMove(0);
+            },false);
+            //最大缩放按钮点击
+            self.$scaleTwoTimes.addEventListener('click',function(ev){
+                self.scaleMove(self.scaleWidth);
+            },false);
+        }
+
+        //画布相关事件
         self.$cropMask = document.querySelector('#'+self.id+' .crop-mask');
         self.$cropContent = document.querySelector('#'+self.id+' .crop-content');
         self.cropContentContext = self.$cropContent.getContext('2d');
-
-        //事件相关属性
         self.downPoint = [];
-        self.scaleDownX = 0;
-        self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
-        self.scaleCurLeft = self.scaleInitLeft;
-        self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
 
         //裁剪区域鼠标按下
         self.$cropMask.addEventListener('mousedown',function(ev){
@@ -286,108 +420,6 @@
         //裁剪区域超出范围
         self.$cropMask.addEventListener('mouseleave',function(ev){
             self.downPoint = [];
-        },false);
-
-
-        //滑动按钮鼠标按下
-        self.$scaleBtn.addEventListener('mousedown',function(ev){
-            self.scaleDownX = ev.clientX;
-        },false);
-        //滑动按钮鼠标滑动
-        self.$scaleContainer.addEventListener('mousemove',function(ev){
-            var pointX = ev.clientX;
-            if(self.scaleDownX>0){
-                var moveX = pointX - self.scaleDownX;
-                var newCurLeft = self.scaleCurLeft+moveX;
-                if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
-                    var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                    if(!lastMoveX){
-                        lastMoveX = 0;
-                    }
-                    var curMoveX = lastMoveX+moveX;
-                    self.scaleDownX = pointX;
-                    self.scaleMove(curMoveX);
-                }
-            }
-        },false);
-        //缩放条点击
-        self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
-            ev.stopPropagation();
-        },false);
-        self.$scaleContainer.addEventListener('click',function(ev){
-            var rect = self.$scaleBtn.getBoundingClientRect();
-            if(self.scaleDownX<=0){
-                self.scaleDownX = rect.left+rect.width*1.0/2;
-            }
-            if(self.scaleDownX>0){
-                var pointX = ev.clientX;
-                var moveX = pointX - self.scaleDownX;
-                var newCurLeft = self.scaleCurLeft+moveX;
-                if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
-                    var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                    if(!lastMoveX){
-                        lastMoveX = 0;
-                    }
-                    var curMoveX = lastMoveX+moveX;
-                    self.scaleMove(curMoveX);
-                    self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
-                }
-            }
-        },false);
-        //滑动按钮超出范围
-        self.$scaleContainer.addEventListener('mouseleave',function(ev){
-            self.scaleDownX = 0;
-        },false);
-        //滑动按钮鼠标松开
-        self.$scaleContainer.addEventListener('mouseup',function(ev){
-            self.scaleDownX = 0;
-        },false);
-        //最小缩放按钮点击
-        self.$scaleOneTimes.addEventListener('click',function(ev){
-            self.scaleMove(0);
-        },false);
-        //最大缩放按钮点击
-        self.$scaleTwoTimes.addEventListener('click',function(ev){
-            self.scaleMove(self.scaleWidth);
-        },false);
-
-        //点击关闭
-        self.$closeBtn.addEventListener('click',function(){
-            self.hide();
-            if(self.closeCallback){
-                self.closeCallback();
-            }
-        },false);
-
-        //重新上传
-        self.$uploadBtn.addEventListener('change',function(evt){
-            var files = evt.target.files;
-            if(files.length>0){
-                if(self.uploadCallback){
-                    self.uploadCallback(files[0]);
-                }else{
-                    self.fileToSrc(files[0],function(src){
-                        self.src = src;
-                        self.load();
-                    });
-                }
-            }
-            self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
-        },false);
-
-        //确定裁剪
-        self.$cropBtn.addEventListener('click',function(){
-            self.$resultCanvas = document.createElement('canvas');
-            self.$resultCanvas.width = self.size.width;
-            self.$resultCanvas.height = self.size.height;
-            self.resultContext = self.$resultCanvas.getContext('2d');
-            if(self.scaleTimes>=1){
-                var rect = self.coverRectToContentRect(self.size);
-                self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
-            }else{
-                self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
-            }
-            self.cropCallback();
         },false);
     };
 
