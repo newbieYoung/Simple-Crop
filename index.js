@@ -65,9 +65,7 @@
          * crop 裁减
          * close 取消
          */
-        if(!params.funcBtns){
-            this.funcBtns = ['close','upload','crop'];
-        }
+        this.funcBtns = params.funcBtns?params.funcBtns:['close','upload','crop'];
 
         this.construct();
         this.bindEvent();
