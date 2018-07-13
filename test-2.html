@@ -2,20 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>测试一</title>
-    <link rel="stylesheet" href="./dist/template-1.css">
+    <title>测试二</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,viewport-fit=cover ">
+    <link rel="stylesheet" href="./dist/template-2.css">
 </head>
 <body>
     <script src="./index.js"></script>
     <script>
         window.onload = function(){
             var simpleCrop = new SimpleCrop({
-                title:'上传图片过大，请裁剪',
                 src:'./img/test1.jpg',
                 size:{
-                    width:2340,
-                    height:1080
+                    width:680,
+                    height:680
                 },
+                cropSizePercent:0.9,
+                funcBtns:['close','crop'],
+                scaleSlider:false,
                 cropCallback:function(){
                     this.$resultCanvas.style.marginRight = '10px';
                     document.body.appendChild(this.$resultCanvas);

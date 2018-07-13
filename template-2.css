@@ -21,33 +21,14 @@
     height:100%;
     margin:auto;
 }
-.crop-component .crop-title{
-    margin:0;
-    padding:0;
-    display:inline-block;
-    width:100%;
-    height:20px;
-    position:absolute;
-    top:32px;
-    z-index:100;
-}
-.crop-component .crop-close{
-    display:inline-block;
-    width:14px;
-    height:14px;
-    margin:3px 3px 3px 12px;
-    background-image:url(./img/crop-close-white.png);
-    background-size:100% 100%;
-    cursor:pointer;
-}
 .crop-component .crop-mask{
     position:absolute;
-    top:60px;
+    top:0;
     left:0;
     right:0;
     bottom:0;
     width:100%;
-    height:70%;
+    height:100%;
     overflow: hidden;
 }
 .crop-component .crop-cover,
@@ -60,86 +41,34 @@
     width:100%;
     height:100%;
 }
-.crop-component .crop-rotate{
-    width:92%;
-    height:66px;
+
+/* 功能按钮 */
+.crop-component .crop-btns{
     position:absolute;
-    bottom:68px;
-    left:0;
-    right:0;
-    margin:auto;
-    overflow:hidden;
+    top:32px;
+    width:100%;
+    height:20px;
 }
-.crop-component .crop-rotate .current{
-    margin:auto;
-    width:0;
-    height:0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 9px solid #D8D8D8;
-    border-radius:1px;
-}
-.crop-component .crop-rotate .lineation{
-    height:50px;
-    width:689px;
-    display:flex;
-    justify-content: flex-start;
-    align-items: center;
-    font-size:0;
-    margin:0;
-    padding:0 0 8px 0;
-}
-.crop-component .crop-rotate .lineation li{
-    flex:1;
-    height:100%;
+.crop-component .crop-btns button{
+    background-color:transparent;
+    border:none;
     display:inline-block;
-}
-.crop-component .crop-rotate .lineation .number{
-    width:100%;
-    height:32px;
-    font-size:16px;
-    color:#fff;
-    line-height: 36px;
-    text-align: center;
-    font-family: DINCondensed-Bold;
-    overflow:hidden;
-}
-.crop-component .crop-rotate .lineation .bg{
-    width:100%;
-    height:18px;
-    background-image:url(./img/lineation-bg.png);
-    background-size:contain;
-    background-repeat: no-repeat;
-}
-.crop-btns{
-    width:92%;
-    height:36px;
-    display:flex;
-    justify-content: flex-start;
-    align-items: center;
     position:absolute;
-    bottom:18px;
-    margin-left:4%;
+    top:0;
+    bottom:0;
+    margin:auto;
 }
-.crop-btns .rotate-btn{
-    width:15px;
-    height:18px;
-    background-image:url(./img/rotate-btn.png);
-    background-size:contain;
-    background-repeat: no-repeat;
+.crop-component .crop-btns .crop-close{
+    left:12px;
+    width:14px;
+    height:14px;
+    background-image:url(./img/crop-close-white.png);
+    background-size:100% 100%;
 }
-.crop-btns .done-btn{
+.crop-component .crop-btn{
+    right:12px;
     width:17px;
     height:12px;
-    background-image:url(./img/done-btn.png);
-    background-size:contain;
-    background-repeat: no-repeat;
-}
-.crop-btns .reset-btn{
-    flex:1;
-    height:36px;
-    line-height: 36px;
-    font-size:16px;
-    color:#fff;
-    text-align: center;
+    background-image:url(./img/crop-btn.png);
+    background-size:100% 100%;
 }

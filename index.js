@@ -15,6 +15,7 @@
      * @param title 组件标题
      * @param src   初始图片路径
      * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
+     * @param cropSizePercent 裁剪区域占画布比例
      * @param times 实际尺寸/显示尺寸
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
@@ -36,11 +37,41 @@
         this.size = params.size;
         this.isScaleFixed = false;
 
-        this.times = this.size.width>this.size.height?this.size.width*1.0/400:this.size.height*1.0/400;
+        this.cropSizePercent = params.cropSizePercent?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
+        this.zIndex = params.zIndex?params.zIndex:9999;
+        this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
+        this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
+        this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+
+        /**
+         * 默认功能按钮为重新上传、裁剪
+         * upload 重新上传
+         * crop 裁减
+         * close 取消
+         */
+        this.funcBtns = params.funcBtns?params.funcBtns:['close','upload','crop'];
+
+        this.construct();
+
+        this.$cropMask = document.querySelector('#'+this.id+' .crop-mask');
+        var maskStyle = window.getComputedStyle(this.$cropMask);
+        var width = parseInt(maskStyle.getPropertyValue('width'));
+        var height = parseInt(maskStyle.getPropertyValue('height'));
+
+        this.times = (this.size.width/width>this.size.height/height)?this.size.width/width/this.cropSizePercent:this.size.height/height/this.cropSizePercent;
         this.maskSize = {};
-        this.maskSize.width = 800*this.times;
-        this.maskSize.height = 600*this.times;
+        this.maskSize.width = width*this.times;
+        this.maskSize.height = height*this.times;
         this.scaleTimes = 1;
+
+        this.$cropCover = document.querySelector('#'+this.id+' .crop-cover');
+        this.cropCoverContext = this.$cropCover.getContext('2d');
+        this.$cropCover.width = this.maskSize.width;
+        this.$cropCover.height = this.maskSize.height;
+        this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
+        this.cropContentContext = this.$cropContent.getContext('2d');
+        this.$cropContent.width = this.maskSize.width;
+        this.$cropContent.height = this.maskSize.height;
 
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
@@ -55,19 +86,8 @@
             this.isScaleFixed = true;//如果缩放倍数范围是传参设置的，那么固定
         }
 
-        this.zIndex = params.zIndex?params.zIndex:9999;
-        this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
-        this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
-
-        /**
-         * 默认功能按钮为重新上传、裁剪
-         * upload 重新上传
-         * crop 裁减
-         * close 取消
-         */
-        this.funcBtns = params.funcBtns?params.funcBtns:['close','upload','crop'];
-
-        this.construct();
+        this.borderDraw();
+        this.coverDraw();
         this.bindEvent();
         this.load();
     }
@@ -82,8 +102,8 @@
         }
 
         html += '<div class="crop-mask">'
-        html += '<canvas class="crop-content" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
-        html += '<canvas class="crop-cover" width="'+this.maskSize.width+'" height="'+this.maskSize.height+'"></canvas>';
+        html += '<canvas class="crop-content"></canvas>';
+        html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
 
         if(this.scaleSlider){
@@ -123,10 +143,11 @@
         this.$target.innerHTML = html;
         this.$target.style.zIndex = this.zIndex;
         document.body.appendChild(this.$target);
+    };
 
-        //绘制裁剪框
-        this.$cropCover = document.querySelector('#'+this.id+' .crop-cover');
-        this.cropCoverContext = this.$cropCover.getContext('2d');
+    //默认绘制裁剪框
+    SimpleCrop.prototype.defaultBorderDraw = function(){
+
         this.cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#0BFF00';
@@ -134,8 +155,6 @@
         var height = this.borderWidth*2*this.times+this.size.height;
         this.cropCoverContext.fillRect((this.maskSize.width-width)*1.0/2,(this.maskSize.height-height)*1.0/2,width,height);
         this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
-        //绘制辅助线
-        this.coverDraw();
     };
 
     //默认绘制辅助线
@@ -356,9 +375,6 @@
         }
 
         //画布相关事件
-        self.$cropMask = document.querySelector('#'+self.id+' .crop-mask');
-        self.$cropContent = document.querySelector('#'+self.id+' .crop-content');
-        self.cropContentContext = self.$cropContent.getContext('2d');
         self.downPoint = [];
 
         //裁剪区域鼠标按下
