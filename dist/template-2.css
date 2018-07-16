@@ -55,6 +55,7 @@
     top:0;
     bottom:0;
     margin:auto;
+    padding:0;
 }
 .crop-component .crop-btns .crop-close{
     left:12px;

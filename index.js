@@ -1,15 +1,15 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define([], factory);
+        define(['alloyfinger'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node/CommonJS
-        module.exports = factory(require());
+        module.exports = factory(require('alloyfinger'));
     } else {
         // Browser globals
-        window.SimpleCrop = factory();
+        window.SimpleCrop = factory(window.AlloyFinger);
     }
-}(function () {
+}(function (finger) {
     /**
      *
      * @param title 组件标题
@@ -364,51 +364,6 @@
         //画布相关事件
         self.downPoint = [];
 
-        function move(point){
-            if(self.downPoint.length==2){
-                var moveX = point[0] - self.downPoint[0];
-                var moveY = point[1] - self.downPoint[1];
-
-                var newContentRect = {
-                    left:self.contentRect.left+moveX*self.times,
-                    top:self.contentRect.top+moveY*self.times,
-                    width:self.contentRect.width,
-                    height:self.contentRect.height
-                };
-
-                var coverRect = self.contentRectToCoverRect(newContentRect);
-
-                var isChanged = false;
-                if(coverRect.left>self.size.left||(coverRect.left+coverRect.width)<(self.size.left+self.size.width)){
-                    newContentRect.left = self.contentRect.left;
-                }else{
-                    var lastMoveX = parseFloat(self.$cropContent.getAttribute('moveX'));
-                    if(!lastMoveX){
-                        lastMoveX = 0;
-                    }
-                    var curMoveX = lastMoveX+moveX;
-                    self.$cropContent.setAttribute('moveX',curMoveX);
-                    isChanged = true;
-                }
-                if(coverRect.top>self.size.top||(coverRect.top+coverRect.height)<(self.size.top+self.size.height)){
-                    newContentRect.top = self.contentRect.top;
-                }else{
-                    var lastMoveY = parseFloat(self.$cropContent.getAttribute('moveY'));
-                    if(!lastMoveY){
-                        lastMoveY = 0;
-                    }
-                    var curMoveY = lastMoveY+moveY;
-                    self.$cropContent.setAttribute('moveY',curMoveY);
-                    isChanged = true;
-                }
-                if(isChanged){
-                    self.contentRect = newContentRect;
-                    self.drawContentImage()
-                }
-                self.downPoint = point;
-            }
-        }
-
         /**
          * 触摸事件
          */
@@ -422,7 +377,7 @@
         self.$cropMask.addEventListener('touchmove',function(){
             var touch = event.touches[0];
             var point = [touch.clientX,touch.clientY];
-            move(point);
+            self.move(point);
         });
         //裁剪区域触摸结束
         self.$cropMask.addEventListener('touchend',function(){
@@ -431,6 +386,48 @@
         //裁剪区域触摸取消
         self.$cropMask.addEventListener('touchcancel',function(){
             self.downPoint = [];
+        });
+
+        /**
+         * 手势事件
+         */
+        var lastScale = 1;
+        new finger(self.$cropMask, {
+            multipointStart: function () {
+                self._multiPoint = true;//多点触摸开始
+            },
+            rotate: function (evt) {//旋转
+                //console.log('rotate');
+                //console.log(evt.angle);
+            },
+            pinch: function (evt) {//缩放
+                var scale = evt.scale;
+                var newScale = self.scaleTimes/lastScale*scale;
+                if(newScale>=self.minScale&&newScale<=self.maxScale){
+                    self.scaleTimes = newScale
+                    lastScale = scale;
+                    self.scale();
+                }else{
+                    /**
+                     * 浮点数计算存在误差会导致缩放时很难回到初始状态；
+                     * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
+                     * 因此需要加上强制回归的逻辑
+                     */
+                    if(newScale!=self.scaleTimes){
+                        if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
+                            newScale = self.maxScale;
+                        }else{
+                            newScale = self.minScale;
+                        }
+                        self.scaleTimes = newScale;
+                        self.scale();
+                    }
+                }
+            },
+            multipointEnd: function () {
+                self._multiPoint = false;//多点触摸结束
+                lastScale = 1;
+            },
         });
 
 
@@ -445,7 +442,7 @@
         //裁剪区域鼠标移动
         self.$cropMask.addEventListener('mousemove',function(ev){
             var point = [ev.clientX,ev.clientY];
-            move(point);
+            self.move(point);
         },false);
         //裁剪区域鼠标松开
         self.$cropMask.addEventListener('mouseup',function(ev){
@@ -464,7 +461,11 @@
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
         this.scaleTimes = this.minScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.minScale);
+        this.scale();
+    };
 
+    //缩放
+    SimpleCrop.prototype.scale = function(){
         var coverTect = this.contentRectToCoverRect(this.contentRect);
         coverTect = this.rectLimit(coverTect);
         this.contentRect = this.coverRectToContentRect(coverTect);
@@ -473,7 +474,53 @@
             this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
         }
         this.drawContentImage();
-    };
+    }
+
+    //移动
+    SimpleCrop.prototype.move = function(point){
+        if(this.downPoint.length==2&&!this._multiPoint){
+            var moveX = point[0] - this.downPoint[0];
+            var moveY = point[1] - this.downPoint[1];
+
+            var newContentRect = {
+                left:this.contentRect.left+moveX*this.times,
+                top:this.contentRect.top+moveY*this.times,
+                width:this.contentRect.width,
+                height:this.contentRect.height
+            };
+
+            var coverRect = this.contentRectToCoverRect(newContentRect);
+
+            var isChanged = false;
+            if(coverRect.left>this.size.left||(coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
+                newContentRect.left = this.contentRect.left;
+            }else{
+                var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
+                if(!lastMoveX){
+                    lastMoveX = 0;
+                }
+                var curMoveX = lastMoveX+moveX;
+                this.$cropContent.setAttribute('moveX',curMoveX);
+                isChanged = true;
+            }
+            if(coverRect.top>this.size.top||(coverRect.top+coverRect.height)<(this.size.top+this.size.height)){
+                newContentRect.top = this.contentRect.top;
+            }else{
+                var lastMoveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+                if(!lastMoveY){
+                    lastMoveY = 0;
+                }
+                var curMoveY = lastMoveY+moveY;
+                this.$cropContent.setAttribute('moveY',curMoveY);
+                isChanged = true;
+            }
+            if(isChanged){
+                this.contentRect = newContentRect;
+                this.drawContentImage()
+            }
+            this.downPoint = point;
+        }
+    }
 
     //绘制内容图像
     SimpleCrop.prototype.drawContentImage = function(){
@@ -531,13 +578,12 @@
 
     //坐标限制
     SimpleCrop.prototype.rectLimit = function(coverRect){
-        var maxLen = this.maskSize.width>this.maskSize.height?this.maskSize.width:this.maskSize.height;
-        if(coverRect.left>=this.size.left||Math.abs(coverRect.left-this.size.left)<=maxLen*1.0/50){
+        if(coverRect.left>=this.size.left||Math.abs(coverRect.left-this.size.left)<=0){
             coverRect.left = this.size.left;
         }else if((coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
             coverRect.left = this.size.left+this.size.width-coverRect.width;
         }
-        if(coverRect.top>=this.size.top||Math.abs(coverRect.top-this.size.top)<=maxLen*1.0/50){
+        if(coverRect.top>=this.size.top||Math.abs(coverRect.top-this.size.top)<=0){
             coverRect.top = this.size.top;
         }else if((coverRect.top+coverRect.height)<(this.size.top+this.size.height)){
             coverRect.top = this.size.top+this.size.height-coverRect.height;
