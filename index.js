@@ -148,49 +148,11 @@
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function(){
 
-        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
-        this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
-        this.cropCoverContext.fillStyle = '#0BFF00';
-        var width = this.borderWidth*2*this.times+this.size.width;
-        var height = this.borderWidth*2*this.times+this.size.height;
-        this.cropCoverContext.fillRect((this.maskSize.width-width)*1.0/2,(this.maskSize.height-height)*1.0/2,width,height);
-        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
     };
 
     //默认绘制辅助线
     SimpleCrop.prototype.defaultCoverDraw = function(){
-        this.cropCoverContext.setLineDash([15, 20]);
-        var maxSize = this.size.width>this.size.height?this.size.width:this.size.height;
-        this.cropCoverContext.lineWidth = maxSize/200;
 
-        this.cropCoverContext.beginPath();
-        var rect1 = {
-            left:(this.maskSize.width-this.size.width)*1.0/2,
-            top:(this.maskSize.height-this.size.height)*1.0/2+this.size.height*0.125,
-            right:(this.maskSize.width-this.size.width)*1.0/2+this.size.width,
-            bottom:(this.maskSize.height-this.size.height)*1.0/2+this.size.height-this.size.height*0.125
-        }
-        this.cropCoverContext.moveTo(rect1.left,rect1.top);
-        this.cropCoverContext.lineTo(rect1.right,rect1.top);
-        this.cropCoverContext.moveTo(rect1.left,rect1.bottom);
-        this.cropCoverContext.lineTo(rect1.right,rect1.bottom);
-        this.cropCoverContext.strokeStyle = '#ffffff';
-        this.cropCoverContext.stroke();
-
-        this.cropCoverContext.beginPath();
-        var rect2 = {
-            left:(this.maskSize.width-this.size.width)*1.0/2+this.size.width*0.2,
-            top:(this.maskSize.height-this.size.height)*1.0/2+this.size.height*0.2,
-            right:(this.maskSize.width-this.size.width)*1.0/2+this.size.width-this.size.width*0.2 ,
-            bottom:(this.maskSize.height-this.size.height)*1.0/2+this.size.height-this.size.height*0.2
-        }
-        this.cropCoverContext.moveTo(rect2.left,rect2.top);
-        this.cropCoverContext.lineTo(rect2.right,rect2.top);
-        this.cropCoverContext.lineTo(rect2.right,rect2.bottom);
-        this.cropCoverContext.lineTo(rect2.left,rect2.bottom);
-        this.cropCoverContext.lineTo(rect2.left,rect2.top);
-        this.cropCoverContext.strokeStyle = '#ffeb3b';
-        this.cropCoverContext.stroke();
     };
 
     //加载图片
@@ -377,13 +339,7 @@
         //画布相关事件
         self.downPoint = [];
 
-        //裁剪区域鼠标按下
-        self.$cropMask.addEventListener('mousedown',function(ev){
-            self.downPoint = [ev.clientX,ev.clientY];
-        },false);
-        //裁剪区域鼠标移动
-        self.$cropMask.addEventListener('mousemove',function(ev){
-            var point = [ev.clientX,ev.clientY];
+        function move(point){
             if(self.downPoint.length==2){
                 var moveX = point[0] - self.downPoint[0];
                 var moveY = point[1] - self.downPoint[1];
@@ -426,6 +382,45 @@
                 }
                 self.downPoint = point;
             }
+        }
+
+        /**
+         * 触摸事件
+         */
+
+        //裁剪区域触摸开始
+        self.$cropMask.addEventListener('touchstart',function(){
+            var touch = event.touches[0];
+            self.downPoint = [touch.clientX,touch.clientY];
+        });
+        //裁剪区域触摸移动
+        self.$cropMask.addEventListener('touchmove',function(){
+            var touch = event.touches[0];
+            var point = [touch.clientX,touch.clientY];
+            move(point);
+        });
+        //裁剪区域触摸结束
+        self.$cropMask.addEventListener('touchend',function(){
+            self.downPoint = [];
+        });
+        //裁剪区域触摸取消
+        self.$cropMask.addEventListener('touchcancel',function(){
+            self.downPoint = [];
+        });
+
+
+        /**
+         * 鼠标事件
+         */
+
+        //裁剪区域鼠标按下
+        self.$cropMask.addEventListener('mousedown',function(ev){
+            self.downPoint = [ev.clientX,ev.clientY];
+        },false);
+        //裁剪区域鼠标移动
+        self.$cropMask.addEventListener('mousemove',function(ev){
+            var point = [ev.clientX,ev.clientY];
+            move(point);
         },false);
         //裁剪区域鼠标松开
         self.$cropMask.addEventListener('mouseup',function(ev){
