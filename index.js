@@ -21,6 +21,7 @@
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
      * @param minScale 最小缩放倍数
+     * @param controller 操控方式
      * @param maxScale 最大缩放倍数
      * @param isScaleFixed 缩放倍数范围是否固定
      * @param coverDraw 裁剪框绘制辅助线
@@ -38,11 +39,21 @@
         this.size = params.size;
         this.isScaleFixed = false;
 
+        this._multiPoint = false;//是否开始多点触控
+
         this.cropSizePercent = params.cropSizePercent?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
         this.zIndex = params.zIndex?params.zIndex:9999;
         this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
         this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+
+        /**
+         * 操控方式
+         * 默认只支持鼠标操控
+         * mouse 鼠标
+         * touch 手指
+         */
+        this.controller = params.controller?params.controller:['mouse'];
 
         /**
          * 默认功能按钮为重新上传、裁剪
@@ -367,91 +378,92 @@
         /**
          * 触摸事件
          */
+        if(self.controller.includes('touch')){
 
-        //裁剪区域触摸开始
-        self.$cropMask.addEventListener('touchstart',function(){
-            var touch = event.touches[0];
-            self.downPoint = [touch.clientX,touch.clientY];
-        });
-        //裁剪区域触摸移动
-        self.$cropMask.addEventListener('touchmove',function(){
-            var touch = event.touches[0];
-            var point = [touch.clientX,touch.clientY];
-            self.move(point);
-        });
-        //裁剪区域触摸结束
-        self.$cropMask.addEventListener('touchend',function(){
-            self.downPoint = [];
-        });
-        //裁剪区域触摸取消
-        self.$cropMask.addEventListener('touchcancel',function(){
-            self.downPoint = [];
-        });
+            //裁剪区域触摸开始
+            self.$cropMask.addEventListener('touchstart',function(){
+                var touch = event.touches[0];
+                self.downPoint = [touch.clientX,touch.clientY];
+            });
+            //裁剪区域触摸移动
+            self.$cropMask.addEventListener('touchmove',function(){
+                var touch = event.touches[0];
+                var point = [touch.clientX,touch.clientY];
+                self.move(point);
+            });
+            //裁剪区域触摸结束
+            self.$cropMask.addEventListener('touchend',function(){
+                self.downPoint = [];
+            });
+            //裁剪区域触摸取消
+            self.$cropMask.addEventListener('touchcancel',function(){
+                self.downPoint = [];
+            });
 
-        /**
-         * 手势事件
-         */
-        var lastScale = 1;
-        new finger(self.$cropMask, {
-            multipointStart: function () {
-                self._multiPoint = true;//多点触摸开始
-            },
-            rotate: function (evt) {//旋转
-                //console.log('rotate');
-                //console.log(evt.angle);
-            },
-            pinch: function (evt) {//缩放
-                var scale = evt.scale;
-                var newScale = self.scaleTimes/lastScale*scale;
-                if(newScale>=self.minScale&&newScale<=self.maxScale){
-                    self.scaleTimes = newScale
-                    lastScale = scale;
-                    self.scale();
-                }else{
-                    /**
-                     * 浮点数计算存在误差会导致缩放时很难回到初始状态；
-                     * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
-                     * 因此需要加上强制回归的逻辑
-                     */
-                    if(newScale!=self.scaleTimes){
-                        if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
-                            newScale = self.maxScale;
-                        }else{
-                            newScale = self.minScale;
-                        }
-                        self.scaleTimes = newScale;
+            //复杂手势事件
+            var lastScale = 1;
+            new finger(self.$cropMask, {
+                multipointStart: function () {
+                    self._multiPoint = true;//多点触摸开始
+                },
+                rotate: function (evt) {//旋转
+                    //console.log('rotate');
+                    //console.log(evt.angle);
+                },
+                pinch: function (evt) {//缩放
+                    var scale = evt.scale;
+                    var newScale = self.scaleTimes/lastScale*scale;
+                    if(newScale>=self.minScale&&newScale<=self.maxScale){
+                        self.scaleTimes = newScale
+                        lastScale = scale;
                         self.scale();
+                    }else{
+                        /**
+                         * 浮点数计算存在误差会导致缩放时很难回到初始状态；
+                         * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
+                         * 因此需要加上强制回归的逻辑
+                         */
+                        if(newScale!=self.scaleTimes){
+                            if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
+                                newScale = self.maxScale;
+                            }else{
+                                newScale = self.minScale;
+                            }
+                            self.scaleTimes = newScale;
+                            self.scale();
+                        }
                     }
-                }
-            },
-            multipointEnd: function () {
-                self._multiPoint = false;//多点触摸结束
-                lastScale = 1;
-            },
-        });
-
+                },
+                multipointEnd: function () {
+                    self._multiPoint = false;//多点触摸结束
+                    lastScale = 1;
+                },
+            });
+        }
 
         /**
          * 鼠标事件
          */
+        if(self.controller.includes('mouse')){
 
-        //裁剪区域鼠标按下
-        self.$cropMask.addEventListener('mousedown',function(ev){
-            self.downPoint = [ev.clientX,ev.clientY];
-        },false);
-        //裁剪区域鼠标移动
-        self.$cropMask.addEventListener('mousemove',function(ev){
-            var point = [ev.clientX,ev.clientY];
-            self.move(point);
-        },false);
-        //裁剪区域鼠标松开
-        self.$cropMask.addEventListener('mouseup',function(ev){
-            self.downPoint = [];
-        },false);
-        //裁剪区域超出范围
-        self.$cropMask.addEventListener('mouseleave',function(ev){
-            self.downPoint = [];
-        },false);
+            //裁剪区域鼠标按下
+            self.$cropMask.addEventListener('mousedown',function(ev){
+                self.downPoint = [ev.clientX,ev.clientY];
+            },false);
+            //裁剪区域鼠标移动
+            self.$cropMask.addEventListener('mousemove',function(ev){
+                var point = [ev.clientX,ev.clientY];
+                self.move(point);
+            },false);
+            //裁剪区域鼠标松开
+            self.$cropMask.addEventListener('mouseup',function(ev){
+                self.downPoint = [];
+            },false);
+            //裁剪区域超出范围
+            self.$cropMask.addEventListener('mouseleave',function(ev){
+                self.downPoint = [];
+            },false);
+        }
     };
 
     //滑动按钮移动
