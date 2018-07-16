@@ -406,10 +406,6 @@
                 multipointStart: function () {
                     self._multiPoint = true;//多点触摸开始
                 },
-                rotate: function (evt) {//旋转
-                    //console.log('rotate');
-                    //console.log(evt.angle);
-                },
                 pinch: function (evt) {//缩放
                     var scale = evt.scale;
                     var newScale = self.scaleTimes/lastScale*scale;
