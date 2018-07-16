@@ -14,6 +14,7 @@
      *
      * @param title 组件标题
      * @param src   初始图片路径
+     * @param borderWidth 裁剪区域边框宽度
      * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
      * @param cropSizePercent 裁剪区域占画布比例
      * @param times 实际尺寸/显示尺寸
@@ -75,7 +76,7 @@
 
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
-        this.borderWidth = 2;
+        this.borderWidth = params.borderWidth?params.borderWidth:2;
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
@@ -147,7 +148,31 @@
 
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function(){
+        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.64)';
+        this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
+        this.cropCoverContext.fillStyle = '#ffffff';
+        var width = this.borderWidth*2*this.times+this.size.width;
+        var height = this.borderWidth*2*this.times+this.size.height;
 
+        var borderRect = {
+            left:(this.maskSize.width-width)*1.0/2,
+            top:(this.maskSize.height-height)*1.0/2,
+            width:width,
+            height:height
+        }
+        this.cropCoverContext.fillRect(borderRect.left,borderRect.top,width,height);
+
+        //边框四个角加粗
+        var len = 3;
+        var percent = 0.05;
+        var outWidth = width*percent;
+        var outHeight = height*percent;
+        this.cropCoverContext.fillRect(borderRect.left-len,borderRect.top-len,outWidth,outHeight);//左上角
+        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+len,borderRect.top-len,outWidth,outHeight);//右上角
+        this.cropCoverContext.fillRect(borderRect.left-len,borderRect.top+height-outHeight+len,outWidth,outHeight);//左下角
+        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+len,borderRect.top+height-outHeight+len,outWidth,outHeight);//右下角
+
+        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
     };
 
     //默认绘制辅助线
