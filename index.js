@@ -228,8 +228,11 @@
             self.$scaleOneTimes.dispatchEvent(evt);
 
             //测试旋转和缩放状态叠加
-            self.rotateAngle = 15;
-            self.rotate();
+            //self.rotateAngle = 15;
+            //self.rotate();
+
+            self.scaleTimes = 0.7;
+            self.scale();
         }
     };
 
@@ -413,35 +416,35 @@
                     multipointStart: function () {
                         self._multiPoint = true;//多点触摸开始
                     },
-                    pinch: function (evt) {//缩放
-                        var scale = evt.scale;
-                        var newScale = self.scaleTimes/lastScale*scale;
-                        if(newScale>=self.minScale&&newScale<=self.maxScale){
-                            self.scaleTimes = newScale
-                            lastScale = scale;
-                            self.scale();
-                        }else{
-                            /**
-                             * 浮点数计算存在误差会导致缩放时很难回到初始状态；
-                             * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
-                             * 因此需要加上强制回归的逻辑
-                             */
-                            if(newScale!=self.scaleTimes){
-                                if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
-                                    newScale = self.maxScale;
-                                }else{
-                                    newScale = self.minScale;
-                                }
-                                self.scaleTimes = newScale;
-                                self.scale();
-                            }
-                        }
-                    },
-                    // rotate:function(evt){//旋转
-                    //     var angle = evt.angle;
-                    //     self.rotateAngle += angle;
-                    //     self.rotate();
+                    // pinch: function (evt) {//缩放
+                    //     var scale = evt.scale;
+                    //     var newScale = self.scaleTimes/lastScale*scale;
+                    //     if(newScale>=self.minScale&&newScale<=self.maxScale){
+                    //         self.scaleTimes = newScale
+                    //         lastScale = scale;
+                    //         self.scale();
+                    //     }else{
+                    //         /**
+                    //          * 浮点数计算存在误差会导致缩放时很难回到初始状态；
+                    //          * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
+                    //          * 因此需要加上强制回归的逻辑
+                    //          */
+                    //         if(newScale!=self.scaleTimes){
+                    //             if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
+                    //                 newScale = self.maxScale;
+                    //             }else{
+                    //                 newScale = self.minScale;
+                    //             }
+                    //             self.scaleTimes = newScale;
+                    //             self.scale();
+                    //         }
+                    //     }
                     // },
+                    rotate:function(evt){//旋转
+                        var angle = evt.angle;
+                        self.rotateAngle += angle;
+                        self.rotate();
+                    },
                     multipointEnd: function () {
                         self._multiPoint = false;//多点触摸结束
                         lastScale = 1;
@@ -508,10 +511,8 @@
         var scaleWidth = newWidth/this.size.width;
         var scaleHeight = newHeight/this.size.height;
         var maxScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
-        if(this.minScale*maxScale>this.scaleTimes){
-            this._rotateScale = maxScale;
-            transform += 'scale('+this._rotateScale+') ';
-        }
+        this._rotateScale = maxScale;
+        transform += 'scale('+this._rotateScale+') ';
         transform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = transform;
         this.drawContentImage();
