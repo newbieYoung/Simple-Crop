@@ -40,6 +40,7 @@
         this.isScaleFixed = false;
 
         this._multiPoint = false;//是否开始多点触控
+        this._rotateScale = 1;//旋转缩放
 
         this.cropSizePercent = params.cropSizePercent?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
         this.zIndex = params.zIndex?params.zIndex:9999;
@@ -489,18 +490,20 @@
 
     //旋转
     SimpleCrop.prototype.rotate = function(){
+        var transform = '';
         //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
         var rad = this.rotateAngle/180*Math.PI;
         var newHeight = this.size.width*Math.abs(Math.sin(rad))+this.size.height*Math.abs(Math.cos(rad));
         var newWidth = this.size.width*Math.abs(Math.cos(rad))+this.size.height*Math.abs(Math.sin(rad));
         var scaleWidth = newWidth/this.size.width;
         var scaleHeight = newHeight/this.size.height;
-        var rotateScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
-        if(this.minScale*rotateScale>this.scaleTimes){
-            this.transform(rotateScale);
-        }else{
-            this.transform();
+        this._rotateScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
+        if(this.minScale*this._rotateScale>this.scaleTimes){
+            transform += 'scale('+this._rotateScale+') ';
         }
+        transform += 'rotate('+this.rotateAngle+'deg)';
+        this.$cropContent.style.transform = transform;
+        this.drawContentImage();
     }
 
     //位移变换
