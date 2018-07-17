@@ -432,16 +432,15 @@
                     //         }
                     //     }
                     // },
-                    rotate: function (evt) {//旋转
-                        self.rotateAngle += evt.angle;
-                        console.log('rotate');
-                        console.log(self.rotateAngle);
-                        self.$cropContent.style.transform = 'rotate('+self.rotateAngle+'deg)';
+                    rotate:function(evt){//旋转
+                        var angle = evt.angle;
+                        self.rotateAngle += angle;
+                        self.rotate();
                     },
                     multipointEnd: function () {
                         self._multiPoint = false;//多点触摸结束
                         lastScale = 1;
-                    },
+                    }
                 });
             }
 
@@ -485,10 +484,34 @@
         var coverTect = this.contentRectToCoverRect(this.contentRect);
         coverTect = this.rectLimit(coverTect);
         this.contentRect = this.coverRectToContentRect(coverTect);
+        this.transform();
+    }
 
-        if(this.scaleTimes>=1){
-            this.$cropContent.style.transform = 'scale('+this.scaleTimes+')';
+    //旋转
+    SimpleCrop.prototype.rotate = function(){
+        //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
+        var rad = this.rotateAngle/180*Math.PI;
+        var newHeight = this.size.width*Math.abs(Math.sin(rad))+this.size.height*Math.abs(Math.cos(rad));
+        var newWidth = this.size.width*Math.abs(Math.cos(rad))+this.size.height*Math.abs(Math.sin(rad));
+        var scaleWidth = newWidth/this.size.width;
+        var scaleHeight = newHeight/this.size.height;
+        var rotateScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
+        if(this.minScale*rotateScale>this.scaleTimes){
+            this.transform(rotateScale);
+        }else{
+            this.transform();
         }
+    }
+
+    //位移变换
+    SimpleCrop.prototype.transform = function(scale){
+        var transform = '';
+        if(this.scaleTimes>=1||scale){
+            var max = this.scaleTimes>scale?this.scaleTimes:scale;
+            transform += 'scale('+max+')';
+        }
+        transform += 'rotate('+this.rotateAngle+'deg)';
+        this.$cropContent.style.transform = transform;
         this.drawContentImage();
     }
 
