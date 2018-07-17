@@ -209,7 +209,11 @@
                 height:self.$image.height
             };
 
-            if(!self.isScaleFixed){//默认最大缩放倍数为2，最小缩放倍数为图片刚好填满裁切区域
+            /**
+             * 默认最大缩放倍数为1；也就是显示原图；
+             * 默认最小缩放倍数为图片刚好填满裁切区域。
+             */
+            if(!self.isScaleFixed){
                 self.maxScale = 1;
                 if(self.size.width*1.0/self.size.height>self.$image.width*1.0/self.$image.height){
                     self.minScale = self.size.width*1.0/self.$image.width;
@@ -231,7 +235,7 @@
             //self.rotateAngle = 15;
             //self.rotate();
 
-            self.scaleTimes = 0.7;
+            self.scaleTimes = 1.7;
             self.scale();
         }
     };
@@ -391,15 +395,16 @@
             if(self.controller.includes('touch')){
 
                 //裁剪区域触摸开始
-                self.$cropMask.addEventListener('touchstart',function(){
-                    var touch = event.touches[0];
+                self.$cropMask.addEventListener('touchstart',function(e){
+                    var touch = e.touches[0];
                     self.downPoint = [touch.clientX,touch.clientY];
                 });
                 //裁剪区域触摸移动
-                self.$cropMask.addEventListener('touchmove',function(){
-                    var touch = event.touches[0];
+                self.$cropMask.addEventListener('touchmove',function(e){
+                    var touch = e.touches[0];
                     var point = [touch.clientX,touch.clientY];
                     self.move(point);
+                    e.preventDefault();//阻止默认行为
                 });
                 //裁剪区域触摸结束
                 self.$cropMask.addEventListener('touchend',function(){
@@ -570,26 +575,16 @@
 
     //绘制内容图像
     SimpleCrop.prototype.drawContentImage = function(){
-        if(this.scaleTimes>=1){
-            this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
-            this.cropContentContext.drawImage(this.$image,this.contentRect.left,this.contentRect.top,this.contentRect.width,this.contentRect.height);
-        }else{
-            /**
-             * 缩小和放大的坐标转换规律一样，但是绘制方法有区别；
-             * 主要是因为放大时画布超出可视容器，画布中不显示的，可视容器同样也不需要显示，正常绘制即可；
-             * 但是缩小时画布尺寸小于可视容器，画布中不显示，可视容器不一定不显示，此时就需要假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制。
-             * @type {Element}
-             */
-            var $tempCanvas = document.createElement('canvas');
-            $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
-            $tempCanvas.height = this.maskSize.height*1.0/this.scaleTimes;
-            var tempContext = $tempCanvas.getContext('2d');
-            var tempLeft = ($tempCanvas.width-this.maskSize.width)*1.0/2+this.contentRect.left;
-            var tempTop = ($tempCanvas.height-this.maskSize.height)*1.0/2+this.contentRect.top;
-            tempContext.drawImage(this.$image,tempLeft,tempTop,this.contentRect.width,this.contentRect.height);
-            this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
-            this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
-        }
+        //假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制
+        var $tempCanvas = document.createElement('canvas');
+        $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
+        $tempCanvas.height = this.maskSize.height*1.0/this.scaleTimes;
+        var tempContext = $tempCanvas.getContext('2d');
+        var tempLeft = ($tempCanvas.width-this.maskSize.width)*1.0/2+this.contentRect.left;
+        var tempTop = ($tempCanvas.height-this.maskSize.height)*1.0/2+this.contentRect.top;
+        tempContext.drawImage(this.$image,tempLeft,tempTop,this.contentRect.width,this.contentRect.height);
+        this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
+        this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
     },
 
         //坐标转换
