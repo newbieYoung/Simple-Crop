@@ -628,7 +628,6 @@
         transform += 'scale('+this._rotateScale+') ';
         transform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = transform;
-        this.drawContentImage();
     }
 
     //移动
