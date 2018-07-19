@@ -21,8 +21,9 @@
                 borderWidth:1,
                 cropSizePercent:0.9,
                 controller:['touch'],
-                funcBtns:['close','crop'],
+                funcBtns:['close','crop','around','reset'],
                 scaleSlider:false,
+                rotateSlider:true,
                 cropCallback:function(){
                     this.$resultCanvas.style.marginRight = '10px';
                     document.body.appendChild(this.$resultCanvas);

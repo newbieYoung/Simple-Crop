@@ -26,6 +26,7 @@
      * @param isScaleFixed 缩放倍数范围是否固定
      * @param coverDraw 裁剪框绘制辅助线
      * @param scaleSlider 缩放滑动组件
+     * @param rotateSlider 旋转滑动组件
      * @param funcBtns 功能按钮数组
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
@@ -47,6 +48,7 @@
         this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
         this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+        this.rotateSlider = params.rotateSlider?params.rotateSlider:false;
 
         /**
          * 操控方式
@@ -131,6 +133,20 @@
             html += '</div>';
         }
 
+        if(this.rotateSlider){
+            html += '<div class="crop-rotate">'
+            html += '<ul class="lineation">';
+            var start = -80;
+            var end = 80;
+            var gap = 10;
+            for(var i=start;i<=end;i+=gap){
+                html += '<li><div class="number">'+i+'</div><div class="bg"></div></li>';
+            }
+            html += '</ul>';
+            html += '<div class="current"></div>';
+            html += '</div>';
+        }
+
         if(this.funcBtns.length>0){
             html += '<div class="crop-btns">';
 
@@ -140,11 +156,17 @@
                 html += '<input type="file" accept="image/png,image/jpeg">';
                 html += '</div>';
             }
-            if(this.funcBtns.includes('crop')){
-                html += '<button class="crop-btn"></button>';
-            }
             if(this.funcBtns.includes('close')){
                 html += '<button class="crop-close"></button>';
+            }
+            if(this.funcBtns.includes('around')){
+                html += '<button class="crop-around"></button>';
+            }
+            if(this.funcBtns.includes('reset')){
+                html += '<button class="crop-reset"></button>';
+            }
+            if(this.funcBtns.includes('crop')){
+                html += '<button class="crop-btn"></button>';
             }
 
             html += '</div>';
@@ -162,7 +184,7 @@
 
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function(){
-        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.64)';
+        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.5)';
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#ffffff';
         var width = this.borderWidth*2*this.times+this.size.width;
