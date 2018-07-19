@@ -446,12 +446,15 @@
                         lastMoveX = parseFloat(lastMoveX);
                     }
                     var curMoveX = lastMoveX+moveX;
-                    self.$lineation.setAttribute('moveX',curMoveX);
-                    self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
                     var angle = (curMoveX-(lineationWidth/2-rotateWidth/2))/lineationWidth*(self.endAngle-self.startAngle+self.gapAngle);
-                    self.rotateAngle = angle;
-                    self.rotate();
-                    self.downPoint = point;
+
+                    if(angle>=45&&angle<=-45){
+                        self.$lineation.setAttribute('moveX',curMoveX);
+                        self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
+                        self.rotateAngle = angle;
+                        self.rotate();
+                        self.downPoint = point;
+                    }
                 });
                 //刻度触摸结束
                 self.$cropRotate.addEventListener('touchend',function(){
