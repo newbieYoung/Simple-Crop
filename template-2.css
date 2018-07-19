@@ -65,13 +65,18 @@
 }
 .crop-component .crop-rotate .lineation{
     height:50px;
-    width:689px;
     display:flex;
     justify-content: flex-start;
     align-items: center;
     font-size:0;
     margin:0;
     padding:0 0 8px 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .crop-component .crop-rotate .lineation li{
     flex:1;

@@ -48,7 +48,18 @@
         this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
         this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+
+        /**
+         * 旋转刻度盘
+         * startAngle 起始度数
+         * endAngle 结束度数
+         * gapAngle 间隔度数
+         */
         this.rotateSlider = params.rotateSlider?params.rotateSlider:false;
+        this.startAngle = -90;
+        this.endAngle = 90;
+        this.gapAngle = 10;
+        this.lineationItemWidth = 40.5;
 
         /**
          * 操控方式
@@ -135,11 +146,8 @@
 
         if(this.rotateSlider){
             html += '<div class="crop-rotate">'
-            html += '<ul class="lineation">';
-            var start = -80;
-            var end = 80;
-            var gap = 10;
-            for(var i=start;i<=end;i+=gap){
+            html += '<ul class="lineation" style="width:'+this.lineationItemWidth*((this.endAngle-this.startAngle)/this.gapAngle+1)+'px;">';
+            for(var i=this.startAngle;i<=this.endAngle;i+=this.gapAngle){
                 html += '<li><div class="number">'+i+'</div><div class="bg"></div></li>';
             }
             html += '</ul>';
@@ -256,9 +264,8 @@
             //测试旋转和缩放状态叠加
             //self.rotateAngle = 15;
             //self.rotate();
-
-            self.scaleTimes = 1.7;
-            self.scale();
+            //self.scaleTimes = 1.7;
+            //self.scale();
         }
     };
 
@@ -408,6 +415,54 @@
                 },false);
             }
 
+            if(self.rotateSlider){
+                self.$cropRotate = document.querySelector('#'+self.id+' .crop-rotate');
+                self.$lineation = document.querySelector('#'+self.id+' .lineation');
+                self.$rotateCurrent = document.querySelector('#'+self.id+' .current');
+
+                //初始化刻度位置
+                var lineationStyle = window.getComputedStyle(self.$lineation);
+                var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
+                var rotateStyle = window.getComputedStyle(self.$cropRotate);
+                var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
+                var scrollLeft = lineationWidth/2-rotateWidth/2;
+                self.$lineation.setAttribute('moveX',-scrollLeft);
+                self.$lineation.style.transform = 'translateX(-'+scrollLeft+'px)';
+
+                //刻度触摸开始
+                self.$cropRotate.addEventListener('touchstart',function(e){
+                    var touch = e.touches[0];
+                    self.downPoint = [touch.clientX,touch.clientY];
+                });
+                //刻度触摸移动
+                self.$cropRotate.addEventListener('touchmove',function(e){
+                    var touch = e.touches[0];
+                    var point = [touch.clientX,touch.clientY];
+                    var moveX = point[0] - self.downPoint[0];
+                    var lastMoveX = self.$lineation.getAttribute('moveX');
+                    if(!lastMoveX){
+                        lastMoveX = 0;
+                    }else{
+                        lastMoveX = parseFloat(lastMoveX);
+                    }
+                    var curMoveX = lastMoveX+moveX;
+                    self.$lineation.setAttribute('moveX',curMoveX);
+                    self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
+                    var angle = (curMoveX-(lineationWidth/2-rotateWidth/2))/lineationWidth*(self.endAngle-self.startAngle+self.gapAngle);
+                    self.rotateAngle = angle;
+                    self.rotate();
+                    self.downPoint = point;
+                });
+                //刻度触摸结束
+                self.$cropRotate.addEventListener('touchend',function(){
+                    self.downPoint = [];
+                });
+                //刻度触摸取消
+                self.$cropRotate.addEventListener('touchcancel',function(){
+                    self.downPoint = [];
+                });
+            }
+
             //画布相关事件
             self.downPoint = [];
 
@@ -443,35 +498,35 @@
                     multipointStart: function () {
                         self._multiPoint = true;//多点触摸开始
                     },
-                    // pinch: function (evt) {//缩放
-                    //     var scale = evt.scale;
-                    //     var newScale = self.scaleTimes/lastScale*scale;
-                    //     if(newScale>=self.minScale&&newScale<=self.maxScale){
-                    //         self.scaleTimes = newScale
-                    //         lastScale = scale;
-                    //         self.scale();
-                    //     }else{
-                    //         /**
-                    //          * 浮点数计算存在误差会导致缩放时很难回到初始状态；
-                    //          * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
-                    //          * 因此需要加上强制回归的逻辑
-                    //          */
-                    //         if(newScale!=self.scaleTimes){
-                    //             if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
-                    //                 newScale = self.maxScale;
-                    //             }else{
-                    //                 newScale = self.minScale;
-                    //             }
-                    //             self.scaleTimes = newScale;
-                    //             self.scale();
-                    //         }
-                    //     }
-                    // },
-                    rotate:function(evt){//旋转
-                        var angle = evt.angle;
-                        self.rotateAngle += angle;
-                        self.rotate();
+                    pinch: function (evt) {//缩放
+                        var scale = evt.scale;
+                        var newScale = self.scaleTimes/lastScale*scale;
+                        if(newScale>=self.minScale&&newScale<=self.maxScale){
+                            self.scaleTimes = newScale
+                            lastScale = scale;
+                            self.scale();
+                        }else{
+                            /**
+                             * 浮点数计算存在误差会导致缩放时很难回到初始状态；
+                             * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
+                             * 因此需要加上强制回归的逻辑
+                             */
+                            if(newScale!=self.scaleTimes){
+                                if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
+                                    newScale = self.maxScale;
+                                }else{
+                                    newScale = self.minScale;
+                                }
+                                self.scaleTimes = newScale;
+                                self.scale();
+                            }
+                        }
                     },
+                    // rotate:function(evt){//旋转
+                    //     var angle = evt.angle;
+                    //     self.rotateAngle += angle;
+                    //     self.rotate();
+                    // },
                     multipointEnd: function () {
                         self._multiPoint = false;//多点触摸结束
                         lastScale = 1;
