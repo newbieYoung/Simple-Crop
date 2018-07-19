@@ -15,6 +15,7 @@
      * @param title 组件标题
      * @param src   初始图片路径
      * @param borderWidth 裁剪区域边框宽度
+     * @param positionOffset 裁剪区域偏移
      * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
      * @param cropSizePercent 裁剪区域占画布比例
      * @param times 实际尺寸/显示尺寸
@@ -43,6 +44,7 @@
         this._multiPoint = false;//是否开始多点触控
         this._rotateScale = 1;//旋转缩放
         this._baseMoveX = 0;//刻度位置初始化偏移量
+        this._borderCornerLen = 3;//裁剪框突出长度
         /**
          * 旋转交互分为两种：
          * 一种是整角旋转（90度）；
@@ -55,6 +57,7 @@
         this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
         this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
+        this.positionOffset = params.positionOffset?params.positionOffset:{top:0,left:0};
 
         /**
          * 旋转刻度盘
@@ -89,13 +92,14 @@
 
         this.$cropMask = document.querySelector('#'+this.id+' .crop-mask');
         var maskStyle = window.getComputedStyle(this.$cropMask);
-        var width = parseInt(maskStyle.getPropertyValue('width'));
-        var height = parseInt(maskStyle.getPropertyValue('height'));
-
-        this.times = (this.size.width/width>this.size.height/height)?this.size.width/width/this.cropSizePercent:this.size.height/height/this.cropSizePercent;
+        this.maskViewSize = {
+            width:parseInt(maskStyle.getPropertyValue('width')),
+            height:parseInt(maskStyle.getPropertyValue('height'))
+        }
+        this.times = (this.size.width/this.maskViewSize.width>this.size.height/this.maskViewSize.height)?this.size.width/this.maskViewSize.width/this.cropSizePercent:this.size.height/this.maskViewSize.height/this.cropSizePercent;
         this.maskSize = {};
-        this.maskSize.width = width*this.times;
-        this.maskSize.height = height*this.times;
+        this.maskSize.width = this.maskViewSize.width*this.times;
+        this.maskSize.height = this.maskViewSize.height*this.times;
 
         this.scaleTimes = 1;//缩放倍数
         this.rotateAngle = 0;//旋转角度
@@ -112,6 +116,14 @@
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
         this.borderWidth = params.borderWidth?params.borderWidth:2;
+
+        /**
+         * 计算画布中心
+         */
+        var centerLeft = (0.5-this.positionOffset.left*1.0/this.maskViewSize.width/this.times)*100;
+        var centerTop = (0.5-this.positionOffset.top*1.0/this.maskViewSize.height/this.times)*100;
+        this.$cropContent.style.transformOrigin = centerLeft+'% '+centerTop+'%';
+
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
@@ -207,23 +219,22 @@
         var height = this.borderWidth*2*this.times+this.size.height;
 
         var borderRect = {
-            left:(this.maskSize.width-width)*1.0/2,
-            top:(this.maskSize.height-height)*1.0/2,
+            left:(this.maskSize.width-width)*1.0/2-this.positionOffset.left,
+            top:(this.maskSize.height-height)*1.0/2-this.positionOffset.top,
             width:width,
             height:height
         }
         this.cropCoverContext.fillRect(borderRect.left,borderRect.top,width,height);
 
         //边框四个角加粗
-        var len = 3;
         var percent = 0.05;
         var outWidth = width*percent;
         var outHeight = height*percent;
-        this.cropCoverContext.fillRect(borderRect.left-len,borderRect.top-len,outWidth,outHeight);//左上角
-        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+len,borderRect.top-len,outWidth,outHeight);//右上角
-        this.cropCoverContext.fillRect(borderRect.left-len,borderRect.top+height-outHeight+len,outWidth,outHeight);//左下角
-        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+len,borderRect.top+height-outHeight+len,outWidth,outHeight);//右下角
-        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2,(this.maskSize.height-this.size.height)*1.0/2,this.size.width,this.size.height);
+        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,outWidth,outHeight);//左上角
+        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,outWidth,outHeight);//右上角
+        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+height-outHeight+this._borderCornerLen,outWidth,outHeight);//左下角
+        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+this._borderCornerLen,borderRect.top+height-outHeight+this._borderCornerLen,outWidth,outHeight);//右下角
+        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left,(this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top,this.size.width,this.size.height);
     };
 
     //默认绘制辅助线
@@ -240,8 +251,8 @@
         self.$image.src = self.src;
         self.$image.onload = function(){
             self.contentRect = {
-                left:(self.maskSize.width-self.$image.width)*1.0/2,
-                top:(self.maskSize.height-self.$image.height)*1.0/2,
+                left:(self.maskSize.width-self.$image.width)*1.0/2-self.positionOffset.left,
+                top:(self.maskSize.height-self.$image.height)*1.0/2-self.positionOffset.top,
                 width:self.$image.width,
                 height:self.$image.height
             };
@@ -625,8 +636,8 @@
         var scaleHeight = newHeight/this.size.height;
         var maxScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
         this._rotateScale = maxScale;
-        transform += 'scale('+this._rotateScale+') ';
         transform += 'rotate('+this.rotateAngle+'deg)';
+        transform += 'scale('+this._rotateScale+') ';
         this.$cropContent.style.transform = transform;
     }
 
@@ -702,8 +713,8 @@
                 width:contentRect.width*this.scaleTimes,
                 height:contentRect.height*this.scaleTimes
             };
-            var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
-            var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
+            var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2-this.positionOffset.left;
+            var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2-this.positionOffset.top;
 
             coverRect.left = coverRect.left-overLeft;
             coverRect.top = coverRect.top-overTop;
@@ -711,8 +722,8 @@
             return coverRect;
         };
     SimpleCrop.prototype.coverRectToContentRect = function(coverRect){
-        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
-        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
+        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2-this.positionOffset.left;
+        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2-this.positionOffset.top;
 
         var contentRect = {
             left:(coverRect.left+overLeft)*1.0/this.scaleTimes,
