@@ -65,12 +65,12 @@
          */
         this._baseAngle = 0;
 
-        this.cropSizePercent = params.cropSizePercent?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
-        this.zIndex = params.zIndex?params.zIndex:9999;
-        this.coverDraw = params.coverDraw?params.coverDraw:this.defaultCoverDraw;
-        this.borderDraw = params.borderDraw?params.borderDraw:this.defaultBorderDraw;
-        this.scaleSlider = params.scaleSlider?params.scaleSlider:true;
-        this.positionOffset = params.positionOffset?params.positionOffset:{top:0,left:0};
+        this.cropSizePercent = params.cropSizePercent!=null?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
+        this.zIndex = params.zIndex!=null?params.zIndex:9999;
+        this.coverDraw = params.coverDraw!=null?params.coverDraw:this.defaultCoverDraw;
+        this.borderDraw = params.borderDraw!=null?params.borderDraw:this.defaultBorderDraw;
+        this.scaleSlider = params.scaleSlider!=null?params.scaleSlider:true;
+        this.positionOffset = params.positionOffset!=null?params.positionOffset:{top:0,left:0};
 
         /**
          * 旋转刻度盘
@@ -79,7 +79,7 @@
          * gapAngle 间隔度数
          * lineationItemWidth 单个刻度盘宽度，单位像素
          */
-        this.rotateSlider = params.rotateSlider?params.rotateSlider:false;
+        this.rotateSlider = params.rotateSlider!=null?params.rotateSlider:false;
         this.startAngle = -90;
         this.endAngle = 90;
         this.gapAngle = 10;
@@ -91,7 +91,7 @@
          * mouse 鼠标
          * touch 手指
          */
-        this.controller = params.controller?params.controller:['mouse'];
+        this.controller = params.controller!=null?params.controller:['mouse'];
 
         /**
          * 默认功能按钮为重新上传、裁剪
@@ -99,7 +99,7 @@
          * crop 裁减
          * close 取消
          */
-        this.funcBtns = params.funcBtns?params.funcBtns:['close','upload','crop'];
+        this.funcBtns = params.funcBtns!=null?params.funcBtns:['close','upload','crop'];
 
         this.construct();
 
@@ -128,10 +128,11 @@
 
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times;
-        this.borderWidth = params.borderWidth?params.borderWidth:2;
+        this.borderWidth = params.borderWidth!=null?params.borderWidth:2;
 
         /**
          * 计算画布中心
+         * 裁剪框中心在画布坐标系的位置
          */
         var centerLeft = (0.5-this.positionOffset.left*1.0/this.maskViewSize.width)*100;
         var centerTop = (0.5-this.positionOffset.top*1.0/this.maskViewSize.height)*100;
@@ -141,7 +142,7 @@
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
 
-        if(params.minScale&&params.maxScale){
+        if(params.minScale!=null&&params.maxScale!=null){
             this.minScale = params.minScale;
             this.maxScale = params.maxScale;
             this.isScaleFixed = true;//如果缩放倍数范围是传参设置的，那么固定
@@ -273,8 +274,8 @@
         self.$image.src = self.src;
         self.$image.onload = function(){
             self.contentRect = {
-                left:(self.maskSize.width-self.$image.width)*1.0/2,
-                top:(self.maskSize.height-self.$image.height)*1.0/2,
+                left:(self.maskSize.width-self.$image.width)*1.0/2-self.positionOffset.left*self.times,
+                top:(self.maskSize.height-self.$image.height)*1.0/2-self.positionOffset.top*self.times,
                 width:self.$image.width,
                 height:self.$image.height
             };
@@ -294,12 +295,8 @@
                     self.maxScale = self.minScale;
                 }
             }
-
-            self.cropContentContext.clearRect(0,0,self.maskSize.width,self.maskSize.height);
-            self.cropContentContext.drawImage(self.$image,self.contentRect.left,self.contentRect.top,self.contentRect.width,self.contentRect.height);
-            //缩放滑动条回归初始状态
-            var evt = new MouseEvent('click');
-            self.$scaleOneTimes.dispatchEvent(evt);
+            self.scaleTimes = self.minScale;
+            self.scale();
         }
     };
 
@@ -330,7 +327,7 @@
                 self.$resultCanvas.width = self.size.width;
                 self.$resultCanvas.height = self.size.height;
                 self.resultContext = self.$resultCanvas.getContext('2d');
-                var rect = self.coverRectToContentRect(self.contentRect);
+                var rect = self.coverRectToContentRect(self.size);
                 self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
                 self.cropCallback();
             },false);
@@ -739,7 +736,6 @@
 
         return coverRect;
     };
-
     SimpleCrop.prototype.coverRectToContentRect = function(coverRect){
         var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
         var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
@@ -756,12 +752,12 @@
 
     //坐标限制
     SimpleCrop.prototype.rectLimit = function(coverRect){
-        if(coverRect.left>=this.size.left||Math.abs(coverRect.left-this.size.left)<=0){
+        if(coverRect.left>=this.size.left){
             coverRect.left = this.size.left;
         }else if((coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
             coverRect.left = this.size.left+this.size.width-coverRect.width;
         }
-        if(coverRect.top>=this.size.top||Math.abs(coverRect.top-this.size.top)<=0){
+        if(coverRect.top>=this.size.top){
             coverRect.top = this.size.top;
         }else if((coverRect.top+coverRect.height)<(this.size.top+this.size.height)){
             coverRect.top = this.size.top+this.size.height-coverRect.height;

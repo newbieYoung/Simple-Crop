@@ -11,26 +11,25 @@
     <script src="./node_modules/alloyfinger/alloy_finger.js"></script>
     <script src="./index.js"></script>
     <script>
-        window.onload = function(){
-            var simpleCrop = new SimpleCrop({
-                src:'./img/test1.jpg',
-                size:{
-                    width:680,
-                    height:680
-                },
-                borderWidth:1,
-                cropSizePercent:0.9,
-                controller:['touch'],
-                positionOffset:{left:0,top:100},
-                funcBtns:['close','crop','around','reset'],
-                scaleSlider:false,
-                rotateSlider:true,
-                cropCallback:function(){
-                    this.$resultCanvas.style.marginRight = '10px';
-                    document.body.appendChild(this.$resultCanvas);
-                }
-            });
-        }
+        var offsetTop = document.documentElement.clientHeight*0.05;//向上偏移10%
+        var simpleCrop = new SimpleCrop({
+            src:'../img/demo/crop-test1.jpg',
+            size:{
+                width:680,
+                height:680
+            },
+            borderWidth:1,
+            cropSizePercent:0.9,
+            controller:['touch'],
+            positionOffset:{left:0,top:offsetTop},
+            funcBtns:['close','crop','around','reset'],
+            scaleSlider:false,
+            rotateSlider:true,
+            cropCallback:function(){
+                this.$resultCanvas.style.marginRight = '10px';
+                document.body.appendChild(this.$resultCanvas);
+            }
+        });
     </script>
 </body>
 </html>
