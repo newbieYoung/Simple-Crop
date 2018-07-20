@@ -11,7 +11,6 @@
     }
 }(function (finger) {
     /**
-     *
      * @param title 组件标题
      * @param src   初始图片路径
      * @param borderWidth 裁剪区域边框宽度
@@ -32,6 +31,20 @@
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
+     *
+     * ------------------------------------
+     *
+     * 因为计算过程中涉及几个坐标系的转换需要注意一下：
+     * 比如需要的截图的实际尺寸为400*400，但是因为容器的原因不能显示为实际尺寸，这里会保持宽高比例不变，进行一定的缩放，缩放之后也就存在逻辑尺寸和显示尺寸了；
+     * 另外图片尺寸固定，但是绘制时存在缩放，比如初始化时会让裁剪框尽量填满最多的图片，那么这里也就产生了一个逻辑上的画布坐标系了。
+     *
+     * maskViewSize 容器的显示尺寸
+     * maskSize 容器的逻辑尺寸
+     * size 截图区域的逻辑尺寸
+     * coverRect 遮罩坐标系
+     * contentRect 画布坐标系
+     * positionOffset 显示尺寸偏移
+     *
      */
     function SimpleCrop(params){
 
@@ -113,15 +126,15 @@
         this.$cropContent.width = this.maskSize.width;
         this.$cropContent.height = this.maskSize.height;
 
-        this.size.left = (this.maskSize.width-this.size.width)*1.0/2;
-        this.size.top = (this.maskSize.height-this.size.height)*1.0/2;
+        this.size.left = (this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times;
+        this.size.top = (this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times;
         this.borderWidth = params.borderWidth?params.borderWidth:2;
 
         /**
          * 计算画布中心
          */
-        var centerLeft = (0.5-this.positionOffset.left*1.0/this.maskViewSize.width/this.times)*100;
-        var centerTop = (0.5-this.positionOffset.top*1.0/this.maskViewSize.height/this.times)*100;
+        var centerLeft = (0.5-this.positionOffset.left*1.0/this.maskViewSize.width)*100;
+        var centerTop = (0.5-this.positionOffset.top*1.0/this.maskViewSize.height)*100;
         this.$cropContent.style.transformOrigin = centerLeft+'% '+centerTop+'%';
 
         this.cropCallback = params.cropCallback;
@@ -215,26 +228,35 @@
         this.cropCoverContext.fillStyle = 'rgba(0,0,0,.5)';
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#ffffff';
-        var width = this.borderWidth*2*this.times+this.size.width;
-        var height = this.borderWidth*2*this.times+this.size.height;
 
+        //绘制边框
+        var borderRectWidth = this.borderWidth*2*this.times+this.size.width;
+        var borderRectHeight = this.borderWidth*2*this.times+this.size.height;
         var borderRect = {
-            left:(this.maskSize.width-width)*1.0/2-this.positionOffset.left,
-            top:(this.maskSize.height-height)*1.0/2-this.positionOffset.top,
-            width:width,
-            height:height
+            left:(this.maskSize.width-borderRectWidth)*1.0/2-this.positionOffset.left*this.times,
+            top:(this.maskSize.height-borderRectHeight)*1.0/2-this.positionOffset.top*this.times,
+            width:borderRectWidth,
+            height:borderRectHeight
         }
-        this.cropCoverContext.fillRect(borderRect.left,borderRect.top,width,height);
+        this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRectWidth,borderRectHeight);
 
         //边框四个角加粗
         var percent = 0.05;
-        var outWidth = width*percent;
-        var outHeight = height*percent;
-        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,outWidth,outHeight);//左上角
-        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,outWidth,outHeight);//右上角
-        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+height-outHeight+this._borderCornerLen,outWidth,outHeight);//左下角
-        this.cropCoverContext.fillRect(borderRect.left+width-outWidth+this._borderCornerLen,borderRect.top+height-outHeight+this._borderCornerLen,outWidth,outHeight);//右下角
-        this.cropCoverContext.clearRect((this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left,(this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top,this.size.width,this.size.height);
+        var cornerRectWidth = borderRectWidth*percent;
+        var cornerRectHeight = borderRectHeight*percent;
+        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左上角
+        this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右上角
+        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左下角
+        this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右下角
+
+        //清空内容区域
+        var innerRect = {
+            left:(this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times,
+            top:(this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times,
+            width:this.size.width,
+            height:this.size.height
+        }
+        this.cropCoverContext.clearRect(innerRect.left,innerRect.top,innerRect.width,innerRect.height);
     };
 
     //默认绘制辅助线
@@ -251,8 +273,8 @@
         self.$image.src = self.src;
         self.$image.onload = function(){
             self.contentRect = {
-                left:(self.maskSize.width-self.$image.width)*1.0/2-self.positionOffset.left,
-                top:(self.maskSize.height-self.$image.height)*1.0/2-self.positionOffset.top,
+                left:(self.maskSize.width-self.$image.width)*1.0/2,
+                top:(self.maskSize.height-self.$image.height)*1.0/2,
                 width:self.$image.width,
                 height:self.$image.height
             };
@@ -288,318 +310,314 @@
             this.load();
         }
         this.$target.style.display = 'block';
-    },
+    };
 
-        //隐藏
-        SimpleCrop.prototype.hide = function(){
-            this.$target.style.display = 'none';
-        },
+    //隐藏
+    SimpleCrop.prototype.hide = function(){
+        this.$target.style.display = 'none';
+    };
 
-        //绑定事件
-        SimpleCrop.prototype.bindEvent = function(){
-            //获取事件相关dom元素
-            var self = this;
+    //绑定事件
+    SimpleCrop.prototype.bindEvent = function(){
+        //获取事件相关dom元素
+        var self = this;
 
-            //裁剪
-            if(self.funcBtns.includes('crop')){
-                self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
-                self.$cropBtn.addEventListener('click',function(){
-                    self.$resultCanvas = document.createElement('canvas');
-                    self.$resultCanvas.width = self.size.width;
-                    self.$resultCanvas.height = self.size.height;
-                    self.resultContext = self.$resultCanvas.getContext('2d');
-                    if(self.scaleTimes>=1){
-                        var rect = self.coverRectToContentRect(self.size);
-                        self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+        //裁剪
+        if(self.funcBtns.includes('crop')){
+            self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
+            self.$cropBtn.addEventListener('click',function(){
+                self.$resultCanvas = document.createElement('canvas');
+                self.$resultCanvas.width = self.size.width;
+                self.$resultCanvas.height = self.size.height;
+                self.resultContext = self.$resultCanvas.getContext('2d');
+                var rect = self.coverRectToContentRect(self.contentRect);
+                self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+                self.cropCallback();
+            },false);
+        }
+
+        //上传
+        if(self.funcBtns.includes('upload')){
+            self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
+            self.$uploadInput = document.querySelector('#'+self.id+' .upload-btn-container input');
+            self.$uploadBtn.addEventListener('change',function(evt){
+                var files = evt.target.files;
+                if(files.length>0){
+                    if(self.uploadCallback){
+                        self.uploadCallback(files[0]);
                     }else{
-                        self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
+                        self.fileToSrc(files[0],function(src){
+                            self.src = src;
+                            self.load();
+                        });
                     }
-                    self.cropCallback();
-                },false);
-            }
+                }
+                self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
+            },false);
+        }
 
-            //上传
-            if(self.funcBtns.includes('upload')){
-                self.$uploadBtn = document.querySelector('#'+self.id+' .upload-btn-container');
-                self.$uploadInput = document.querySelector('#'+self.id+' .upload-btn-container input');
-                self.$uploadBtn.addEventListener('change',function(evt){
-                    var files = evt.target.files;
-                    if(files.length>0){
-                        if(self.uploadCallback){
-                            self.uploadCallback(files[0]);
-                        }else{
-                            self.fileToSrc(files[0],function(src){
-                                self.src = src;
-                                self.load();
-                            });
-                        }
-                    }
-                    self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
-                },false);
-            }
-
-            //整角旋转
-            if(self.funcBtns.includes('around')){
-                self.$cropAround = document.querySelector('#'+self.id+' .crop-around');
-                self.$cropAround.addEventListener('click',function(){
-                    self.rotateAngle = self._baseAngle-90;
-                    self._baseAngle = self.rotateAngle;
-                    self.$lineation.setAttribute('moveX',self._baseMoveX);
-                    self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
-                    self.rotate();
-                })
-            }
-
-            //还原
-            if(self.funcBtns.includes('reset')){
-                self.$cropReset = document.querySelector('#'+self.id+' .crop-reset');
-                self.$cropReset.addEventListener('click',function(){
-                    self._rotateScale = 1;
-                    self._baseAngle = 0;
-                    self.rotateAngle = 0;
-                    self.$lineation.setAttribute('moveX',self._baseMoveX);
-                    self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
-                    self.scaleTimes = self.minScale;
-                    self.rotate();
-                    self.scale();
-                })
-            }
-
-            //关闭
-            if(self.funcBtns.includes('close')){
-                self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
-                self.$closeBtn.addEventListener('click',function(){
-                    self.hide();
-                    if(self.closeCallback){
-                        self.closeCallback();
-                    }
-                },false);
-            }
-
-            //滑动缩放
-            if(self.scaleSlider){
-                self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
-                self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
-                self.$scaleOneTimes = document.querySelector('#'+self.id+' .one-times-icon');
-                self.$scaleTwoTimes = document.querySelector('#'+self.id+' .two-times-icon');
-                self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
-                self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
-
-                self.scaleDownX = 0;
-                self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
-                self.scaleCurLeft = self.scaleInitLeft;
-                self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
-
-
-                //滑动按钮鼠标按下
-                self.$scaleBtn.addEventListener('mousedown',function(ev){
-                    self.scaleDownX = ev.clientX;
-                },false);
-                //滑动按钮鼠标滑动
-                self.$scaleContainer.addEventListener('mousemove',function(ev){
-                    var pointX = ev.clientX;
-                    if(self.scaleDownX>0){
-                        var moveX = pointX - self.scaleDownX;
-                        var newCurLeft = self.scaleCurLeft+moveX;
-                        if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
-                            var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                            if(!lastMoveX){
-                                lastMoveX = 0;
-                            }
-                            var curMoveX = lastMoveX+moveX;
-                            self.scaleDownX = pointX;
-                            self.scaleMove(curMoveX);
-                        }
-                    }
-                },false);
-                //缩放条点击
-                self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
-                    ev.stopPropagation();
-                },false);
-                self.$scaleContainer.addEventListener('click',function(ev){
-                    var rect = self.$scaleBtn.getBoundingClientRect();
-                    if(self.scaleDownX<=0){
-                        self.scaleDownX = rect.left+rect.width*1.0/2;
-                    }
-                    if(self.scaleDownX>0){
-                        var pointX = ev.clientX;
-                        var moveX = pointX - self.scaleDownX;
-                        var newCurLeft = self.scaleCurLeft+moveX;
-                        if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
-                            var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                            if(!lastMoveX){
-                                lastMoveX = 0;
-                            }
-                            var curMoveX = lastMoveX+moveX;
-                            self.scaleMove(curMoveX);
-                            self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
-                        }
-                    }
-                },false);
-                //滑动按钮超出范围
-                self.$scaleContainer.addEventListener('mouseleave',function(ev){
-                    self.scaleDownX = 0;
-                },false);
-                //滑动按钮鼠标松开
-                self.$scaleContainer.addEventListener('mouseup',function(ev){
-                    self.scaleDownX = 0;
-                },false);
-                //最小缩放按钮点击
-                self.$scaleOneTimes.addEventListener('click',function(ev){
-                    self.scaleMove(0);
-                },false);
-                //最大缩放按钮点击
-                self.$scaleTwoTimes.addEventListener('click',function(ev){
-                    self.scaleMove(self.scaleWidth);
-                },false);
-            }
-
-            if(self.rotateSlider){
-                self.$cropRotate = document.querySelector('#'+self.id+' .crop-rotate');
-                self.$lineation = document.querySelector('#'+self.id+' .lineation');
-                self.$rotateCurrent = document.querySelector('#'+self.id+' .current');
-
-                //初始化刻度位置
-                var lineationStyle = window.getComputedStyle(self.$lineation);
-                var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
-                var rotateStyle = window.getComputedStyle(self.$cropRotate);
-                var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
-                self._baseMoveX = -(lineationWidth/2-rotateWidth/2);
+        //整角旋转
+        if(self.funcBtns.includes('around')){
+            self.$cropAround = document.querySelector('#'+self.id+' .crop-around');
+            self.$cropAround.addEventListener('click',function(){
+                self.rotateAngle = self._baseAngle-90;
+                self._baseAngle = self.rotateAngle;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+                self.rotate();
+            })
+        }
 
-                //刻度触摸开始
-                self.$cropRotate.addEventListener('touchstart',function(e){
-                    var touch = e.touches[0];
-                    self.downPoint = [touch.clientX,touch.clientY];
-                });
-                //刻度触摸移动
-                self.$cropRotate.addEventListener('touchmove',function(e){
-                    var touch = e.touches[0];
-                    var point = [touch.clientX,touch.clientY];
-                    var moveX = point[0] - self.downPoint[0];
-                    var lastMoveX = self.$lineation.getAttribute('moveX');
-                    if(!lastMoveX){
-                        lastMoveX = 0;
-                    }else{
-                        lastMoveX = parseFloat(lastMoveX);
-                    }
-                    var curMoveX = lastMoveX+moveX;
-                    var angle = (curMoveX-self._baseMoveX)/lineationWidth*(self.endAngle-self.startAngle+self.gapAngle);
+        //还原
+        if(self.funcBtns.includes('reset')){
+            self.$cropReset = document.querySelector('#'+self.id+' .crop-reset');
+            self.$cropReset.addEventListener('click',function(){
+                self._rotateScale = 1;
+                self._baseAngle = 0;
+                self.rotateAngle = 0;
+                self.$lineation.setAttribute('moveX',self._baseMoveX);
+                self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+                self.scaleTimes = self.minScale;
+                self.rotate();
+                self.scale();
+            })
+        }
 
-                    if(angle<=45&&angle>=-45){
-                        self.$lineation.setAttribute('moveX',curMoveX);
-                        self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
-                        self.rotateAngle = self._baseAngle+angle;
-                        self.rotate();
-                        self.downPoint = point;
-                    }
-                });
-                //刻度触摸结束
-                self.$cropRotate.addEventListener('touchend',function(){
-                    self.downPoint = [];
-                });
-                //刻度触摸取消
-                self.$cropRotate.addEventListener('touchcancel',function(){
-                    self.downPoint = [];
-                });
-            }
+        //关闭
+        if(self.funcBtns.includes('close')){
+            self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
+            self.$closeBtn.addEventListener('click',function(){
+                self.hide();
+                if(self.closeCallback){
+                    self.closeCallback();
+                }
+            },false);
+        }
 
-            //画布相关事件
-            self.downPoint = [];
+        //滑动缩放
+        if(self.scaleSlider){
+            self.$scaleBtn = document.querySelector('#'+self.id+' .scale-btn');
+            self.$scaleNum = document.querySelector('#'+self.id+' .scale-num');
+            self.$scaleOneTimes = document.querySelector('#'+self.id+' .one-times-icon');
+            self.$scaleTwoTimes = document.querySelector('#'+self.id+' .two-times-icon');
+            self.$scaleContainer = document.querySelector('#'+self.id+' .scale-container');
+            self.$scaleValue = document.querySelector('#'+self.id+' .scale-value');
 
-            /**
-             * 触摸事件
-             */
-            if(self.controller.includes('touch')){
+            self.scaleDownX = 0;
+            self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
+            self.scaleCurLeft = self.scaleInitLeft;
+            self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
 
-                //裁剪区域触摸开始
-                self.$cropMask.addEventListener('touchstart',function(e){
-                    var touch = e.touches[0];
-                    self.downPoint = [touch.clientX,touch.clientY];
-                });
-                //裁剪区域触摸移动
-                self.$cropMask.addEventListener('touchmove',function(e){
-                    var touch = e.touches[0];
-                    var point = [touch.clientX,touch.clientY];
-                    self.move(point);
-                    e.preventDefault();//阻止默认行为
-                });
-                //裁剪区域触摸结束
-                self.$cropMask.addEventListener('touchend',function(){
-                    self.downPoint = [];
-                });
-                //裁剪区域触摸取消
-                self.$cropMask.addEventListener('touchcancel',function(){
-                    self.downPoint = [];
-                });
 
-                //复杂手势事件
-                var lastScale = 1;
-                new finger(self.$cropMask, {
-                    multipointStart: function () {
-                        self._multiPoint = true;//多点触摸开始
-                    },
-                    pinch: function (evt) {//缩放
-                        var scale = evt.scale;
-                        var newScale = self.scaleTimes/lastScale*scale;
-                        if(newScale>=self.minScale&&newScale<=self.maxScale){
-                            self.scaleTimes = newScale
-                            lastScale = scale;
-                            self.scale();
-                        }else{
-                            /**
-                             * 浮点数计算存在误差会导致缩放时很难回到初始状态；
-                             * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
-                             * 因此需要加上强制回归的逻辑
-                             */
-                            if(newScale!=self.scaleTimes){
-                                if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
-                                    newScale = self.maxScale;
-                                }else{
-                                    newScale = self.minScale;
-                                }
-                                self.scaleTimes = newScale;
-                                self.scale();
-                            }
+            //滑动按钮鼠标按下
+            self.$scaleBtn.addEventListener('mousedown',function(ev){
+                self.scaleDownX = ev.clientX;
+            },false);
+            //滑动按钮鼠标滑动
+            self.$scaleContainer.addEventListener('mousemove',function(ev){
+                var pointX = ev.clientX;
+                if(self.scaleDownX>0){
+                    var moveX = pointX - self.scaleDownX;
+                    var newCurLeft = self.scaleCurLeft+moveX;
+                    if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                        if(!lastMoveX){
+                            lastMoveX = 0;
                         }
-                    },
-                    // rotate:function(evt){//旋转
-                    //     var angle = evt.angle;
-                    //     self.rotateAngle += angle;
-                    //     self.rotate();
-                    // },
-                    multipointEnd: function () {
-                        self._multiPoint = false;//多点触摸结束
-                        lastScale = 1;
+                        var curMoveX = lastMoveX+moveX;
+                        self.scaleDownX = pointX;
+                        self.scaleMove(curMoveX);
                     }
-                });
-            }
+                }
+            },false);
+            //缩放条点击
+            self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
+                ev.stopPropagation();
+            },false);
+            self.$scaleContainer.addEventListener('click',function(ev){
+                var rect = self.$scaleBtn.getBoundingClientRect();
+                if(self.scaleDownX<=0){
+                    self.scaleDownX = rect.left+rect.width*1.0/2;
+                }
+                if(self.scaleDownX>0){
+                    var pointX = ev.clientX;
+                    var moveX = pointX - self.scaleDownX;
+                    var newCurLeft = self.scaleCurLeft+moveX;
+                    if(newCurLeft>=self.scaleInitLeft&&newCurLeft<=(self.scaleWidth+self.scaleInitLeft)){
+                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
+                        if(!lastMoveX){
+                            lastMoveX = 0;
+                        }
+                        var curMoveX = lastMoveX+moveX;
+                        self.scaleMove(curMoveX);
+                        self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
+                    }
+                }
+            },false);
+            //滑动按钮超出范围
+            self.$scaleContainer.addEventListener('mouseleave',function(ev){
+                self.scaleDownX = 0;
+            },false);
+            //滑动按钮鼠标松开
+            self.$scaleContainer.addEventListener('mouseup',function(ev){
+                self.scaleDownX = 0;
+            },false);
+            //最小缩放按钮点击
+            self.$scaleOneTimes.addEventListener('click',function(ev){
+                self.scaleMove(0);
+            },false);
+            //最大缩放按钮点击
+            self.$scaleTwoTimes.addEventListener('click',function(ev){
+                self.scaleMove(self.scaleWidth);
+            },false);
+        }
 
-            /**
-             * 鼠标事件
-             */
-            if(self.controller.includes('mouse')){
+        if(self.rotateSlider){
+            self.$cropRotate = document.querySelector('#'+self.id+' .crop-rotate');
+            self.$lineation = document.querySelector('#'+self.id+' .lineation');
+            self.$rotateCurrent = document.querySelector('#'+self.id+' .current');
 
-                //裁剪区域鼠标按下
-                self.$cropMask.addEventListener('mousedown',function(ev){
-                    self.downPoint = [ev.clientX,ev.clientY];
-                },false);
-                //裁剪区域鼠标移动
-                self.$cropMask.addEventListener('mousemove',function(ev){
-                    var point = [ev.clientX,ev.clientY];
-                    self.move(point);
-                },false);
-                //裁剪区域鼠标松开
-                self.$cropMask.addEventListener('mouseup',function(ev){
-                    self.downPoint = [];
-                },false);
-                //裁剪区域超出范围
-                self.$cropMask.addEventListener('mouseleave',function(ev){
-                    self.downPoint = [];
-                },false);
-            }
-        };
+            //初始化刻度位置
+            var lineationStyle = window.getComputedStyle(self.$lineation);
+            var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
+            var rotateStyle = window.getComputedStyle(self.$cropRotate);
+            var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
+            self._baseMoveX = -(lineationWidth/2-rotateWidth/2);
+            self.$lineation.setAttribute('moveX',self._baseMoveX);
+            self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+
+            //刻度触摸开始
+            self.$cropRotate.addEventListener('touchstart',function(e){
+                var touch = e.touches[0];
+                self.downPoint = [touch.clientX,touch.clientY];
+            });
+            //刻度触摸移动
+            self.$cropRotate.addEventListener('touchmove',function(e){
+                var touch = e.touches[0];
+                var point = [touch.clientX,touch.clientY];
+                var moveX = point[0] - self.downPoint[0];
+                var lastMoveX = self.$lineation.getAttribute('moveX');
+                if(!lastMoveX){
+                    lastMoveX = 0;
+                }else{
+                    lastMoveX = parseFloat(lastMoveX);
+                }
+                var curMoveX = lastMoveX+moveX;
+                var angle = (curMoveX-self._baseMoveX)/lineationWidth*(self.endAngle-self.startAngle+self.gapAngle);
+
+                if(angle<=45&&angle>=-45){
+                    self.$lineation.setAttribute('moveX',curMoveX);
+                    self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
+                    self.rotateAngle = self._baseAngle+angle;
+                    self.rotate();
+                    self.downPoint = point;
+                }
+            });
+            //刻度触摸结束
+            self.$cropRotate.addEventListener('touchend',function(){
+                self.downPoint = [];
+            });
+            //刻度触摸取消
+            self.$cropRotate.addEventListener('touchcancel',function(){
+                self.downPoint = [];
+            });
+        }
+
+        //画布相关事件
+        self.downPoint = [];
+
+        /**
+         * 触摸事件
+         */
+        if(self.controller.includes('touch')){
+
+            //裁剪区域触摸开始
+            self.$cropMask.addEventListener('touchstart',function(e){
+                var touch = e.touches[0];
+                self.downPoint = [touch.clientX,touch.clientY];
+            });
+            //裁剪区域触摸移动
+            self.$cropMask.addEventListener('touchmove',function(e){
+                var touch = e.touches[0];
+                var point = [touch.clientX,touch.clientY];
+                self.move(point);
+                e.preventDefault();//阻止默认行为
+            });
+            //裁剪区域触摸结束
+            self.$cropMask.addEventListener('touchend',function(){
+                self.downPoint = [];
+            });
+            //裁剪区域触摸取消
+            self.$cropMask.addEventListener('touchcancel',function(){
+                self.downPoint = [];
+            });
+
+            //复杂手势事件
+            var lastScale = 1;
+            new finger(self.$cropMask, {
+                multipointStart: function () {
+                    self._multiPoint = true;//多点触摸开始
+                },
+                pinch: function (evt) {//缩放
+                    var scale = evt.scale;
+                    var newScale = self.scaleTimes/lastScale*scale;
+                    if(newScale>=self.minScale&&newScale<=self.maxScale){
+                        self.scaleTimes = newScale
+                        lastScale = scale;
+                        self.scale();
+                    }else{
+                        /**
+                         * 浮点数计算存在误差会导致缩放时很难回到初始状态；
+                         * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
+                         * 因此需要加上强制回归的逻辑
+                         */
+                        if(newScale!=self.scaleTimes){
+                            if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
+                                newScale = self.maxScale;
+                            }else{
+                                newScale = self.minScale;
+                            }
+                            self.scaleTimes = newScale;
+                            self.scale();
+                        }
+                    }
+                },
+                // rotate:function(evt){//旋转
+                //     var angle = evt.angle;
+                //     self.rotateAngle += angle;
+                //     self.rotate();
+                // },
+                multipointEnd: function () {
+                    self._multiPoint = false;//多点触摸结束
+                    lastScale = 1;
+                }
+            });
+        }
+
+        /**
+         * 鼠标事件
+         */
+        if(self.controller.includes('mouse')){
+
+            //裁剪区域鼠标按下
+            self.$cropMask.addEventListener('mousedown',function(ev){
+                self.downPoint = [ev.clientX,ev.clientY];
+            },false);
+            //裁剪区域鼠标移动
+            self.$cropMask.addEventListener('mousemove',function(ev){
+                var point = [ev.clientX,ev.clientY];
+                self.move(point);
+            },false);
+            //裁剪区域鼠标松开
+            self.$cropMask.addEventListener('mouseup',function(ev){
+                self.downPoint = [];
+            },false);
+            //裁剪区域超出范围
+            self.$cropMask.addEventListener('mouseleave',function(ev){
+                self.downPoint = [];
+            },false);
+        }
+    };
 
     //滑动按钮移动
     SimpleCrop.prototype.scaleMove = function(curMoveX){
@@ -623,7 +641,7 @@
         transform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = transform;
         this.drawContentImage();
-    }
+    };
 
     //旋转
     SimpleCrop.prototype.rotate = function(){
@@ -639,7 +657,7 @@
         transform += 'rotate('+this.rotateAngle+'deg)';
         transform += 'scale('+this._rotateScale+') ';
         this.$cropContent.style.transform = transform;
-    }
+    };
 
     //移动
     SimpleCrop.prototype.move = function(point){
@@ -689,7 +707,7 @@
             }
             this.downPoint = point;
         }
-    }
+    };
 
     //绘制内容图像
     SimpleCrop.prototype.drawContentImage = function(){
@@ -703,27 +721,28 @@
         tempContext.drawImage(this.$image,tempLeft,tempTop,this.contentRect.width,this.contentRect.height);
         this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
         this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
-    },
+    };
 
-        //坐标转换
-        SimpleCrop.prototype.contentRectToCoverRect = function(contentRect){
-            var coverRect = {
-                left:contentRect.left*this.scaleTimes,
-                top:contentRect.top*this.scaleTimes,
-                width:contentRect.width*this.scaleTimes,
-                height:contentRect.height*this.scaleTimes
-            };
-            var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2-this.positionOffset.left;
-            var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2-this.positionOffset.top;
-
-            coverRect.left = coverRect.left-overLeft;
-            coverRect.top = coverRect.top-overTop;
-
-            return coverRect;
+    //坐标转换
+    SimpleCrop.prototype.contentRectToCoverRect = function(contentRect){
+        var coverRect = {
+            left:contentRect.left*this.scaleTimes,
+            top:contentRect.top*this.scaleTimes,
+            width:contentRect.width*this.scaleTimes,
+            height:contentRect.height*this.scaleTimes
         };
+        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
+        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
+
+        coverRect.left = coverRect.left-overLeft;
+        coverRect.top = coverRect.top-overTop;
+
+        return coverRect;
+    };
+
     SimpleCrop.prototype.coverRectToContentRect = function(coverRect){
-        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2-this.positionOffset.left;
-        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2-this.positionOffset.top;
+        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
+        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
 
         var contentRect = {
             left:(coverRect.left+overLeft)*1.0/this.scaleTimes,
