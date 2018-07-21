@@ -327,8 +327,7 @@
                 self.$resultCanvas.width = self.size.width;
                 self.$resultCanvas.height = self.size.height;
                 self.resultContext = self.$resultCanvas.getContext('2d');
-                var rect = self.coverRectToContentRect(self.size);
-                self.resultContext.drawImage(self.$cropContent,rect.left,rect.top,rect.width,rect.height,0,0,self.size.width,self.size.height);
+                self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
                 self.cropCallback();
             },false);
         }
