@@ -134,9 +134,11 @@
          * 计算画布中心
          * 裁剪框中心在画布坐标系的位置
          */
-        var centerLeft = (0.5-this.positionOffset.left*1.0/this.maskViewSize.width)*100;
-        var centerTop = (0.5-this.positionOffset.top*1.0/this.maskViewSize.height)*100;
-        this.$cropContent.style.transformOrigin = centerLeft+'% '+centerTop+'%';
+        this._contentCenter = {
+            left:(0.5-this.positionOffset.left*1.0/this.maskViewSize.width),
+            top:(0.5-this.positionOffset.top*1.0/this.maskViewSize.height)
+        };
+        this.$cropContent.style.transformOrigin = (this._contentCenter.left*100)+'% '+(this._contentCenter.top*100)+'%';
 
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
@@ -323,11 +325,52 @@
         if(self.funcBtns.includes('crop')){
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
+                var scaleWidth = self.$cropContent.width*self._rotateScale;
+                var scaleHeight = self.$cropContent.height*self._rotateScale;
+
+                var $scaleCanvas = document.createElement('canvas');
+                $scaleCanvas.width = scaleWidth;
+                $scaleCanvas.height = scaleHeight;
+                var scaleContext = $scaleCanvas.getContext('2d');
+                scaleContext.scale(self._rotateScale,self._rotateScale);
+                scaleContext.drawImage(self.$cropContent,0,0,self.$cropContent.width,self.$cropContent.height);
+
+                //document.body.appendChild($scaleCanvas);
+
+                var rad = self.rotateAngle * Math.PI / 180;
+                var origin = {
+                    x:scaleWidth*self._contentCenter.left,
+                    y:scaleHeight*self._contentCenter.top
+                }
+                var $rotateCanvas = document.createElement('canvas');
+                $rotateCanvas.width = scaleWidth;
+                $rotateCanvas.height = scaleHeight;
+                var rotateContext = $rotateCanvas.getContext('2d');
+                //图片绕画布某个点旋转
+                rotateContext.translate(origin.x,origin.y);
+                rotateContext.rotate(rad);
+                rotateContext.translate(-origin.x,-origin.y);
+                rotateContext.drawImage($scaleCanvas,0,0);
+
+                //document.body.appendChild($rotateCanvas);
+
+                var $newContentCanvas = document.createElement('canvas');
+                $newContentCanvas.width = self.$cropContent.width;
+                $newContentCanvas.height = self.$cropContent.height;
+                var newContentContext = $newContentCanvas.getContext('2d');
+                var offset = {
+                    left:(scaleWidth-self.$cropContent.width)*self._contentCenter.left,
+                    top:(scaleHeight-self.$cropContent.height)*self._contentCenter.top,
+                }
+                newContentContext.drawImage($rotateCanvas,offset.left,offset.top,self.$cropContent.width,self.$cropContent.height,0,0,self.$cropContent.width,self.$cropContent.height);
+
+                //document.body.appendChild($newContentCanvas);
+
                 self.$resultCanvas = document.createElement('canvas');
                 self.$resultCanvas.width = self.size.width;
                 self.$resultCanvas.height = self.size.height;
                 self.resultContext = self.$resultCanvas.getContext('2d');
-                self.resultContext.drawImage(self.$cropContent,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
+                self.resultContext.drawImage($newContentCanvas,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
                 self.cropCallback();
             },false);
         }
