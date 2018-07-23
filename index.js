@@ -58,6 +58,7 @@
         this._rotateScale = 1;//旋转缩放
         this._baseMoveX = 0;//刻度位置初始化偏移量
         this._borderCornerLen = 3;//裁剪框突出长度
+        this._downPoint = [];//操作点坐标
         /**
          * 旋转交互分为两种：
          * 一种是整角旋转（90度）；
@@ -528,13 +529,13 @@
             //刻度触摸开始
             self.$cropRotate.addEventListener('touchstart',function(e){
                 var touch = e.touches[0];
-                self.downPoint = [touch.clientX,touch.clientY];
+                self._downPoint = [touch.clientX,touch.clientY];
             });
             //刻度触摸移动
             self.$cropRotate.addEventListener('touchmove',function(e){
                 var touch = e.touches[0];
                 var point = [touch.clientX,touch.clientY];
-                var moveX = point[0] - self.downPoint[0];
+                var moveX = point[0] - self._downPoint[0];
                 var lastMoveX = self.$lineation.getAttribute('moveX');
                 if(!lastMoveX){
                     lastMoveX = 0;
@@ -549,21 +550,21 @@
                     self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
                     self.rotateAngle = self._baseAngle+angle;
                     self.rotate();
-                    self.downPoint = point;
+                    self._downPoint = point;
                 }
             });
             //刻度触摸结束
             self.$cropRotate.addEventListener('touchend',function(){
-                self.downPoint = [];
+                self._downPoint = [];
             });
             //刻度触摸取消
             self.$cropRotate.addEventListener('touchcancel',function(){
-                self.downPoint = [];
+                self._downPoint = [];
             });
         }
 
         //画布相关事件
-        self.downPoint = [];
+        self._downPoint = [];
 
         /**
          * 触摸事件
@@ -573,7 +574,7 @@
             //裁剪区域触摸开始
             self.$cropMask.addEventListener('touchstart',function(e){
                 var touch = e.touches[0];
-                self.downPoint = [touch.clientX,touch.clientY];
+                self._downPoint = [touch.clientX,touch.clientY];
             });
             //裁剪区域触摸移动
             self.$cropMask.addEventListener('touchmove',function(e){
@@ -584,11 +585,11 @@
             });
             //裁剪区域触摸结束
             self.$cropMask.addEventListener('touchend',function(){
-                self.downPoint = [];
+                self._downPoint = [];
             });
             //裁剪区域触摸取消
             self.$cropMask.addEventListener('touchcancel',function(){
-                self.downPoint = [];
+                self._downPoint = [];
             });
 
             //复杂手势事件
@@ -640,7 +641,7 @@
 
             //裁剪区域鼠标按下
             self.$cropMask.addEventListener('mousedown',function(ev){
-                self.downPoint = [ev.clientX,ev.clientY];
+                self._downPoint = [ev.clientX,ev.clientY];
             },false);
             //裁剪区域鼠标移动
             self.$cropMask.addEventListener('mousemove',function(ev){
@@ -649,11 +650,11 @@
             },false);
             //裁剪区域鼠标松开
             self.$cropMask.addEventListener('mouseup',function(ev){
-                self.downPoint = [];
+                self._downPoint = [];
             },false);
             //裁剪区域超出范围
             self.$cropMask.addEventListener('mouseleave',function(ev){
-                self.downPoint = [];
+                self._downPoint = [];
             },false);
         }
     };
@@ -700,9 +701,9 @@
 
     //移动
     SimpleCrop.prototype.move = function(point){
-        if(this.downPoint.length==2&&!this._multiPoint){
-            var moveX = point[0] - this.downPoint[0];
-            var moveY = point[1] - this.downPoint[1];
+        if(this._downPoint.length==2&&!this._multiPoint){
+            var moveX = point[0] - this._downPoint[0];
+            var moveY = point[1] - this._downPoint[1];
 
             var rad = -this.rotateAngle/180*Math.PI;
             var newX = moveX*Math.cos(rad)-moveY*Math.sin(rad);
@@ -744,7 +745,7 @@
                 this.contentRect = newContentRect;
                 this.drawContentImage()
             }
-            this.downPoint = point;
+            this._downPoint = point;
         }
     };
 
