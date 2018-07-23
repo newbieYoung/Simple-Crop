@@ -61,6 +61,7 @@
         this._borderCornerLen = 3;//裁剪框突出长度
         this._downPoint = [];//操作点坐标
         this._endTimeout = null;//结束操作定时器
+        this._isControl = false;//是否正在操作
         /**
          * 旋转交互分为两种：
          * 一种是整角旋转（90度）；
@@ -449,6 +450,7 @@
                         var curMoveX = lastMoveX+moveX;
                         self.scaleMove(curMoveX);
                         self.scaleDownX = 0;//鼠标移动缩放只能由鼠标在缩放按钮上按下触发
+                        self.endControl();
                     }
                 }
             },false);
@@ -459,10 +461,12 @@
             //最小缩放按钮点击
             self.$scaleOneTimes.addEventListener('click',function(ev){
                 self.scaleMove(0);
+                self.endControl();
             },false);
             //最大缩放按钮点击
             self.$scaleTwoTimes.addEventListener('click',function(ev){
                 self.scaleMove(self.scaleWidth);
+                self.endControl();
             },false);
         }
 
@@ -652,29 +656,37 @@
 
     //操作结束
     SimpleCrop.prototype.endControl = function(){
-        var self = this;
-        this._downPoint = [];
-        this.scaleDownX = 0;
-        if(this._endTimeout){
-            clearTimeout(this._endTimeout);
+        if(this._isControl){
+            this._isControl = false;
+            var self = this;
+            this._downPoint = [];
+            this.scaleDownX = 0;
+            if(this._endTimeout){
+                clearTimeout(this._endTimeout);
+            }
+            this._endTimeout = setTimeout(function(){
+                self.drawContentImage(self.bgFilter);
+            },500);
         }
-        this._endTimeout = setTimeout(function(){
-            self.drawContentImage(self.bgFilter);
-        },500);
     };
 
     //操作开始
     SimpleCrop.prototype.startControl = function(point){
-        if(this._endTimeout){
-            clearTimeout(this._endTimeout);
+        if(!this._isControl){
+            this._isControl = true;
+            if(this._endTimeout){
+                clearTimeout(this._endTimeout);
+            }
+            this._downPoint = point?point:[];
+            this.borderDraw();
+            this.coverDraw();
+            this.drawContentImage();
         }
-        this._downPoint = point;
-        this.defaultBorderDraw();
-        this.drawContentImage();
     };
 
     //滑动按钮移动
     SimpleCrop.prototype.scaleMove = function(curMoveX){
+        this.startControl();
         this.$scaleBtn.style.transform = 'translateX('+curMoveX+'px)';
         this.$scaleValue.style.width = curMoveX+'px';
         this.$scaleBtn.setAttribute('moveX',curMoveX);
@@ -715,7 +727,7 @@
 
     //移动
     SimpleCrop.prototype.move = function(point){
-        if(this._downPoint.length==2&&!this._multiPoint){
+        if(this._downPoint.length!=0&&!this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
 
@@ -780,6 +792,7 @@
             this.$resultCanvas = this.getCropImage();
             this.$cropContent.style.filter = filter;
             this.cropCoverContext.drawImage(this.$resultCanvas,this.size.left,this.size.top,this.size.width,this.size.height);
+            this.coverDraw();
         }
     };
 

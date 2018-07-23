@@ -21,6 +21,7 @@
                     document.body.appendChild(this.$resultCanvas);
                 },
                 borderDraw:function(){
+                    this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);
                     this.cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
                     this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
                     this.cropCoverContext.fillStyle = '#0BFF00';
