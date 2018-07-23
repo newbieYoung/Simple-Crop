@@ -21,6 +21,7 @@
      * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
      * @param minScale 最小缩放倍数
+     * @param bgFilter 背景滤镜
      * @param controller 操控方式
      * @param maxScale 最大缩放倍数
      * @param isScaleFixed 缩放倍数范围是否固定
@@ -73,6 +74,7 @@
         this.borderDraw = params.borderDraw!=null?params.borderDraw:this.defaultBorderDraw;
         this.scaleSlider = params.scaleSlider!=null?params.scaleSlider:true;
         this.positionOffset = params.positionOffset!=null?params.positionOffset:{top:0,left:0};
+        this.bgFilter = params.bgFilter!=null?params.bgFilter:'blur(20px)';
 
         /**
          * 旋转刻度盘
@@ -657,7 +659,7 @@
             clearTimeout(this._endTimeout);
         }
         this._endTimeout = setTimeout(function(){
-            self.drawContentImage('blur(20px)');
+            self.drawContentImage(self.bgFilter);
         },500);
     };
 
