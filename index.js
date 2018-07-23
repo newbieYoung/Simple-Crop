@@ -59,6 +59,7 @@
         this._baseMoveX = 0;//刻度位置初始化偏移量
         this._borderCornerLen = 3;//裁剪框突出长度
         this._downPoint = [];//操作点坐标
+        this._endTimeout = null;//结束操作定时器
         /**
          * 旋转交互分为两种：
          * 一种是整角旋转（90度）；
@@ -229,6 +230,7 @@
 
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function(){
+        this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = 'rgba(0,0,0,.5)';
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#ffffff';
@@ -326,52 +328,6 @@
         if(self.funcBtns.includes('crop')){
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
-                var scaleWidth = self.$cropContent.width*self._rotateScale;
-                var scaleHeight = self.$cropContent.height*self._rotateScale;
-
-                var $scaleCanvas = document.createElement('canvas');
-                $scaleCanvas.width = scaleWidth;
-                $scaleCanvas.height = scaleHeight;
-                var scaleContext = $scaleCanvas.getContext('2d');
-                scaleContext.scale(self._rotateScale,self._rotateScale);
-                scaleContext.drawImage(self.$cropContent,0,0,self.$cropContent.width,self.$cropContent.height);
-
-                //document.body.appendChild($scaleCanvas);
-
-                var rad = self.rotateAngle * Math.PI / 180;
-                var origin = {
-                    x:scaleWidth*self._contentCenter.left,
-                    y:scaleHeight*self._contentCenter.top
-                }
-                var $rotateCanvas = document.createElement('canvas');
-                $rotateCanvas.width = scaleWidth;
-                $rotateCanvas.height = scaleHeight;
-                var rotateContext = $rotateCanvas.getContext('2d');
-                //图片绕画布某个点旋转
-                rotateContext.translate(origin.x,origin.y);
-                rotateContext.rotate(rad);
-                rotateContext.translate(-origin.x,-origin.y);
-                rotateContext.drawImage($scaleCanvas,0,0);
-
-                //document.body.appendChild($rotateCanvas);
-
-                var $newContentCanvas = document.createElement('canvas');
-                $newContentCanvas.width = self.$cropContent.width;
-                $newContentCanvas.height = self.$cropContent.height;
-                var newContentContext = $newContentCanvas.getContext('2d');
-                var offset = {
-                    left:(scaleWidth-self.$cropContent.width)*self._contentCenter.left,
-                    top:(scaleHeight-self.$cropContent.height)*self._contentCenter.top,
-                }
-                newContentContext.drawImage($rotateCanvas,offset.left,offset.top,self.$cropContent.width,self.$cropContent.height,0,0,self.$cropContent.width,self.$cropContent.height);
-
-                //document.body.appendChild($newContentCanvas);
-
-                self.$resultCanvas = document.createElement('canvas');
-                self.$resultCanvas.width = self.size.width;
-                self.$resultCanvas.height = self.size.height;
-                self.resultContext = self.$resultCanvas.getContext('2d');
-                self.resultContext.drawImage($newContentCanvas,self.size.left,self.size.top,self.size.width,self.size.height,0,0,self.size.width,self.size.height);
                 self.cropCallback();
             },false);
         }
@@ -495,13 +451,9 @@
                 }
             },false);
             //滑动按钮超出范围
-            self.$scaleContainer.addEventListener('mouseleave',function(ev){
-                self.scaleDownX = 0;
-            },false);
+            self.$scaleContainer.addEventListener('mouseleave',self.endControl.bind(self),false);
             //滑动按钮鼠标松开
-            self.$scaleContainer.addEventListener('mouseup',function(ev){
-                self.scaleDownX = 0;
-            },false);
+            self.$scaleContainer.addEventListener('mouseup',self.endControl.bind(self),false);
             //最小缩放按钮点击
             self.$scaleOneTimes.addEventListener('click',function(ev){
                 self.scaleMove(0);
@@ -529,7 +481,7 @@
             //刻度触摸开始
             self.$cropRotate.addEventListener('touchstart',function(e){
                 var touch = e.touches[0];
-                self._downPoint = [touch.clientX,touch.clientY];
+                self.startControl([touch.clientX,touch.clientY]);
             });
             //刻度触摸移动
             self.$cropRotate.addEventListener('touchmove',function(e){
@@ -554,17 +506,12 @@
                 }
             });
             //刻度触摸结束
-            self.$cropRotate.addEventListener('touchend',function(){
-                self._downPoint = [];
-            });
+            self.$cropRotate.addEventListener('touchend',self.endControl.bind(self),false);
             //刻度触摸取消
-            self.$cropRotate.addEventListener('touchcancel',function(){
-                self._downPoint = [];
-            });
+            self.$cropRotate.addEventListener('touchcancel',self.endControl.bind(self),false);
         }
 
         //画布相关事件
-        self._downPoint = [];
 
         /**
          * 触摸事件
@@ -574,23 +521,18 @@
             //裁剪区域触摸开始
             self.$cropMask.addEventListener('touchstart',function(e){
                 var touch = e.touches[0];
-                self._downPoint = [touch.clientX,touch.clientY];
+                self.startControl([touch.clientX,touch.clientY]);
             });
             //裁剪区域触摸移动
             self.$cropMask.addEventListener('touchmove',function(e){
                 var touch = e.touches[0];
-                var point = [touch.clientX,touch.clientY];
-                self.move(point);
+                self.move([touch.clientX,touch.clientY]);
                 e.preventDefault();//阻止默认行为
             });
             //裁剪区域触摸结束
-            self.$cropMask.addEventListener('touchend',function(){
-                self._downPoint = [];
-            });
+            self.$cropMask.addEventListener('touchend',self.endControl.bind(self),false);
             //裁剪区域触摸取消
-            self.$cropMask.addEventListener('touchcancel',function(){
-                self._downPoint = [];
-            });
+            self.$cropMask.addEventListener('touchcancel',self.endControl.bind(self),false);
 
             //复杂手势事件
             var lastScale = 1;
@@ -641,22 +583,92 @@
 
             //裁剪区域鼠标按下
             self.$cropMask.addEventListener('mousedown',function(ev){
-                self._downPoint = [ev.clientX,ev.clientY];
+                self.startControl([ev.clientX,ev.clientY]);
             },false);
             //裁剪区域鼠标移动
             self.$cropMask.addEventListener('mousemove',function(ev){
-                var point = [ev.clientX,ev.clientY];
-                self.move(point);
+                self.move([ev.clientX,ev.clientY]);
             },false);
             //裁剪区域鼠标松开
-            self.$cropMask.addEventListener('mouseup',function(ev){
-                self._downPoint = [];
-            },false);
+            self.$cropMask.addEventListener('mouseup',self.endControl.bind(self),false);
             //裁剪区域超出范围
-            self.$cropMask.addEventListener('mouseleave',function(ev){
-                self._downPoint = [];
-            },false);
+            self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self),false);
         }
+    };
+
+    //获取裁剪图片
+    SimpleCrop.prototype.getCropImage = function () {
+        var scaleWidth = this.$cropContent.width*this._rotateScale;
+        var scaleHeight = this.$cropContent.height*this._rotateScale;
+
+        var $scaleCanvas = document.createElement('canvas');
+        $scaleCanvas.width = scaleWidth;
+        $scaleCanvas.height = scaleHeight;
+        var scaleContext = $scaleCanvas.getContext('2d');
+        scaleContext.scale(this._rotateScale,this._rotateScale);
+        scaleContext.drawImage(this.$cropContent,0,0,this.$cropContent.width,this.$cropContent.height);
+
+        //document.body.appendChild($scaleCanvas);
+
+        var rad = this.rotateAngle * Math.PI / 180;
+        var origin = {
+            x:scaleWidth*this._contentCenter.left,
+            y:scaleHeight*this._contentCenter.top
+        }
+        var $rotateCanvas = document.createElement('canvas');
+        $rotateCanvas.width = scaleWidth;
+        $rotateCanvas.height = scaleHeight;
+        var rotateContext = $rotateCanvas.getContext('2d');
+        //图片绕画布某个点旋转
+        rotateContext.translate(origin.x,origin.y);
+        rotateContext.rotate(rad);
+        rotateContext.translate(-origin.x,-origin.y);
+        rotateContext.drawImage($scaleCanvas,0,0);
+
+        //document.body.appendChild($rotateCanvas);
+
+        var $newContentCanvas = document.createElement('canvas');
+        $newContentCanvas.width = this.$cropContent.width;
+        $newContentCanvas.height = this.$cropContent.height;
+        var newContentContext = $newContentCanvas.getContext('2d');
+        var offset = {
+            left:(scaleWidth-this.$cropContent.width)*this._contentCenter.left,
+            top:(scaleHeight-this.$cropContent.height)*this._contentCenter.top,
+        }
+        newContentContext.drawImage($rotateCanvas,offset.left,offset.top,this.$cropContent.width,this.$cropContent.height,0,0,this.$cropContent.width,this.$cropContent.height);
+
+        //document.body.appendChild($newContentCanvas);
+
+        var $cropImage = document.createElement('canvas');
+        $cropImage.width = this.size.width;
+        $cropImage.height = this.size.height;
+        var imageContext = $cropImage.getContext('2d');
+        imageContext.drawImage($newContentCanvas,this.size.left,this.size.top,this.size.width,this.size.height,0,0,this.size.width,this.size.height);
+
+        return $cropImage;
+    };
+
+    //操作结束
+    SimpleCrop.prototype.endControl = function(){
+        var self = this;
+        this._downPoint = [];
+        this.scaleDownX = 0;
+        if(this._endTimeout){
+            clearTimeout(this._endTimeout);
+        }
+        this._endTimeout = setTimeout(function(){
+            self.drawContentImage('blur(20px)');
+        },500);
+    };
+
+    //操作开始
+    SimpleCrop.prototype.startControl = function(point){
+        if(this._endTimeout){
+            clearTimeout(this._endTimeout);
+        }
+        this._downPoint = point;
+        this.defaultBorderDraw();
+        this.drawContentImage();
     };
 
     //滑动按钮移动
@@ -750,7 +762,7 @@
     };
 
     //绘制内容图像
-    SimpleCrop.prototype.drawContentImage = function(){
+    SimpleCrop.prototype.drawContentImage = function(filter){
         //假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制
         var $tempCanvas = document.createElement('canvas');
         $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
@@ -760,7 +772,13 @@
         var tempTop = ($tempCanvas.height-this.maskSize.height)*1.0/2+this.contentRect.top;
         tempContext.drawImage(this.$image,tempLeft,tempTop,this.contentRect.width,this.contentRect.height);
         this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
+        this.$cropContent.style.filter = 'none';
         this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
+        if(filter){
+            this.$resultCanvas = this.getCropImage();
+            this.$cropContent.style.filter = filter;
+            this.cropCoverContext.drawImage(this.$resultCanvas,this.size.left,this.size.top,this.size.width,this.size.height);
+        }
     };
 
     //坐标转换
