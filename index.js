@@ -788,7 +788,7 @@
         this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
         this.$cropContent.style.filter = 'none';
         this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
-        if(filter){
+        if(filter||!this.$resultCanvas){
             this.$resultCanvas = this.getCropImage();
             this.$cropContent.style.filter = filter;
             this.cropCoverContext.drawImage(this.$resultCanvas,this.size.left,this.size.top,this.size.width,this.size.height);
