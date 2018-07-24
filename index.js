@@ -665,7 +665,7 @@
                 clearTimeout(this._endTimeout);
             }
             this._endTimeout = setTimeout(function(){
-                self.drawContentImage(self.bgFilter);
+                self.drawContentImage(true);
             },500);
         }
     };
@@ -776,7 +776,7 @@
     };
 
     //绘制内容图像
-    SimpleCrop.prototype.drawContentImage = function(filter){
+    SimpleCrop.prototype.drawContentImage = function(useFilter){
         //假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制
         var $tempCanvas = document.createElement('canvas');
         $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
@@ -788,9 +788,9 @@
         this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
         this.$cropContent.style.filter = 'none';
         this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
-        if(filter||!this.$resultCanvas){
+        if(useFilter||!this.$resultCanvas){
             this.$resultCanvas = this.getCropImage();
-            this.$cropContent.style.filter = filter;
+            this.$cropContent.style.filter = this.bgFilter;
             this.cropCoverContext.drawImage(this.$resultCanvas,this.size.left,this.size.top,this.size.width,this.size.height);
             this.coverDraw();
         }
