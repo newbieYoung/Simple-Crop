@@ -359,11 +359,13 @@
         if(self.funcBtns.includes('around')){
             self.$cropAround = document.querySelector('#'+self.id+' .crop-around');
             self.$cropAround.addEventListener('click',function(){
+                self.startControl();
                 self.rotateAngle = self._baseAngle-90;
                 self._baseAngle = self.rotateAngle;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
                 self.rotate();
+                self.endControl();
             })
         }
 
@@ -371,6 +373,7 @@
         if(self.funcBtns.includes('reset')){
             self.$cropReset = document.querySelector('#'+self.id+' .crop-reset');
             self.$cropReset.addEventListener('click',function(){
+                self.startControl();
                 self._rotateScale = 1;
                 self._baseAngle = 0;
                 self.rotateAngle = 0;
@@ -379,6 +382,7 @@
                 self.scaleTimes = self.minScale;
                 self.rotate();
                 self.scale();
+                self.endControl();
             })
         }
 
