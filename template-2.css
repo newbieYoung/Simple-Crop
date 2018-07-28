@@ -112,33 +112,62 @@
     align-items: center;
 }
 .crop-component .crop-btns button{
+    flex:1;
     background-color:transparent;
     border:none;
     padding:0;
     display:inline-block;
     margin:auto;
+    position: relative;
 }
-.crop-component .crop-btns .crop-close{
+.crop-component .crop-btns button:after{
+    position: absolute;
+    top:0;
+    bottom:0;
+    margin:auto;
+    content:'';
+    display:inline-block;
+}
+.crop-component .crop-close:after{
+    left:16px;
     width:18px;
     height:18px;
     background-image:url(./img/crop-close-white.png);
     background-size:100% 100%;
 }
-.crop-component .crop-btn{
+.crop-component .crop-btn:after{
+    right:16px;
     width:21px;
     height:15px;
     background-image:url(./img/crop-btn.png);
     background-size:100% 100%;
 }
-.crop-component .crop-reset{
+.crop-component .crop-reset:after{
+    left:0;
+    right:-20%;
     width:22px;
     height:19px;
     background-image:url(./img/crop-reset.png);
     background-size:100% 100%;
 }
-.crop-component .crop-around{
+.crop-component .crop-around:after{
+    right:0;
+    left:-20%;
     width:18px;
     height:22px;
     background-image:url(./img/crop-rotate.png);
     background-size:100% 100%;
+}
+
+/* iphoneX */
+@media only screen
+and (device-width : 375px)
+and (device-height : 812px)
+and (-webkit-device-pixel-ratio : 3) {
+    .crop-component .crop-btns{
+        bottom: 43px;
+    }
+    .crop-component .crop-rotate{
+        bottom: 95px;
+    }
 }
