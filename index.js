@@ -551,7 +551,7 @@
                     self._multiPoint = true;//多点触摸开始
                 },
                 pinch: function (evt) {//缩放
-                    var scale = evt.scale;
+                    var scale = evt.zoom;
                     var newScale = self.scaleTimes/lastScale*scale;
                     if(newScale>=self.minScale&&newScale<=self.maxScale){
                         self.scaleTimes = newScale
