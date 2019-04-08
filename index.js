@@ -75,6 +75,7 @@
         this.borderDraw = params.borderDraw!=null?params.borderDraw:this.defaultBorderDraw;
         this.noBoldCorner = params.noBoldCorner!=null?params.noBoldCorner:false;//裁剪框边角是否不加粗
         this.coverColor = params.coverColor!=null?params.coverColor:'rgba(0,0,0,.5)';//遮罩框背景颜色
+        this.$container = params.$container!=null?params.$container:document.body;//组件容器
         this.scaleSlider = params.scaleSlider!=null?params.scaleSlider:true;
         this.positionOffset = params.positionOffset!=null?params.positionOffset:{top:0,left:0};
         this.bgFilter = params.bgFilter!=null?params.bgFilter:'blur(20px)';
@@ -230,7 +231,7 @@
         this.$target.classList.add('crop-whole-cover');
         this.$target.innerHTML = html;
         this.$target.style.zIndex = this.zIndex;
-        document.body.appendChild(this.$target);
+        this.$container.appendChild(this.$target);
     };
 
     //默认绘制裁剪框
