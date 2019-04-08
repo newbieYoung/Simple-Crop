@@ -73,6 +73,8 @@
         this.zIndex = params.zIndex!=null?params.zIndex:9999;
         this.coverDraw = params.coverDraw!=null?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw!=null?params.borderDraw:this.defaultBorderDraw;
+        this.noBoldCorner = params.noBoldCorner!=null?params.noBoldCorner:false;//裁剪框边角是否不加粗
+        this.coverColor = params.coverColor!=null?params.coverColor:'rgba(0,0,0,.5)';//遮罩框背景颜色
         this.scaleSlider = params.scaleSlider!=null?params.scaleSlider:true;
         this.positionOffset = params.positionOffset!=null?params.positionOffset:{top:0,left:0};
         this.bgFilter = params.bgFilter!=null?params.bgFilter:'blur(20px)';
@@ -234,7 +236,7 @@
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function(){
         this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);
-        this.cropCoverContext.fillStyle = 'rgba(0,0,0,.5)';
+        this.cropCoverContext.fillStyle = this.coverColor;
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#ffffff';
 
@@ -249,14 +251,16 @@
         }
         this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRectWidth,borderRectHeight);
 
-        //边框四个角加粗
-        var percent = 0.05;
-        var cornerRectWidth = borderRectWidth*percent;
-        var cornerRectHeight = borderRectHeight*percent;
-        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左上角
-        this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右上角
-        this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左下角
-        this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右下角
+        if(!this.noBoldCorner){
+            //边框四个角加粗
+            var percent = 0.05;
+            var cornerRectWidth = borderRectWidth*percent;
+            var cornerRectHeight = borderRectHeight*percent;
+            this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左上角
+            this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右上角
+            this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左下角
+            this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右下角
+        }
 
         //清空内容区域
         var innerRect = {

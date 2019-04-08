@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试三</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,viewport-fit=cover ">
+    <link rel="stylesheet" href="./dist/template-2.css">
+</head>
+<body>
+<script src="./node_modules/alloyfinger/alloy_finger.js"></script>
+<script src="./index.js"></script>
+<script>
+    //假设是iphonex 44+44
+    var widthPercent = 0.556;
+    var width = document.documentElement.clientWidth;
+    var height = document.documentElement.clientHeight;
+    var offsetTop = (height - height * widthPercent)/2 - 88;
+
+    var simpleCrop = new SimpleCrop({
+        src:'./img/test2.jpg',
+        size:{
+            width:width,
+            height:height
+        },
+        borderWidth:1,
+        noBoldCorner:true,
+        bgFilter:'',
+        coverColor:'rgba(0,0,0,.3)',
+        cropSizePercent:widthPercent,
+        controller:['touch'],
+        positionOffset:{left:0,top:offsetTop},
+        funcBtns:[],
+        scaleSlider:false,
+        rotateSlider:false,
+        cropCallback:function(){
+            this.$resultCanvas.style.marginRight = '10px';
+            document.body.appendChild(this.$resultCanvas);
+        }
+    });
+
+    console.log(simpleCrop);
+</script>
+</body>
+</html>
