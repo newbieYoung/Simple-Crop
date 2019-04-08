@@ -740,7 +740,7 @@
         var newWidth = this.size.width*Math.abs(Math.cos(rad))+this.size.height*Math.abs(Math.sin(rad));
         var scaleWidth = newWidth/this.size.width;
         var scaleHeight = newHeight/this.size.height;
-        var maxScale = scaleWidth>scaleHeight?scaleWidth:scaleHeight;
+        var maxScale = (newHeight/newWidth > this.height/this.width)?scaleHeight:scaleWidth;//通过安全区域的宽高比和裁剪宽区域的宽高比计算旋转安全缩放系数
         this._rotateScale = maxScale;
         transform += 'rotate('+this.rotateAngle+'deg)';
         transform += 'scale('+this._rotateScale+') ';
