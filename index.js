@@ -49,6 +49,17 @@
      */
     function SimpleCrop(params){
 
+        //判断是否支持passive
+        this.passiveSupported = false;
+        try {
+            var options = Object.defineProperty({}, 'passive', {
+                get: function() {
+                    passiveSupported = true
+                }
+            })
+            window.addEventListener('test', null, options)
+        } catch (err) {}
+
         this.id = 'crop-'+new Date().getTime();
         this.title = params.title;
         this.src = params.src;
@@ -337,7 +348,7 @@
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
                 self.cropCallback();
-            },false);
+            });
         }
 
         //上传
@@ -357,7 +368,7 @@
                     }
                 }
                 self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
-            },false);
+            });
         }
 
         //整角旋转
@@ -399,7 +410,7 @@
                 if(self.closeCallback){
                     self.closeCallback();
                 }
-            },false);
+            });
         }
 
         //滑动缩放
@@ -420,7 +431,7 @@
             //滑动按钮鼠标按下
             self.$scaleBtn.addEventListener('mousedown',function(ev){
                 self.scaleDownX = ev.clientX;
-            },false);
+            });
             //滑动按钮鼠标滑动
             self.$scaleContainer.addEventListener('mousemove',function(ev){
                 var pointX = ev.clientX;
@@ -437,11 +448,11 @@
                         self.scaleMove(curMoveX);
                     }
                 }
-            },false);
+            });
             //缩放条点击
             self.$scaleBtn.addEventListener('click',function(ev){//滑动按钮点击
                 ev.stopPropagation();
-            },false);
+            });
             self.$scaleContainer.addEventListener('click',function(ev){
                 var rect = self.$scaleBtn.getBoundingClientRect();
                 if(self.scaleDownX<=0){
@@ -462,21 +473,21 @@
                         self.endControl();
                     }
                 }
-            },false);
+            });
             //滑动按钮超出范围
-            self.$scaleContainer.addEventListener('mouseleave',self.endControl.bind(self),false);
+            self.$scaleContainer.addEventListener('mouseleave',self.endControl.bind(self));
             //滑动按钮鼠标松开
-            self.$scaleContainer.addEventListener('mouseup',self.endControl.bind(self),false);
+            self.$scaleContainer.addEventListener('mouseup',self.endControl.bind(self));
             //最小缩放按钮点击
             self.$scaleOneTimes.addEventListener('click',function(ev){
                 self.scaleMove(0);
                 self.endControl();
-            },false);
+            });
             //最大缩放按钮点击
             self.$scaleTwoTimes.addEventListener('click',function(ev){
                 self.scaleMove(self.scaleWidth);
                 self.endControl();
-            },false);
+            });
         }
 
         if(self.rotateSlider){
@@ -521,9 +532,9 @@
                 }
             });
             //刻度触摸结束
-            self.$cropRotate.addEventListener('touchend',self.endControl.bind(self),false);
+            self.$cropRotate.addEventListener('touchend',self.endControl.bind(self));
             //刻度触摸取消
-            self.$cropRotate.addEventListener('touchcancel',self.endControl.bind(self),false);
+            self.$cropRotate.addEventListener('touchcancel',self.endControl.bind(self));
         }
 
         //画布相关事件
@@ -542,11 +553,12 @@
             self.$container.addEventListener('touchmove',function(e){
                 var touch = e.touches[0];
                 self.move([touch.clientX,touch.clientY]);
-            });
+                e.preventDefault();
+            },self.passiveSupported?{passive: false,capture:false}:false);
             //裁剪区域触摸结束
-            self.$container.addEventListener('touchend',self.endControl.bind(self),false);
+            self.$container.addEventListener('touchend',self.endControl.bind(self));
             //裁剪区域触摸取消
-            self.$container.addEventListener('touchcancel',self.endControl.bind(self),false);
+            self.$container.addEventListener('touchcancel',self.endControl.bind(self));
 
             //复杂手势事件
             var lastScale = 1;
@@ -598,15 +610,15 @@
             //裁剪区域鼠标按下
             self.$cropMask.addEventListener('mousedown',function(ev){
                 self.startControl([ev.clientX,ev.clientY]);
-            },false);
+            });
             //裁剪区域鼠标移动
             self.$cropMask.addEventListener('mousemove',function(ev){
                 self.move([ev.clientX,ev.clientY]);
-            },false);
+            });
             //裁剪区域鼠标松开
-            self.$cropMask.addEventListener('mouseup',self.endControl.bind(self),false);
+            self.$cropMask.addEventListener('mouseup',self.endControl.bind(self));
             //裁剪区域超出范围
-            self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self),false);
+            self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self));
         }
     };
 
