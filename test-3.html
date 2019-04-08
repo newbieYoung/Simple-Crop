@@ -27,6 +27,7 @@
         noBoldCorner:true,
         bgFilter:'',
         coverColor:'rgba(0,0,0,.3)',
+        $container:document.body,
         cropSizePercent:widthPercent,
         controller:['touch'],
         positionOffset:{left:0,top:offsetTop},
@@ -38,8 +39,6 @@
             document.body.appendChild(this.$resultCanvas);
         }
     });
-
-    console.log(simpleCrop);
 </script>
 </body>
 </html>
