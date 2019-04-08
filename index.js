@@ -534,24 +534,23 @@
         if(self.controller.includes('touch')){
 
             //裁剪区域触摸开始
-            self.$cropMask.addEventListener('touchstart',function(e){
+            self.$container.addEventListener('touchstart',function(e){
                 var touch = e.touches[0];
                 self.startControl([touch.clientX,touch.clientY]);
             });
             //裁剪区域触摸移动
-            self.$cropMask.addEventListener('touchmove',function(e){
+            self.$container.addEventListener('touchmove',function(e){
                 var touch = e.touches[0];
                 self.move([touch.clientX,touch.clientY]);
-                e.preventDefault();//阻止默认行为
             });
             //裁剪区域触摸结束
-            self.$cropMask.addEventListener('touchend',self.endControl.bind(self),false);
+            self.$container.addEventListener('touchend',self.endControl.bind(self),false);
             //裁剪区域触摸取消
-            self.$cropMask.addEventListener('touchcancel',self.endControl.bind(self),false);
+            self.$container.addEventListener('touchcancel',self.endControl.bind(self),false);
 
             //复杂手势事件
             var lastScale = 1;
-            new finger(self.$cropMask, {
+            new finger(self.$container, {
                 multipointStart: function () {
                     self._multiPoint = true;//多点触摸开始
                 },
