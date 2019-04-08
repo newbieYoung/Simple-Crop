@@ -48,13 +48,14 @@
      *
      */
     function SimpleCrop(params){
+        var self = this;
 
         //判断是否支持passive
-        this.passiveSupported = false;
+        self.passiveSupported = false;
         try {
             var options = Object.defineProperty({}, 'passive', {
                 get: function() {
-                    passiveSupported = true
+                    self.passiveSupported = true
                 }
             })
             window.addEventListener('test', null, options)
@@ -549,12 +550,13 @@
                 var touch = e.touches[0];
                 self.startControl([touch.clientX,touch.clientY]);
             });
+            var options = self.passiveSupported?{passive: false,capture:false}:false;
             //裁剪区域触摸移动
             self.$container.addEventListener('touchmove',function(e){
                 var touch = e.touches[0];
                 self.move([touch.clientX,touch.clientY]);
                 e.preventDefault();
-            },self.passiveSupported?{passive: false,capture:false}:false);
+            },options);
             //裁剪区域触摸结束
             self.$container.addEventListener('touchend',self.endControl.bind(self));
             //裁剪区域触摸取消
