@@ -11,17 +11,21 @@
     <script src="./node_modules/alloyfinger/alloy_finger.js"></script>
     <script src="./index.js"></script>
     <script>
-        var offsetTop = document.documentElement.clientHeight*0.05;//向上偏移10%
+        var offsetTop = document.documentElement.clientHeight*0.05;
+        var offsetLeft = document.documentElement.clientWidth*0.05;
+
         var simpleCrop = new SimpleCrop({
             src:'./img/test1.jpg',
             size:{
-                width:680,
-                height:680
+                width:500,
+                height:300
             },
             borderWidth:1,
             cropSizePercent:0.9,
             controller:['touch'],
-            positionOffset:{left:0,top:offsetTop},
+            positionOffset:{left:0,top:0},
+            bgFilter:'',
+            coverColor:'rgba(0,0,0,.3)',
             funcBtns:['close','crop','around','reset'],
             scaleSlider:false,
             rotateSlider:true,

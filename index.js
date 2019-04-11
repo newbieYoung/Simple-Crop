@@ -41,11 +41,11 @@
      *
      * maskViewSize 容器的显示尺寸
      * maskSize 容器的逻辑尺寸
+     * viewSize 截图区域的显示尺寸
      * size 截图区域的逻辑尺寸
+     * positionOffset 显示尺寸偏移
      * coverRect 遮罩坐标系
      * contentRect 画布坐标系
-     * positionOffset 显示尺寸偏移
-     *
      */
     function SimpleCrop(params){
         var self = this;
@@ -143,22 +143,18 @@
         this.$cropCover.height = this.maskSize.height;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
         this.cropContentContext = this.$cropContent.getContext('2d');
-        this.$cropContent.width = this.maskSize.width;
-        this.$cropContent.height = this.maskSize.height;
+
 
         this.size.left = (this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times;
         this.size.top = (this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times;
         this.borderWidth = params.borderWidth!=null?params.borderWidth:2;
 
-        /**
-         * 计算画布中心
-         * 裁剪框中心在画布坐标系的位置
-         */
-        this._contentCenter = {
-            left:(0.5-this.positionOffset.left*1.0/this.maskViewSize.width),
-            top:(0.5-this.positionOffset.top*1.0/this.maskViewSize.height)
+        this.viewSize = {
+            width:this.size.width/this.times,
+            height:this.size.height/this.times,
+            left:this.size.left/this.times,
+            top:this.size.top/this.times
         };
-        this.$cropContent.style.transformOrigin = (this._contentCenter.left*100)+'% '+(this._contentCenter.top*100)+'%';
 
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
@@ -298,12 +294,12 @@
         }
         self.$image.src = self.src;
         self.$image.onload = function(){
-            self.contentRect = {
-                left:(self.maskSize.width-self.$image.width)*1.0/2-self.positionOffset.left*self.times,
-                top:(self.maskSize.height-self.$image.height)*1.0/2-self.positionOffset.top*self.times,
-                width:self.$image.width,
-                height:self.$image.height
-            };
+
+            self.$cropContent.width = self.$image.width;
+            self.$cropContent.height = self.$image.height;
+            self.$cropContent.setAttribute('moveX',0);
+            self.$cropContent.setAttribute('moveY',0);
+            self.cropContentContext.drawImage(self.$image,0,0,self.$image.width,self.$image.height);
 
             /**
              * 默认最大缩放倍数为1；也就是显示原图；
@@ -321,7 +317,31 @@
                 }
             }
             self.scaleTimes = self.minScale;
-            self.scale();
+
+            self.contentRect = {
+                width : self.$image.width * self.scaleTimes / self.times,
+                height : self.$image.height * self.scaleTimes / self.times,
+            };
+            self.contentRect.left = self.viewSize.left - (self.contentRect.width - self.viewSize.width)/2;
+            self.contentRect.top = self.viewSize.top - (self.contentRect.height - self.viewSize.height)/2;
+
+            /**
+             * 计算画布中心
+             * 裁剪框中心在画布坐标系的位置
+             */
+            var scaleHeight = self.$image.height * self.scaleTimes / self.times;
+            var scaleWidth = self.$image.width * self.scaleTimes / self.times;
+            var cropHeight = self.size.height / self.times;
+            var cropWidth = self.size.width / self.times;
+            var lenW = ( self.$image.width - self.size.width / self.times - (scaleWidth - cropWidth)) / 2;
+            var lenH = ( self.$image.height - self.size.height / self.times - (scaleHeight - cropHeight)) / 2;
+            self._contentCenter = {
+                left:(lenW - self.positionOffset.left)/(lenW*2),
+                top: (lenH - self.positionOffset.top)/(lenH*2)
+            };
+            self.$cropContent.style.transformOrigin = (self._contentCenter.left*100)+'% '+(self._contentCenter.top*100)+'%';
+
+            self.transform();
         }
     };
 
@@ -381,7 +401,7 @@
                 self._baseAngle = self.rotateAngle;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
-                self.rotate();
+                self.transform();
                 self.endControl();
             })
         }
@@ -397,8 +417,7 @@
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
                 self.scaleTimes = self.minScale;
-                self.rotate();
-                self.scale();
+                self.transform();
                 self.endControl();
             })
         }
@@ -528,9 +547,10 @@
                     self.$lineation.setAttribute('moveX',curMoveX);
                     self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
                     self.rotateAngle = self._baseAngle+angle;
-                    self.rotate();
+                    self.transform();
                     self._downPoint = point;
                 }
+                e.stopPropagation();//阻止事件冒泡
             });
             //刻度触摸结束
             self.$cropRotate.addEventListener('touchend',self.endControl.bind(self));
@@ -553,6 +573,7 @@
             var options = self.passiveSupported?{passive: false,capture:false}:false;
             //裁剪区域触摸移动
             self.$container.addEventListener('touchmove',function(e){
+                console.log('touchmove');
                 var touch = e.touches[0];
                 self.move([touch.clientX,touch.clientY]);
                 e.preventDefault();
@@ -574,7 +595,7 @@
                     if(newScale>=self.minScale&&newScale<=self.maxScale){
                         self.scaleTimes = newScale
                         lastScale = scale;
-                        self.scale();
+                        self.transform();
                     }else{
                         /**
                          * 浮点数计算存在误差会导致缩放时很难回到初始状态；
@@ -588,14 +609,14 @@
                                 newScale = self.minScale;
                             }
                             self.scaleTimes = newScale;
-                            self.scale();
+                            self.transform();
                         }
                     }
                 },
                 // rotate:function(evt){//旋转
                 //     var angle = evt.angle;
                 //     self.rotateAngle += angle;
-                //     self.rotate();
+                //     self.transform();
                 // },
                 multipointEnd: function () {
                     self._multiPoint = false;//多点触摸结束
@@ -687,7 +708,7 @@
                 clearTimeout(this._endTimeout);
             }
             this._endTimeout = setTimeout(function(){
-                self.drawContentImage(true);
+                //self.transform();
             },500);
         }
     };
@@ -702,7 +723,7 @@
             this._downPoint = point?point:[];
             this.borderDraw();
             this.coverDraw();
-            this.drawContentImage();
+            //this.transform();
         }
     };
 
@@ -714,26 +735,14 @@
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
         this.scaleTimes = this.minScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.minScale);
-        this.scale();
+        this.transform();
     };
 
-    //缩放
-    SimpleCrop.prototype.scale = function(){
+    //旋转、缩放、移动
+    SimpleCrop.prototype.transform = function(){
         var transform = '';
-        var coverTect = this.contentRectToCoverRect(this.contentRect);
-        coverTect = this.rectLimit(coverTect);
-        this.contentRect = this.coverRectToContentRect(coverTect);
-        if(this._rotateScale){
-            transform += 'scale('+this._rotateScale+') ';
-        }
-        transform += 'rotate('+this.rotateAngle+'deg)';
-        this.$cropContent.style.transform = transform;
-        this.drawContentImage();
-    };
+        transform += 'rotate('+this.rotateAngle+'deg)';//旋转
 
-    //旋转
-    SimpleCrop.prototype.rotate = function(){
-        var transform = '';
         //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
         var rad = this.rotateAngle/180*Math.PI;
         var newHeight = this.size.width*Math.abs(Math.sin(rad))+this.size.height*Math.abs(Math.cos(rad));
@@ -742,8 +751,13 @@
         var scaleHeight = newHeight/this.size.height;
         var maxScale = (newHeight/newWidth > this.height/this.width)?scaleHeight:scaleWidth;//通过安全区域的宽高比和裁剪宽区域的宽高比计算旋转安全缩放系数
         this._rotateScale = maxScale;
-        transform += 'rotate('+this.rotateAngle+'deg)';
-        transform += 'scale('+this._rotateScale+') ';
+        var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+        transform += 'scale('+scaleNum+')';//缩放
+
+        var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
+        var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+
         this.$cropContent.style.transform = transform;
     };
 
@@ -758,110 +772,42 @@
             var newY = moveX*Math.sin(rad)+moveY*Math.cos(rad);
 
             var newContentRect = {
-                left:this.contentRect.left+newX*this.times,
-                top:this.contentRect.top+newY*this.times,
+                left:this.contentRect.left+newX,
+                top:this.contentRect.top+newY,
                 width:this.contentRect.width,
                 height:this.contentRect.height
             };
 
-            var coverRect = this.contentRectToCoverRect(newContentRect);
+            if(newContentRect.left > this.viewSize.left){
+                newContentRect.left = this.viewSize.left;
+            }else if((newContentRect.left + newContentRect.width) < (this.viewSize.left + this.viewSize.width)){
+                newContentRect.left = this.viewSize.left + this.viewSize.width - newContentRect.width;
+            }
+            if(newContentRect.top > this.viewSize.top){
+                newContentRect.top = this.viewSize.top;
+            }else if((newContentRect.top + newContentRect.height) < (this.viewSize.top + this.viewSize.height)){
+                newContentRect.top = this.viewSize.top + this.viewSize.height - newContentRect.height;
+            }
 
-            var isChanged = false;
-            if(coverRect.left>this.size.left||(coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
-                newContentRect.left = this.contentRect.left;
-            }else{
+            newX = newContentRect.left - this.contentRect.left;
+            newY = newContentRect.top - this.contentRect.top;
+
+            if(newX != 0 || newY != 0){
                 var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
-                if(!lastMoveX){
-                    lastMoveX = 0;
-                }
-                var curMoveX = lastMoveX+newX;
-                this.$cropContent.setAttribute('moveX',curMoveX);
-                isChanged = true;
-            }
-            if(coverRect.top>this.size.top||(coverRect.top+coverRect.height)<(this.size.top+this.size.height)){
-                newContentRect.top = this.contentRect.top;
-            }else{
                 var lastMoveY = parseFloat(this.$cropContent.getAttribute('moveY'));
-                if(!lastMoveY){
-                    lastMoveY = 0;
-                }
+
+                var curMoveX = lastMoveX+newX;
                 var curMoveY = lastMoveY+newY;
+
+                this.$cropContent.setAttribute('moveX',curMoveX);
                 this.$cropContent.setAttribute('moveY',curMoveY);
-                isChanged = true;
-            }
-            if(isChanged){
+
                 this.contentRect = newContentRect;
-                this.drawContentImage()
+                this.transform()
             }
+
             this._downPoint = point;
         }
-    };
-
-    //绘制内容图像
-    SimpleCrop.prototype.drawContentImage = function(useFilter){
-        //假定一个坐标和画布一样，但是可视尺寸和可视容器一样的新的画布来绘制
-        var $tempCanvas = document.createElement('canvas');
-        $tempCanvas.width = this.maskSize.width*1.0/this.scaleTimes;
-        $tempCanvas.height = this.maskSize.height*1.0/this.scaleTimes;
-        var tempContext = $tempCanvas.getContext('2d');
-        var tempLeft = ($tempCanvas.width-this.maskSize.width)*1.0/2+this.contentRect.left;
-        var tempTop = ($tempCanvas.height-this.maskSize.height)*1.0/2+this.contentRect.top;
-        tempContext.drawImage(this.$image,tempLeft,tempTop,this.contentRect.width,this.contentRect.height);
-        this.cropContentContext.clearRect(0,0,this.maskSize.width,this.maskSize.height);
-        this.$cropContent.style.filter = 'none';
-        this.cropContentContext.drawImage($tempCanvas,0,0,this.maskSize.width,this.maskSize.height);
-        if(useFilter||!this.$resultCanvas){
-            this.$resultCanvas = this.getCropImage();
-            this.$cropContent.style.filter = this.bgFilter;
-            this.cropCoverContext.drawImage(this.$resultCanvas,this.size.left,this.size.top,this.size.width,this.size.height);
-            this.coverDraw();
-        }
-    };
-
-    //坐标转换
-    SimpleCrop.prototype.contentRectToCoverRect = function(contentRect){
-        var coverRect = {
-            left:contentRect.left*this.scaleTimes,
-            top:contentRect.top*this.scaleTimes,
-            width:contentRect.width*this.scaleTimes,
-            height:contentRect.height*this.scaleTimes
-        };
-        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
-        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
-
-        coverRect.left = coverRect.left-overLeft;
-        coverRect.top = coverRect.top-overTop;
-
-        return coverRect;
-    };
-    SimpleCrop.prototype.coverRectToContentRect = function(coverRect){
-        var overLeft = this.maskSize.width*(this.scaleTimes-1)*1.0/2;
-        var overTop = this.maskSize.height*(this.scaleTimes-1)*1.0/2;
-
-        var contentRect = {
-            left:(coverRect.left+overLeft)*1.0/this.scaleTimes,
-            top:(coverRect.top+overTop)*1.0/this.scaleTimes,
-            width:coverRect.width*1.0/this.scaleTimes,
-            height:coverRect.height*1.0/this.scaleTimes
-        }
-
-        return contentRect;
-    };
-
-    //坐标限制
-    SimpleCrop.prototype.rectLimit = function(coverRect){
-        if(coverRect.left>=this.size.left){
-            coverRect.left = this.size.left;
-        }else if((coverRect.left+coverRect.width)<(this.size.left+this.size.width)){
-            coverRect.left = this.size.left+this.size.width-coverRect.width;
-        }
-        if(coverRect.top>=this.size.top){
-            coverRect.top = this.size.top;
-        }else if((coverRect.top+coverRect.height)<(this.size.top+this.size.height)){
-            coverRect.top = this.size.top+this.size.height-coverRect.height;
-        }
-
-        return coverRect;
     };
 
     //file转image
