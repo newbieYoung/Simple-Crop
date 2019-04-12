@@ -297,8 +297,6 @@
 
             self.$cropContent.width = self.$image.width;
             self.$cropContent.height = self.$image.height;
-            self.$cropContent.setAttribute('moveX',0);
-            self.$cropContent.setAttribute('moveY',0);
             self.cropContentContext.drawImage(self.$image,0,0,self.$image.width,self.$image.height);
 
             /**
@@ -325,21 +323,8 @@
             self.contentRect.left = self.viewSize.left - (self.contentRect.width - self.viewSize.width)/2;
             self.contentRect.top = self.viewSize.top - (self.contentRect.height - self.viewSize.height)/2;
 
-            /**
-             * 计算画布中心
-             * 裁剪框中心在画布坐标系的位置
-             */
-            var scaleHeight = self.$image.height * self.scaleTimes / self.times;
-            var scaleWidth = self.$image.width * self.scaleTimes / self.times;
-            var cropHeight = self.size.height / self.times;
-            var cropWidth = self.size.width / self.times;
-            var lenW = ( self.$image.width - self.size.width / self.times - (scaleWidth - cropWidth)) / 2;
-            var lenH = ( self.$image.height - self.size.height / self.times - (scaleHeight - cropHeight)) / 2;
-            self._contentCenter = {
-                left:(lenW - self.positionOffset.left)/(lenW*2),
-                top: (lenH - self.positionOffset.top)/(lenH*2)
-            };
-            self.$cropContent.style.transformOrigin = (self._contentCenter.left*100)+'% '+(self._contentCenter.top*100)+'%';
+            self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
+            self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
 
             self.transform();
         }

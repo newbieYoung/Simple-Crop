@@ -11,8 +11,8 @@
     <script src="./node_modules/alloyfinger/alloy_finger.js"></script>
     <script src="./index.js"></script>
     <script>
-        var offsetTop = document.documentElement.clientHeight*0.05;
-        var offsetLeft = document.documentElement.clientWidth*0.05;
+        var offsetTop = document.documentElement.clientHeight*0.04;
+        var offsetLeft = document.documentElement.clientWidth*0.02;
 
         var simpleCrop = new SimpleCrop({
             src:'./img/test1.jpg',
@@ -23,7 +23,7 @@
             borderWidth:1,
             cropSizePercent:0.9,
             controller:['touch'],
-            positionOffset:{left:0,top:0},
+            positionOffset:{left:offsetLeft,top:offsetTop},
             bgFilter:'',
             coverColor:'rgba(0,0,0,.3)',
             funcBtns:['close','crop','around','reset'],
