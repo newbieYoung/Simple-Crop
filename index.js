@@ -15,10 +15,8 @@
      * @param src   初始图片路径
      * @param borderWidth 裁剪区域边框宽度
      * @param positionOffset 裁剪区域偏移
-     * @param size  裁剪区域实际尺寸以及相对于裁剪容器位置
      * @param cropSizePercent 裁剪区域占画布比例
      * @param times 实际尺寸/显示尺寸
-     * @param maskSize 裁剪容器实际尺寸
      * @param zIndex 样式层级
      * @param minScale 最小缩放倍数
      * @param bgFilter 背景滤镜
@@ -35,17 +33,15 @@
      *
      * ------------------------------------
      *
-     * 因为计算过程中涉及几个坐标系的转换需要注意一下：
-     * 比如需要的截图的实际尺寸为400*400，但是因为容器的原因不能显示为实际尺寸，这里会保持宽高比例不变，进行一定的缩放，缩放之后也就存在逻辑尺寸和显示尺寸了；
-     * 另外图片尺寸固定，但是绘制时存在缩放，比如初始化时会让裁剪框尽量填满最多的图片，那么这里也就产生了一个逻辑上的画布坐标系了。
-     *
+     * positionOffset 显示尺寸偏移
      * maskViewSize 容器的显示尺寸
      * maskSize 容器的逻辑尺寸
-     * viewSize 截图区域的显示尺寸
      * size 截图区域的逻辑尺寸
-     * positionOffset 显示尺寸偏移
-     * coverRect 遮罩坐标系
-     * contentRect 画布坐标系
+     * viewSize 截图区域的显示尺寸
+     *
+     * cropPoints 裁剪区域顶点坐标
+     * contentPoints 图片显示区域矩形顶点坐标
+     * initContentPoints 图片显示区域矩形初始顶点坐标
      */
     function SimpleCrop(params){
         var self = this;
@@ -155,6 +151,8 @@
             left:this.size.left/this.times,
             top:this.size.top/this.times
         };
+        console.log(this.viewSize);
+        console.log(this.size);
 
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
@@ -299,6 +297,35 @@
             self.$cropContent.height = self.$image.height;
             self.cropContentContext.drawImage(self.$image,0,0,self.$image.width,self.$image.height);
 
+            var x = self.$image.width/2;
+            var y = self.$image.height/2;
+            self.contentPoints = [{
+                x:-x,
+                y:y
+            },{
+                x:x,
+                y:y
+            },{
+                x:x,
+                y:-y
+            },{
+                x:-x,
+                y:-y
+            }];
+            self.initContentPoints = [{
+                x:-x,
+                y:y
+            },{
+                x:x,
+                y:y
+            },{
+                x:x,
+                y:-y
+            },{
+                x:-x,
+                y:-y
+            }];
+
             /**
              * 默认最大缩放倍数为1；也就是显示原图；
              * 默认最小缩放倍数为图片刚好填满裁切区域。
@@ -315,13 +342,6 @@
                 }
             }
             self.scaleTimes = self.minScale;
-
-            self.contentRect = {
-                width : self.$image.width * self.scaleTimes / self.times,
-                height : self.$image.height * self.scaleTimes / self.times,
-            };
-            self.contentRect.left = self.viewSize.left - (self.contentRect.width - self.viewSize.width)/2;
-            self.contentRect.top = self.viewSize.top - (self.contentRect.height - self.viewSize.height)/2;
 
             self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
             self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
@@ -558,7 +578,6 @@
             var options = self.passiveSupported?{passive: false,capture:false}:false;
             //裁剪区域触摸移动
             self.$container.addEventListener('touchmove',function(e){
-                console.log('touchmove');
                 var touch = e.touches[0];
                 self.move([touch.clientX,touch.clientY]);
                 e.preventDefault();
@@ -743,7 +762,148 @@
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
         transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
 
+        var matrix = this.getTransformMatrix(transform);
+        var newContentPoints = [];
+        for(var i=0;i<this.initContentPoints.length;i++){
+            newContentPoints.push(this.getTransformPoint(this.initContentPoints[i],matrix));
+        }
+
+        console.log(this.isPointInRect({x:0,y:0},newContentPoints));
+
         this.$cropContent.style.transform = transform;
+    };
+
+    //判断点是否在矩形内
+    SimpleCrop.prototype.isPointInRect = function(point,rectPoints){
+        //先计算四个向量
+        var vecs = [];
+        for(var i=0; i<rectPoints.length; i++){
+            var p = rectPoints[i];
+            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
+        }
+
+        //计算模最小向量
+        var sIndex = 0;
+        var sLen = 0;
+        for(var i=0; i<vecs.length; i++){
+            var len = this.vecLen(vecs[i]);
+            if(len==0||len<sLen){
+                sIndex = i;
+                sLen = len;
+            }
+        }
+        var len = vecs.length;
+        var sVec = vecs.splice(sIndex,1)[0];
+        var tVec = sVec;
+        var eVec;
+
+        //依次计算四个向量的夹角
+        var angles = [];
+        for(i=1;i<len;i++){
+            var data = this.getMinAngle(tVec,vecs);
+            tVec = data.vec;
+            vecs.splice(data.index,1);
+            angles.push(data.angle);
+
+            if(vecs.length==1){
+                eVec = vecs[0];
+            }
+        }
+        angles.push(this.getMinAngle(eVec,[sVec]).angle);
+        console.log(angles);
+
+        var sum = 0;
+        for(var i=0;i<angles.length;i++){
+            sum+=angles[i];
+        }
+        console.log(sum);
+    };
+
+    //计算向量数组的中向量和目标向量的最小夹角
+    SimpleCrop.prototype.getMinAngle = function(tVec, aVec){
+        var minAngle = this.vecAngle(tVec,aVec[0]);
+        var minIndex = 0;
+        for(var i=1; i<aVec.length; i++){
+            var angle = this.vecAngle(tVec,aVec[i]);
+            if(angle<minAngle){
+                minAngle = angle;
+                minIndex = i;
+            }
+        }
+        return {angle:minAngle,vec:aVec[minIndex],index:minIndex};
+    };
+
+    //计算向量夹角
+    SimpleCrop.prototype.vecAngle = function(vec1,vec2){
+        var rad = Math.acos((vec1.x * vec2.x + vec1.y * vec2.y) / (this.vecLen(vec1) * this.vecLen(vec2)));
+        var angle = rad * 180 / Math.PI;
+        return angle;
+    };
+
+    //计算向量的模
+    SimpleCrop.prototype.vecLen = function(vec){
+        var len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+        return len;
+    };
+
+    //获取变换后的点坐标
+    SimpleCrop.prototype.getTransformPoint = function(p,mat){
+
+        //解析矩阵
+        var start = mat.indexOf('matrix(');
+        var end = mat.indexOf(')');
+        mat = mat.substring(start+7,end);
+        mat = mat.split(',');
+        for(var i=0;i<mat.length;i++){
+            mat[i] = parseFloat(mat[i]);
+        }
+
+        // var mat3 = [mat[0],mat[2],mat[4],
+        //             mat[1],mat[3],mat[5],
+        //             0,0,1];
+
+        // var mat3 = [a,c,e,
+        //             b,d,f,
+        //             0,0,1];
+
+        // var newX = a * x + c * y + 1 * e;
+        // var newY = b * x + d * y + 1 * f;
+        // var newZ = 0 + 0 +1;
+
+        //计算变换后点坐标
+        var newX = mat[0] * p.x + mat[2] * p.y + 1 * mat[4];
+        var newY = mat[1] * p.x + mat[3] * p.y + 1 * mat[5];
+        var newZ = 0 + 0 +1;
+
+        return {x:newX/newZ,y:newY/newZ};
+    };
+
+    //获取位移矩阵
+    SimpleCrop.prototype.getTransformMatrix = function(transform){
+        var $div = document.createElement('div');
+        $div.style.visibility = 'hidden';
+        $div.style.position = 'fixed';
+
+        var transformProperty = 'transform';
+        if('transform' in $div.style){
+            transformProperty='transform'
+        } else if( 'WebkitTransform' in $div.style ){
+            transformProperty='webkitTransform'
+        } else if('MozTransform' in $div.style){
+            transformProperty='MozTransform'
+        } else if('OTransform' in $div.style){
+            transformProperty='OTransform'
+        }
+
+        $div.style[transformProperty] = transform;
+        document.body.appendChild($div);
+
+        var style = window.getComputedStyle($div);
+        var matrix = style[transformProperty];
+
+        document.body.removeChild($div);
+
+        return matrix;
     };
 
     //移动
