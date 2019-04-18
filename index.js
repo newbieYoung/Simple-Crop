@@ -13,9 +13,6 @@
     /**
      * @param title 组件标题
      * @param src   初始图片路径
-     * @param borderWidth 裁剪区域边框宽度
-     * @param positionOffset 裁剪区域偏移
-     * @param cropSizePercent 裁剪区域占画布比例
      * @param times 实际尺寸/显示尺寸
      * @param zIndex 样式层级
      * @param minScale 最小缩放倍数
@@ -30,15 +27,15 @@
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
-     *
+     * @param size 截图实际宽高
+     * @param cropSizePercent 裁剪区域占画布比例
      * ------------------------------------
      *
-     * positionOffset 显示尺寸偏移
-     * maskViewSize 容器的显示尺寸
-     * maskSize 容器的逻辑尺寸
-     * size 截图区域的逻辑尺寸
-     * viewSize 截图区域的显示尺寸
-     *
+     * 为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸
+     * borderWidth 裁剪区域边框屏幕宽度
+     * positionOffset 裁剪区域屏幕
+     * maskViewSize 容器的屏幕尺寸
+     * cropRect 截图区域的屏幕尺寸
      * cropPoints 裁剪区域顶点坐标
      * contentPoints 图片显示区域矩形顶点坐标
      * initContentPoints 图片显示区域矩形初始顶点坐标
@@ -126,33 +123,27 @@
             height:parseInt(maskStyle.getPropertyValue('height'))
         }
         this.times = (this.size.width/this.maskViewSize.width>this.size.height/this.maskViewSize.height)?this.size.width/this.maskViewSize.width/this.cropSizePercent:this.size.height/this.maskViewSize.height/this.cropSizePercent;
-        this.maskSize = {};
-        this.maskSize.width = this.maskViewSize.width*this.times;
-        this.maskSize.height = this.maskViewSize.height*this.times;
 
         this.scaleTimes = 1;//缩放倍数
         this.rotateAngle = 0;//旋转角度
 
         this.$cropCover = document.querySelector('#'+this.id+' .crop-cover');
         this.cropCoverContext = this.$cropCover.getContext('2d');
-        this.$cropCover.width = this.maskSize.width;
-        this.$cropCover.height = this.maskSize.height;
+        this.$cropCover.width = this.maskViewSize.width;
+        this.$cropCover.height = this.maskViewSize.height;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
         this.cropContentContext = this.$cropContent.getContext('2d');
 
-
-        this.size.left = (this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times;
-        this.size.top = (this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times;
         this.borderWidth = params.borderWidth!=null?params.borderWidth:2;
 
-        this.viewSize = {
+        //裁剪框位置相关
+        this.cropRect = {
             width:this.size.width/this.times,
             height:this.size.height/this.times,
-            left:this.size.left/this.times,
-            top:this.size.top/this.times
         };
-        console.log(this.viewSize);
-        console.log(this.size);
+        this.cropRect.left = (this.maskViewSize.width - this.cropRect.width)/2 - this.positionOffset.left;
+        this.cropRect.top = (this.maskViewSize.height - this.cropRect.height)/2 - this.positionOffset.top;
+        this.cropPoints = this.rectToPoints(this.cropRect);
 
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
@@ -248,39 +239,59 @@
         this.cropCoverContext.fillStyle = '#ffffff';
 
         //绘制边框
-        var borderRectWidth = this.borderWidth*2*this.times+this.size.width;
-        var borderRectHeight = this.borderWidth*2*this.times+this.size.height;
         var borderRect = {
-            left:(this.maskSize.width-borderRectWidth)*1.0/2-this.positionOffset.left*this.times,
-            top:(this.maskSize.height-borderRectHeight)*1.0/2-this.positionOffset.top*this.times,
-            width:borderRectWidth,
-            height:borderRectHeight
+            left:this.cropRect.left - this.borderWidth,
+            top:this.cropRect.top - this.borderWidth,
+            width:this.cropRect.width + this.borderWidth * 2,
+            height:this.cropRect.height + this.borderWidth * 2
         }
-        this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRectWidth,borderRectHeight);
+        this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRect.width,borderRect.height);
 
         if(!this.noBoldCorner){
             //边框四个角加粗
             var percent = 0.05;
-            var cornerRectWidth = borderRectWidth*percent;
-            var cornerRectHeight = borderRectHeight*percent;
-            this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左上角
-            this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top-this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右上角
-            this.cropCoverContext.fillRect(borderRect.left-this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//左下角
-            this.cropCoverContext.fillRect(borderRect.left+borderRectWidth-cornerRectWidth+this._borderCornerLen,borderRect.top+borderRectHeight-cornerRectHeight+this._borderCornerLen,cornerRectWidth,cornerRectHeight);//右下角
+            var cornerRectWidth = borderRect.width*percent;
+            var cornerRectHeight = borderRect.height*percent;
+            this.cropCoverContext.fillRect(borderRect.left-this.borderWidth,borderRect.top-this.borderWidth,cornerRectWidth,cornerRectHeight);//左上角
+            this.cropCoverContext.fillRect(borderRect.left+borderRect.width-cornerRectWidth+this.borderWidth,borderRect.top-this.borderWidth,cornerRectWidth,cornerRectHeight);//右上角
+            this.cropCoverContext.fillRect(borderRect.left-this.borderWidth,borderRect.top+borderRect.height-cornerRectHeight+this.borderWidth,cornerRectWidth,cornerRectHeight);//左下角
+            this.cropCoverContext.fillRect(borderRect.left+borderRect.width-cornerRectWidth+this.borderWidth,borderRect.top+borderRect.height-cornerRectHeight+this.borderWidth,cornerRectWidth,cornerRectHeight);//右下角
         }
 
         //清空内容区域
-        var innerRect = {
-            left:(this.maskSize.width-this.size.width)*1.0/2-this.positionOffset.left*this.times,
-            top:(this.maskSize.height-this.size.height)*1.0/2-this.positionOffset.top*this.times,
-            width:this.size.width,
-            height:this.size.height
-        }
-        this.cropCoverContext.clearRect(innerRect.left,innerRect.top,innerRect.width,innerRect.height);
+        this.cropCoverContext.clearRect(this.cropRect.left,this.cropRect.top,this.cropRect.width,this.cropRect.height);
     };
 
     //默认绘制辅助线
     SimpleCrop.prototype.defaultCoverDraw = function(){
+
+    };
+
+    //矩形位置形式转换为顶点坐标形式
+    SimpleCrop.prototype.rectToPoints = function(rect){
+        var points = [];
+        points.push({
+            x:-(this.maskViewSize.width/2 - rect.left),
+            y:this.maskViewSize.height/2 - rect.top
+        });
+        points.push({
+            x:points[0].x + rect.width,
+            y:points[0].y
+        });
+        points.push({
+            x:points[1].x,
+            y:points[1].y - rect.height
+        });
+        points.push({
+            x:points[0].x,
+            y:points[2].y
+        });
+
+        return points;
+    };
+
+    //计算一个矩形刚好包含另一个矩形需要的缩放倍数
+    SimpleCrop.prototype.getCoverScale = function(outer,inner){
 
     };
 
@@ -755,7 +766,9 @@
         var scaleHeight = newHeight/this.size.height;
         var maxScale = (newHeight/newWidth > this.height/this.width)?scaleHeight:scaleWidth;//通过安全区域的宽高比和裁剪宽区域的宽高比计算旋转安全缩放系数
         this._rotateScale = maxScale;
-        var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+
+
+        var scaleNum = this.scaleTimes / this.times;
         transform += 'scale('+scaleNum+')';//缩放
 
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
@@ -767,8 +780,6 @@
         for(var i=0;i<this.initContentPoints.length;i++){
             newContentPoints.push(this.getTransformPoint(this.initContentPoints[i],matrix));
         }
-
-        console.log(this.isPointInRect({x:0,y:0},newContentPoints));
 
         this.$cropContent.style.transform = transform;
     };
