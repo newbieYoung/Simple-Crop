@@ -267,34 +267,6 @@
 
     };
 
-    //矩形位置形式转换为顶点坐标形式
-    SimpleCrop.prototype.rectToPoints = function(rect){
-        var points = [];
-        points.push({
-            x:-(this.maskViewSize.width/2 - rect.left),
-            y:this.maskViewSize.height/2 - rect.top
-        });
-        points.push({
-            x:points[0].x + rect.width,
-            y:points[0].y
-        });
-        points.push({
-            x:points[1].x,
-            y:points[1].y - rect.height
-        });
-        points.push({
-            x:points[0].x,
-            y:points[2].y
-        });
-
-        return points;
-    };
-
-    //计算一个矩形刚好包含另一个矩形需要的缩放倍数
-    SimpleCrop.prototype.getCoverScale = function(outer,inner){
-
-    };
-
     //加载图片
     SimpleCrop.prototype.load = function(){
         var self = this;
@@ -308,34 +280,15 @@
             self.$cropContent.height = self.$image.height;
             self.cropContentContext.drawImage(self.$image,0,0,self.$image.width,self.$image.height);
 
-            var x = self.$image.width/2;
-            var y = self.$image.height/2;
-            self.contentPoints = [{
-                x:-x,
-                y:y
-            },{
-                x:x,
-                y:y
-            },{
-                x:x,
-                y:-y
-            },{
-                x:-x,
-                y:-y
-            }];
-            self.initContentPoints = [{
-                x:-x,
-                y:y
-            },{
-                x:x,
-                y:y
-            },{
-                x:x,
-                y:-y
-            },{
-                x:-x,
-                y:-y
-            }];
+            //初始位置垂直水平居中
+            self._initTransform = 'translate(-50%,-50%)';
+            self.$cropContent.style.position = 'absolute';
+            self.$cropContent.style.left = '50%';
+            self.$cropContent.style.top = '50%';
+            self.$cropContent.style.transform = self._initTransform;
+
+            self.initContentPoints = self.rectToPoints(self.$cropContent.getBoundingClientRect());
+            self.contentPoints = self.initContentPoints.slice();
 
             /**
              * 默认最大缩放倍数为1；也就是显示原图；
@@ -753,170 +706,6 @@
         this.transform();
     };
 
-    //旋转、缩放、移动
-    SimpleCrop.prototype.transform = function(){
-        var transform = '';
-        transform += 'rotate('+this.rotateAngle+'deg)';//旋转
-
-        //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
-        var rad = this.rotateAngle/180*Math.PI;
-        var newHeight = this.size.width*Math.abs(Math.sin(rad))+this.size.height*Math.abs(Math.cos(rad));
-        var newWidth = this.size.width*Math.abs(Math.cos(rad))+this.size.height*Math.abs(Math.sin(rad));
-        var scaleWidth = newWidth/this.size.width;
-        var scaleHeight = newHeight/this.size.height;
-        var maxScale = (newHeight/newWidth > this.height/this.width)?scaleHeight:scaleWidth;//通过安全区域的宽高比和裁剪宽区域的宽高比计算旋转安全缩放系数
-        this._rotateScale = maxScale;
-
-
-        var scaleNum = this.scaleTimes / this.times;
-        transform += 'scale('+scaleNum+')';//缩放
-
-        var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
-        var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
-        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
-
-        var matrix = this.getTransformMatrix(transform);
-        var newContentPoints = [];
-        for(var i=0;i<this.initContentPoints.length;i++){
-            newContentPoints.push(this.getTransformPoint(this.initContentPoints[i],matrix));
-        }
-
-        this.$cropContent.style.transform = transform;
-    };
-
-    //判断点是否在矩形内
-    SimpleCrop.prototype.isPointInRect = function(point,rectPoints){
-        //先计算四个向量
-        var vecs = [];
-        for(var i=0; i<rectPoints.length; i++){
-            var p = rectPoints[i];
-            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
-        }
-
-        //计算模最小向量
-        var sIndex = 0;
-        var sLen = 0;
-        for(var i=0; i<vecs.length; i++){
-            var len = this.vecLen(vecs[i]);
-            if(len==0||len<sLen){
-                sIndex = i;
-                sLen = len;
-            }
-        }
-        var len = vecs.length;
-        var sVec = vecs.splice(sIndex,1)[0];
-        var tVec = sVec;
-        var eVec;
-
-        //依次计算四个向量的夹角
-        var angles = [];
-        for(i=1;i<len;i++){
-            var data = this.getMinAngle(tVec,vecs);
-            tVec = data.vec;
-            vecs.splice(data.index,1);
-            angles.push(data.angle);
-
-            if(vecs.length==1){
-                eVec = vecs[0];
-            }
-        }
-        angles.push(this.getMinAngle(eVec,[sVec]).angle);
-        console.log(angles);
-
-        var sum = 0;
-        for(var i=0;i<angles.length;i++){
-            sum+=angles[i];
-        }
-        console.log(sum);
-    };
-
-    //计算向量数组的中向量和目标向量的最小夹角
-    SimpleCrop.prototype.getMinAngle = function(tVec, aVec){
-        var minAngle = this.vecAngle(tVec,aVec[0]);
-        var minIndex = 0;
-        for(var i=1; i<aVec.length; i++){
-            var angle = this.vecAngle(tVec,aVec[i]);
-            if(angle<minAngle){
-                minAngle = angle;
-                minIndex = i;
-            }
-        }
-        return {angle:minAngle,vec:aVec[minIndex],index:minIndex};
-    };
-
-    //计算向量夹角
-    SimpleCrop.prototype.vecAngle = function(vec1,vec2){
-        var rad = Math.acos((vec1.x * vec2.x + vec1.y * vec2.y) / (this.vecLen(vec1) * this.vecLen(vec2)));
-        var angle = rad * 180 / Math.PI;
-        return angle;
-    };
-
-    //计算向量的模
-    SimpleCrop.prototype.vecLen = function(vec){
-        var len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
-        return len;
-    };
-
-    //获取变换后的点坐标
-    SimpleCrop.prototype.getTransformPoint = function(p,mat){
-
-        //解析矩阵
-        var start = mat.indexOf('matrix(');
-        var end = mat.indexOf(')');
-        mat = mat.substring(start+7,end);
-        mat = mat.split(',');
-        for(var i=0;i<mat.length;i++){
-            mat[i] = parseFloat(mat[i]);
-        }
-
-        // var mat3 = [mat[0],mat[2],mat[4],
-        //             mat[1],mat[3],mat[5],
-        //             0,0,1];
-
-        // var mat3 = [a,c,e,
-        //             b,d,f,
-        //             0,0,1];
-
-        // var newX = a * x + c * y + 1 * e;
-        // var newY = b * x + d * y + 1 * f;
-        // var newZ = 0 + 0 +1;
-
-        //计算变换后点坐标
-        var newX = mat[0] * p.x + mat[2] * p.y + 1 * mat[4];
-        var newY = mat[1] * p.x + mat[3] * p.y + 1 * mat[5];
-        var newZ = 0 + 0 +1;
-
-        return {x:newX/newZ,y:newY/newZ};
-    };
-
-    //获取位移矩阵
-    SimpleCrop.prototype.getTransformMatrix = function(transform){
-        var $div = document.createElement('div');
-        $div.style.visibility = 'hidden';
-        $div.style.position = 'fixed';
-
-        var transformProperty = 'transform';
-        if('transform' in $div.style){
-            transformProperty='transform'
-        } else if( 'WebkitTransform' in $div.style ){
-            transformProperty='webkitTransform'
-        } else if('MozTransform' in $div.style){
-            transformProperty='MozTransform'
-        } else if('OTransform' in $div.style){
-            transformProperty='OTransform'
-        }
-
-        $div.style[transformProperty] = transform;
-        document.body.appendChild($div);
-
-        var style = window.getComputedStyle($div);
-        var matrix = style[transformProperty];
-
-        document.body.removeChild($div);
-
-        return matrix;
-    };
-
     //移动
     SimpleCrop.prototype.move = function(point){
         if(this._downPoint.length!=0&&!this._multiPoint){
@@ -964,6 +753,285 @@
 
             this._downPoint = point;
         }
+    };
+
+    //旋转、缩放、移动
+    SimpleCrop.prototype.transform = function(){
+        var transform = '';
+        var scaleNum = this.scaleTimes / this.times;
+        transform += ' scale('+scaleNum+')';//缩放
+
+        var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
+        var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        transform += 'rotate('+this.rotateAngle+'deg)';//旋转
+
+        //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
+        var points0 = [];
+        for(var i=0;i<this.initContentPoints.length;i++){
+            var item = this.initContentPoints[i];
+            points0.push({
+                x:item.x,
+                y:item.y
+            });
+        }
+        var points1 = [];
+        for(var i=0;i<points0.length;i++){
+            var p1 = this.scalePoint(points0[i],scaleNum);
+            var p2 = this.translatePoint(p1,moveX,moveY);
+            points1.push(p2);
+        }
+        var center = this.getPointsCenter(points1);
+        var points2 = [];
+        for(var i=0;i<points1.length;i++){
+            var p3 = this.rotatePoint(points1[i],center,this.rotateAngle);
+            points2.push(p3);
+        }
+        this._rotateScale = this.getCoverScale(points2,this.cropPoints);
+
+        //最终变换
+        var newTransform = '';
+        var newScaleNum = this.scaleTimes / this.times * this._rotateScale;
+        newTransform += ' scale('+newScaleNum+')';//缩放
+        newTransform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        newTransform += 'rotate('+this.rotateAngle+'deg)';
+        this.$cropContent.style.transform = this._initTransform+' '+newTransform;
+
+
+    };
+
+    //点坐标缩放
+    SimpleCrop.prototype.scalePoint = function(point,num){
+        point.x = point.x * num;
+        point.y = point.y * num;
+        return point;
+    };
+
+    //点坐标位移
+    SimpleCrop.prototype.translatePoint = function(point,x,y){
+        point.x = point.x + x;
+        point.y = point.y - y;
+        return point;
+    };
+
+    //点坐标旋转
+    SimpleCrop.prototype.rotatePoint = function(p1,p0,angle){
+        //任意点(x,y)，绕一个坐标点(rx0,ry0)逆时针旋转a角度后的新的坐标设为(x0, y0)
+        //x0= (x - rx0)*cos(a) - (y - ry0)*sin(a) + rx0 ;
+        //y0= (x - rx0)*sin(a) + (y - ry0)*cos(a) + ry0 ;
+
+        var a = - angle / 180 * Math.PI;
+        var rx0 = p0.x;
+        var ry0 = p0.y;
+
+        var x = p1.x;
+        var y = p1.y;
+
+        var p = {
+            x : (x - rx0)*Math.cos(a) - (y - ry0)*Math.sin(a) + rx0,
+            y : (x - rx0)*Math.sin(a) + (y - ry0)*Math.cos(a) + ry0
+        }
+
+        return p;
+    };
+
+    //获得矩形点坐标中心
+    SimpleCrop.prototype.getPointsCenter = function(points){
+        var center = {
+            x : (points[0].x + points[2].x)/2,
+            y : (points[0].y + points[2].y)/2,
+        }
+        return center;
+    };
+
+    //矩形位置形式转换为顶点坐标形式
+    SimpleCrop.prototype.rectToPoints = function(rect){
+        var points = [];
+        points.push({
+            x:-(this.maskViewSize.width/2 - rect.left),
+            y:this.maskViewSize.height/2 - rect.top
+        });
+        points.push({
+            x:points[0].x + rect.width,
+            y:points[0].y
+        });
+        points.push({
+            x:points[1].x,
+            y:points[1].y - rect.height
+        });
+        points.push({
+            x:points[0].x,
+            y:points[2].y
+        });
+
+        return points;
+    };
+
+    //计算一个矩形刚好包含另一个矩形需要的缩放倍数
+    SimpleCrop.prototype.getCoverScale = function(outer,inner){
+        var scale = 1;
+        var outPoints = [];
+        //找出inner中超出outer的点坐标
+        for(var i=0;i<inner.length;i++){
+            var point = inner[i];
+            if(!this.isPointInRect(point,outer)){
+                outPoints.push(point);
+            }
+        }
+
+        if(outPoints.length>0){
+            for(var i=0;i<outPoints.length;i++){
+                var lens = this.getOuterPointRectLen(outPoints[i],outer);
+                var num = lens[0]/(lens[1]-lens[0])*2+1;
+                if(num>scale){
+                    scale = num;
+                }
+            }
+        }
+
+        return scale;
+    };
+
+    //计算矩形外一点距离矩形的距离
+    SimpleCrop.prototype.getOuterPointRectLen = function(point,rectPoints){
+        //先计算四个向量
+        var vecs = [];
+        for(var i=0; i<rectPoints.length; i++){
+            var p = rectPoints[i];
+            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
+        }
+
+        var maxResult = this.getMaxAngle(vecs);
+        var maxVecs = maxResult.vecs;
+        var othersVecs = maxResult.others;
+
+        var line = {
+            x:maxVecs[0].x - maxVecs[1].x,
+            y:maxVecs[0].y - maxVecs[1].y
+        };
+
+        //计算超出距离
+        var angle = this.vecAngle(line,maxVecs[0]);
+        if(angle>90){
+            angle = 180 - angle;
+        }
+        var len = this.vecLen(maxVecs[0])*Math.sin(angle/180*Math.PI);
+
+        //计算超出距离对应宽或者高
+        var angle2 = this.vecAngle(line,othersVecs[0]);
+        if(angle2>90){
+            angle2 = 180 - angle2;
+        }
+        var len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
+
+        return [len,len2];
+    };
+
+    //计算向量数组中夹角最大的两个向量
+    SimpleCrop.prototype.getMaxAngle = function(vecs){
+        var iIndex = 0;
+        var jIndex = 1;
+        var maxAngle = this.vecAngle(vecs[0],vecs[1]);
+
+        for(i=0;i<vecs.length-1;i++){
+            var v1 = vecs[i];
+            for(j=i+1;j<vecs.length;j++){
+                var v2 = vecs[j];
+                var angle = this.vecAngle(v1,v2);
+                if(angle>maxAngle){
+                    iIndex = i;
+                    jIndex = j;
+                    maxAngle = angle;
+                }
+            }
+        }
+
+        var vArr = [];
+        vArr = vArr.concat(vecs.splice(jIndex,1));
+        vArr = vArr.concat(vecs.splice(iIndex,1));
+
+        return {
+            vecs:vArr,
+            others:vecs
+        }
+    };
+
+    //判断点是否在矩形内
+    SimpleCrop.prototype.isPointInRect = function(point,rectPoints){
+        //先计算四个向量
+        var vecs = [];
+        for(var i=0; i<rectPoints.length; i++){
+            var p = rectPoints[i];
+            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
+        }
+
+        //计算模最小向量
+        var sIndex = 0;
+        var sLen = 0;
+        for(var i=0; i<vecs.length; i++){
+            var len = this.vecLen(vecs[i]);
+            if(len==0||len<sLen){
+                sIndex = i;
+                sLen = len;
+            }
+        }
+        var len = vecs.length;
+        var sVec = vecs.splice(sIndex,1)[0];
+        var tVec = sVec;
+        var eVec;
+
+        //依次计算四个向量的夹角
+        var angles = [];
+        for(i=1;i<len;i++){
+            var data = this.getMinAngle(tVec,vecs);
+            tVec = data.vec;
+            vecs.splice(data.index,1);
+            angles.push(data.angle);
+
+            if(vecs.length==1){
+                eVec = vecs[0];
+            }
+        }
+        angles.push(this.getMinAngle(eVec,[sVec]).angle);
+
+        var sum = 0;
+        for(var i=0;i<angles.length;i++){
+            sum+=angles[i];
+        }
+
+        //向量之间的夹角等于360度则表示点在矩形内
+        if(sum<360){
+            return false;
+        }else{
+            return true;
+        }
+    };
+
+    //计算向量数组的中向量和目标向量的最小夹角
+    SimpleCrop.prototype.getMinAngle = function(tVec, aVec){
+        var minAngle = this.vecAngle(tVec,aVec[0]);
+        var minIndex = 0;
+        for(var i=1; i<aVec.length; i++){
+            var angle = this.vecAngle(tVec,aVec[i]);
+            if(angle<minAngle){
+                minAngle = angle;
+                minIndex = i;
+            }
+        }
+        return {angle:minAngle,vec:aVec[minIndex],index:minIndex};
+    };
+
+    //计算向量夹角
+    SimpleCrop.prototype.vecAngle = function(vec1,vec2){
+        var rad = Math.acos((vec1.x * vec2.x + vec1.y * vec2.y) / (this.vecLen(vec1) * this.vecLen(vec2)));
+        var angle = rad * 180 / Math.PI;
+        return angle;
+    };
+
+    //计算向量的模
+    SimpleCrop.prototype.vecLen = function(vec){
+        var len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+        return len;
     };
 
     //file转image
