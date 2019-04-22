@@ -827,8 +827,8 @@
         biggerPoints[2].y -= exLen;
         biggerPoints[3].x -= exLen;
         biggerPoints[3].y -= exLen;
-        //this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
-        this._rotateScale = 1;
+        this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
+        this._rotateScale = 1;//test
 
         //最终变换
         var newTransform = '';
@@ -852,8 +852,6 @@
             var p1 = this.scalePoint(points2[i],newScaleNum);
             var p2 = this.translatePoint(p1,moveX,moveY);
             points3.push(p2);
-            if(!isFinite(p1.x)){
-            }
         }
         var center = this.getPointsCenter(points3);
         this.contentPoints = [];
@@ -987,7 +985,7 @@
         }
         len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
 
-        return len/(lens[1]-lens[0])*2+1;
+        return len/(len2-len)*2+1;
     };
 
     //计算矩形外一点距离矩形水平和竖直方向的距离
@@ -1017,6 +1015,23 @@
         var y1 = 0;
         var wh = { h : 0, w :0 };
         if(maxPoints[0].x != maxPoints[1].x && maxPoints[0].y != maxPoints[1].y ){
+            //计算x、y的取值范围
+            var maxX,minX,maxY,minY;
+            if(maxPoints[0].x > maxPoints[1].x){
+                maxX = maxPoints[0].x;
+                minX = maxPoints[1].x;
+            }else{
+                maxX = maxPoints[1].x;
+                minX = maxPoints[0].x;
+            }
+            if(maxPoints[0].y > maxPoints[1].y){
+                maxY = maxPoints[0].y;
+                minY = maxPoints[1].y;
+            }else{
+                maxY = maxPoints[0].x;
+                maxY = maxPoints[1].x;
+            }
+
             //已知两点求直线方程 y=kx+b
             var k = (maxPoints[0].y - maxPoints[1].y) / (maxPoints[0].x - maxPoints[1].x);
             var b = maxPoints[1].y - k * maxPoints[1].x;
@@ -1024,12 +1039,27 @@
             x0 = point.x;
             y0 = k * x0 + b;
 
+            if(y0>=minY && y0<=maxY){
+                wh.h = Math.abs(point.y - y0);
+            }else{
+                if(y0<minY){
+                    wh.h = Math.abs(minY - y0);
+                }else{
+                    wh.h = Math.abs(y0 - maxY);
+                }
+            }
+
             y1 = point.y;
             x1 = (y1 - b) / k;
 
-            wh = {
-                h : Math.abs(point.y - y0),
-                w : Math.abs(point.x - x1)
+            if(x1>=minX && x1<=maxX){
+                wh.w = Math.abs(point.x - x1);
+            }else{
+                if(x1<minX){
+                    wh.h = Math.abs(minX - x1);
+                }else{
+                    wh.h = Math.abs(x1 - maxX);
+                }
             }
         }else{
             if(maxPoints[0].x == maxPoints[1].x){
