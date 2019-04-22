@@ -711,45 +711,65 @@
         if(this._downPoint.length!=0&&!this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
+            console.log(moveX+' '+moveY);
 
-            var rad = -this.rotateAngle/180*Math.PI;
-            var newX = moveX*Math.cos(rad)-moveY*Math.sin(rad);
-            var newY = moveX*Math.sin(rad)+moveY*Math.cos(rad);
-
-            var newContentRect = {
-                left:this.contentRect.left+newX,
-                top:this.contentRect.top+newY,
-                width:this.contentRect.width,
-                height:this.contentRect.height
-            };
-
-            if(newContentRect.left > this.viewSize.left){
-                newContentRect.left = this.viewSize.left;
-            }else if((newContentRect.left + newContentRect.width) < (this.viewSize.left + this.viewSize.width)){
-                newContentRect.left = this.viewSize.left + this.viewSize.width - newContentRect.width;
-            }
-            if(newContentRect.top > this.viewSize.top){
-                newContentRect.top = this.viewSize.top;
-            }else if((newContentRect.top + newContentRect.height) < (this.viewSize.top + this.viewSize.height)){
-                newContentRect.top = this.viewSize.top + this.viewSize.height - newContentRect.height;
+            //计算移动后的新坐标
+            var newPoints = [];
+            for(var i=0;i<this.contentPoints.length;i++){
+                newPoints.push({
+                    x : this.contentPoints[i].x + moveX,
+                    y : this.contentPoints[i].y + moveY
+                });
             }
 
-            newX = newContentRect.left - this.contentRect.left;
-            newY = newContentRect.top - this.contentRect.top;
-
-            if(newX != 0 || newY != 0){
-                var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
-                var lastMoveY = parseFloat(this.$cropContent.getAttribute('moveY'));
-
-                var curMoveX = lastMoveX+newX;
-                var curMoveY = lastMoveY+newY;
-
-                this.$cropContent.setAttribute('moveX',curMoveX);
-                this.$cropContent.setAttribute('moveY',curMoveY);
-
-                this.contentRect = newContentRect;
-                this.transform()
+            //计算超出的裁剪框点坐标
+            var outPoints = [];
+            for(var i=0;i<this.cropPoints.length;i++){
+                var point = this.cropPoints[i];
+                if(!this.isPointInRect(point,newPoints)){
+                    outPoints.push(point);
+                }
             }
+
+            if(outPoints.length > 0){
+                //计算超出点坐标的水平和垂直距离
+                var whs = [];
+                for(var i=0;i<outPoints.length;i++){
+                    var wh = this.getOuterPointRectWh(outPoints[i],newPoints);
+                    whs.push(wh);
+                }
+
+                //找到超出最多的距离
+                var maxW = whs[0].w;
+                var maxH = whs[0].h;
+                for(var i=1;i<whs.length;i++){
+                    if(whs[i].w > maxW){
+                        maxW = whs[i].w;
+                    }
+                    if(whs[i].h > maxH){
+                        maxH = whs[i].h;
+                    }
+                }
+
+                if(moveX > 0){
+                    moveX = moveX - maxW;
+                }else{
+                    moveX = moveX + maxW;
+                }
+                if(moveY > 0){
+                    moveY = moveY - maxH;
+                }else{
+                    moveY = moveY + maxH;
+                }
+            }
+
+            var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
+            var lastMoveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+            var curMoveX = lastMoveX + moveX;
+            var curMoveY = lastMoveY + moveY;
+            this.$cropContent.setAttribute('moveX',curMoveX);
+            this.$cropContent.setAttribute('moveY',curMoveY);
+            this.transform();
 
             this._downPoint = point;
         }
@@ -757,6 +777,7 @@
 
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(){
+        this.rotateAngle = 0;
         var transform = '';
         var scaleNum = this.scaleTimes / this.times;
         transform += ' scale('+scaleNum+')';//缩放
@@ -764,7 +785,7 @@
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
         transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
-        transform += 'rotate('+this.rotateAngle+'deg)';//旋转
+        transform += ' rotate('+this.rotateAngle+'deg)';//旋转
 
         //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
         var points0 = [];
@@ -782,12 +803,12 @@
             points1.push(p2);
         }
         var center = this.getPointsCenter(points1);
-        var points2 = [];
+        this.contentPoints = [];
         for(var i=0;i<points1.length;i++){
             var p3 = this.rotatePoint(points1[i],center,this.rotateAngle);
-            points2.push(p3);
+            this.contentPoints.push(p3);
         }
-        this._rotateScale = this.getCoverScale(points2,this.cropPoints);
+        this._rotateScale = this.getCoverScale(this.contentPoints,this.cropPoints);
 
         //最终变换
         var newTransform = '';
@@ -797,7 +818,28 @@
         newTransform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform+' '+newTransform;
 
-
+        //计算最终变换坐标
+        var points2 = [];
+        for(var i=0;i<this.initContentPoints.length;i++){
+            var item = this.initContentPoints[i];
+            points2.push({
+                x:item.x,
+                y:item.y
+            });
+        }
+        var points3 = [];
+        for(var i=0;i<points2.length;i++){
+            var p1 = this.scalePoint(points2[i],newScaleNum);
+            var p2 = this.translatePoint(p1,moveX,moveY);
+            points3.push(p2);
+        }
+        var center = this.getPointsCenter(points3);
+        this.contentPoints = [];
+        for(var i=0;i<points3.length;i++){
+            var p3 = this.rotatePoint(points3[i],center,this.rotateAngle);
+            this.contentPoints.push(p3);
+        }
+        console.log(this.contentPoints);
     };
 
     //点坐标缩放
@@ -925,6 +967,45 @@
         var len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
 
         return [len,len2];
+    };
+
+    //计算矩形外一点距离矩形水平和竖直方向的距离
+    SimpleCrop.prototype.getOuterPointRectWh = function(point,rectPoints){
+        //先计算四个向量
+        var vecs = [];
+        for(var i=0; i<rectPoints.length; i++){
+            var p = rectPoints[i];
+            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
+        }
+
+        var maxResult = this.getMaxAngle(vecs);
+        var maxVecs = maxResult.vecs;
+        var othersVecs = maxResult.others;
+
+        var maxPoints = [];
+        for(var i=0;i<maxVecs.length;i++){
+            maxPoints.push({
+                x : maxVecs[i].x + point.x,
+                y : maxVecs[i].y + point.y
+            });
+        }
+
+        //已知两点求直线方程 y=kx+b
+        var k = (maxPoints[0].y - maxPoints[1].y) / (maxPoints[0].x - maxPoints[1].x);
+        var b = maxPoints[1].y - k * maxPoints[1].x;
+
+        var x0 = point.x;
+        var y0 = k * x0 + b;
+
+        var y1 = point.y;
+        var x1 = (y1 - b) / k;
+
+        var wh = {
+            w : Math.abs(point.y - y0),
+            h : Math.abs(point.x - x1)
+        }
+
+        return wh;
     };
 
     //计算向量数组中夹角最大的两个向量
