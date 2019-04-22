@@ -711,6 +711,7 @@
         if(this._downPoint.length!=0&&!this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
+            console.log('----');
             console.log(moveX+' '+moveY);
 
             //计算移动后的新坐标
@@ -718,16 +719,16 @@
             for(var i=0;i<this.contentPoints.length;i++){
                 newPoints.push({
                     x : this.contentPoints[i].x + moveX,
-                    y : this.contentPoints[i].y + moveY
+                    y : this.contentPoints[i].y - moveY
                 });
             }
 
             //计算超出的裁剪框点坐标
             var outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){
-                var point = this.cropPoints[i];
-                if(!this.isPointInRect(point,newPoints)){
-                    outPoints.push(point);
+                var pt = this.cropPoints[i];
+                if(!this.isPointInRect(pt,newPoints)){
+                    outPoints.push(pt);
                 }
             }
 
@@ -738,6 +739,7 @@
                     var wh = this.getOuterPointRectWh(outPoints[i],newPoints);
                     whs.push(wh);
                 }
+                console.log(whs);
 
                 //找到超出最多的距离
                 var maxW = whs[0].w;
@@ -777,7 +779,6 @@
 
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(){
-        this.rotateAngle = 0;
         var transform = '';
         var scaleNum = this.scaleTimes / this.times;
         transform += ' scale('+scaleNum+')';//缩放
@@ -808,7 +809,26 @@
             var p3 = this.rotatePoint(points1[i],center,this.rotateAngle);
             this.contentPoints.push(p3);
         }
-        this._rotateScale = this.getCoverScale(this.contentPoints,this.cropPoints);
+
+        //适当的放大裁剪框限制范围
+        var biggerPoints = [];
+        var exLen = 2;
+        for(var i=0;i<this.cropPoints.length;i++){
+            biggerPoints.push({
+                x : this.cropPoints[i].x,
+                y : this.cropPoints[i].y
+            });
+        }
+        biggerPoints[0].x -= exLen;
+        biggerPoints[0].y += exLen;
+        biggerPoints[1].x += exLen;
+        biggerPoints[1].y += exLen;
+        biggerPoints[2].x += exLen;
+        biggerPoints[2].y -= exLen;
+        biggerPoints[3].x -= exLen;
+        biggerPoints[3].y -= exLen;
+        //this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
+        this._rotateScale = 1;
 
         //最终变换
         var newTransform = '';
@@ -832,6 +852,8 @@
             var p1 = this.scalePoint(points2[i],newScaleNum);
             var p2 = this.translatePoint(p1,moveX,moveY);
             points3.push(p2);
+            if(!isFinite(p1.x)){
+            }
         }
         var center = this.getPointsCenter(points3);
         this.contentPoints = [];
@@ -839,7 +861,6 @@
             var p3 = this.rotatePoint(points3[i],center,this.rotateAngle);
             this.contentPoints.push(p3);
         }
-        console.log(this.contentPoints);
     };
 
     //点坐标缩放
@@ -910,7 +931,7 @@
     };
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
-    SimpleCrop.prototype.getCoverScale = function(outer,inner){
+    SimpleCrop.prototype.getCoverRectScale = function(outer,inner){
         var scale = 1;
         var outPoints = [];
         //找出inner中超出outer的点坐标
@@ -923,9 +944,8 @@
 
         if(outPoints.length>0){
             for(var i=0;i<outPoints.length;i++){
-                var lens = this.getOuterPointRectLen(outPoints[i],outer);
-                var num = lens[0]/(lens[1]-lens[0])*2+1;
-                if(num>scale){
+                var num = this.getCoverPointScale(outPoints[i],outer);
+                if(num > scale){
                     scale = num;
                 }
             }
@@ -934,8 +954,8 @@
         return scale;
     };
 
-    //计算矩形外一点距离矩形的距离
-    SimpleCrop.prototype.getOuterPointRectLen = function(point,rectPoints){
+    //计算一个矩形刚好包含矩形外一点需要的缩放倍数
+    SimpleCrop.prototype.getCoverPointScale = function(point,rectPoints){
         //先计算四个向量
         var vecs = [];
         for(var i=0; i<rectPoints.length; i++){
@@ -943,6 +963,7 @@
             vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
         }
 
+        var len,len2;
         var maxResult = this.getMaxAngle(vecs);
         var maxVecs = maxResult.vecs;
         var othersVecs = maxResult.others;
@@ -957,16 +978,16 @@
         if(angle>90){
             angle = 180 - angle;
         }
-        var len = this.vecLen(maxVecs[0])*Math.sin(angle/180*Math.PI);
+        len = this.vecLen(maxVecs[0])*Math.sin(angle/180*Math.PI);
 
         //计算超出距离对应宽或者高
         var angle2 = this.vecAngle(line,othersVecs[0]);
         if(angle2>90){
             angle2 = 180 - angle2;
         }
-        var len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
+        len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
 
-        return [len,len2];
+        return len/(lens[1]-lens[0])*2+1;
     };
 
     //计算矩形外一点距离矩形水平和竖直方向的距离
@@ -990,19 +1011,50 @@
             });
         }
 
-        //已知两点求直线方程 y=kx+b
-        var k = (maxPoints[0].y - maxPoints[1].y) / (maxPoints[0].x - maxPoints[1].x);
-        var b = maxPoints[1].y - k * maxPoints[1].x;
+        var x0 = 0;
+        var y0 = 0;
+        var x1 = 0;
+        var y1 = 0;
+        var wh = { h : 0, w :0 };
+        if(maxPoints[0].x != maxPoints[1].x && maxPoints[0].y != maxPoints[1].y ){
+            //已知两点求直线方程 y=kx+b
+            var k = (maxPoints[0].y - maxPoints[1].y) / (maxPoints[0].x - maxPoints[1].x);
+            var b = maxPoints[1].y - k * maxPoints[1].x;
 
-        var x0 = point.x;
-        var y0 = k * x0 + b;
+            x0 = point.x;
+            y0 = k * x0 + b;
 
-        var y1 = point.y;
-        var x1 = (y1 - b) / k;
+            y1 = point.y;
+            x1 = (y1 - b) / k;
 
-        var wh = {
-            w : Math.abs(point.y - y0),
-            h : Math.abs(point.x - x1)
+            wh = {
+                h : Math.abs(point.y - y0),
+                w : Math.abs(point.x - x1)
+            }
+        }else{
+            if(maxPoints[0].x == maxPoints[1].x){
+                //直线方程为 x = c （x为常量）
+                y0 = 0;
+
+                y1 = point.y;
+                x1 = maxPoints[0].x;
+
+                wh = {
+                    h : 0,
+                    w : Math.abs(point.x - x1)
+                }
+            }else{
+                //直线方程为 y = d （y为常量）
+                x0 = point.x;
+                y0 = maxPoints[1].y;
+
+                x1 = 0;
+
+                wh = {
+                    h : Math.abs(point.y - y0),
+                    w : 0
+                }
+            }
         }
 
         return wh;
@@ -1023,6 +1075,15 @@
                     iIndex = i;
                     jIndex = j;
                     maxAngle = angle;
+                }else if(angle == maxAngle){//如果同时存在两个向量和第三个向量的夹角相同，那么说明向量数组中存在平行向量，以模小的为准
+                    var len1 = this.vecLen(vecs[jIndex]);
+                    var len2 = this.vecLen(vecs[j]);
+
+                    if(len2 < len1){
+                        iIndex = i;
+                        jIndex = j;
+                        maxAngle = angle;
+                    }
                 }
             }
         }
@@ -1081,6 +1142,7 @@
         }
 
         //向量之间的夹角等于360度则表示点在矩形内
+        sum = sum.toPrecision(12);
         if(sum<360){
             return false;
         }else{
