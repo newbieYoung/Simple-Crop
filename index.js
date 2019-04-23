@@ -828,7 +828,6 @@
         biggerPoints[3].x -= exLen;
         biggerPoints[3].y -= exLen;
         this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
-        this._rotateScale = 1;//test
 
         //最终变换
         var newTransform = '';
@@ -952,40 +951,60 @@
         return scale;
     };
 
+    //计算向量 a 在向量 b 上的投影向量
+    SimpleCrop.prototype.getProjectionVector = function(vecA,vecB){
+        var bLen = this.vecLen(vecB);
+        var ab = vecA.x * vecB.x + vecA.y * vecB.y;
+
+        var proj = {
+            x : ab / Math.pow(bLen,2) * vecB.x,
+            y : ab / Math.pow(bLen,2) * vecB.y,
+        }
+
+        return proj
+    };
+
     //计算一个矩形刚好包含矩形外一点需要的缩放倍数
     SimpleCrop.prototype.getCoverPointScale = function(point,rectPoints){
-        //先计算四个向量
-        var vecs = [];
-        for(var i=0; i<rectPoints.length; i++){
-            var p = rectPoints[i];
-            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
+        //计算矩形边框向量
+        var borderVecs = [];
+        for(var i=0;i<rectPoints.length;i++){
+            var start = i;
+            var end = i+1;
+            if(end >= rectPoints.length){
+                end = 0;
+            }
+            var vec = {
+                x : rectPoints[end].x - rectPoints[start].x,
+                y : rectPoints[end].y - rectPoints[start].y
+            }
+            borderVecs.push(vec);
         }
 
-        var len,len2;
-        var maxResult = this.getMaxAngle(vecs);
-        var maxVecs = maxResult.vecs;
-        var othersVecs = maxResult.others;
-
+        //计算矩形中心点
+        var center = this.getPointsCenter(rectPoints);
         var line = {
-            x:maxVecs[0].x - maxVecs[1].x,
-            y:maxVecs[0].y - maxVecs[1].y
-        };
-
-        //计算超出距离
-        var angle = this.vecAngle(line,maxVecs[0]);
-        if(angle>90){
-            angle = 180 - angle;
+            x : point.x - center.x,
+            y : point.y - center.y
         }
-        len = this.vecLen(maxVecs[0])*Math.sin(angle/180*Math.PI);
 
-        //计算超出距离对应宽或者高
-        var angle2 = this.vecAngle(line,othersVecs[0]);
-        if(angle2>90){
-            angle2 = 180 - angle2;
+        //分别计算水平或者竖直方向上的缩放倍数
+        var scale1 = 1;
+        var len1 = this.vecLen(this.getProjectionVector(line,borderVecs[0]));
+        var h1 = this.vecLen(borderVecs[0])/2;
+        if(len1>h1){
+            scale1 = scale1 + (len1 - h1)/h1;//只要是正常矩形那么 h1 和 h2 不可能为0
         }
-        len2 = this.vecLen(othersVecs[0])*Math.sin(angle2/180*Math.PI);
+        var scale2 = 1;
+        var len2 = this.vecLen(this.getProjectionVector(line,borderVecs[1]));
+        var h2 = this.vecLen(borderVecs[1])/2;
+        if(len2>h2){
+            scale2 = scale1 + (len2 - h2)/h2;
+        }
 
-        return len/(len2-len)*2+1;
+        var scale = scale2 > scale1 ? scale2 : scale1;
+
+        return scale;
     };
 
     //计算矩形外一点距离矩形水平和竖直方向的距离
