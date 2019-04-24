@@ -563,7 +563,7 @@
                     if(newScale>=self.minScale&&newScale<=self.maxScale){
                         self.scaleTimes = newScale
                         lastScale = scale;
-                        self.transform();
+                        self.transform(true);
                     }else{
                         /**
                          * 浮点数计算存在误差会导致缩放时很难回到初始状态；
@@ -577,7 +577,7 @@
                                 newScale = self.minScale;
                             }
                             self.scaleTimes = newScale;
-                            self.transform();
+                            self.transform(true);
                         }
                     }
                 },
@@ -734,40 +734,26 @@
                 var overW = 0;
                 var overH = 0;
 
+                for(var i=0;i<outPoints.length;i++){
+                    var sVec = this.getShortestLenVector(outPoints[i],newPoints);
+                    if(sVec.x>overW){
+                        overW = sVec.x;
+                    }
+                    if(sVec.y>overH){
+                        overH = sVec.y;
+                    }
+                }
                 if(outPoints.length == 2){
                     var sVec0 = this.getShortestLenVector(outPoints[0],newPoints);
-                    var xLen0 = this.vecLen(this.getProjectionVector(sVec0,{x:1,y:0}));
-                    var yLen0 = this.vecLen(this.getProjectionVector(sVec0,{x:0,y:1}));
-
                     var sVec1 = this.getShortestLenVector(outPoints[1],newPoints);
-                    var xLen1 = this.vecLen(this.getProjectionVector(sVec1,{x:1,y:0}));
-                    var yLen1 = this.vecLen(this.getProjectionVector(sVec1,{x:0,y:1}));
-
                     if(outPoints[0].y == outPoints[1].y){
-                        overW = Math.abs(xLen0 - xLen1);
-                        overH = yLen0 + yLen1;
+                        overW = Math.abs(sVec0.x - sVec1.x);
                     }else if(outPoints[0].x == outPoints[1].x){
-                        overH = Math.abs(yLen0 - yLen1);
-                        overW = xLen0 + yLen1;
-                    }
-                }else{
-                    for(var i=0;i<outPoints.length;i++){
-                        var sVec = this.getShortestLenVector(outPoints[i],newPoints);
-                        var xLen = this.vecLen(this.getProjectionVector(sVec,{x:1,y:0}));
-                        var yLen = this.vecLen(this.getProjectionVector(sVec,{x:0,y:1}));
-                        if(xLen>overW){
-                            overW = xLen;
-                        }
-                        if(yLen>overH){
-                            overH = yLen;
-                        }
+                        overH = Math.abs(sVec0.y - sVec1.y);
                     }
                 }
 
                 //确定最终移动距离
-                console.log('----');
-                console.log(outPoints);
-                console.log(moveX+' '+moveY);
                 if(moveX > 0){
                     moveX = moveX - overW;
                     moveX = moveX < 0 ? 0 : moveX;
@@ -782,7 +768,6 @@
                     moveY = moveY + overH;
                     moveY = moveY > 0 ? 0 : moveY;
                 }
-                console.log(moveX+' '+moveY);
             }
 
             var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
