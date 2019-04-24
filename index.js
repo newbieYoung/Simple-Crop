@@ -516,7 +516,7 @@
                     self.$lineation.setAttribute('moveX',curMoveX);
                     self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
                     self.rotateAngle = self._baseAngle+angle;
-                    self.transform(true);
+                    self.transform();
                     self._downPoint = point;
                 }
                 e.stopPropagation();//阻止事件冒泡
@@ -711,6 +711,8 @@
         if(this._downPoint.length!=0&&!this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
+            console.log('----');
+            console.log(moveX+' '+moveY);
 
             //计算移动后的新坐标
             var newPoints = [];
@@ -731,58 +733,36 @@
             }
 
             if(outPoints.length > 0){
-                var overW = 0;
-                var overH = 0;
+                //计算超出点坐标的水平和垂直距离
+                var whs = [];
+                for(var i=0;i<outPoints.length;i++){
+                    var wh = this.getOuterPointRectWh(outPoints[i],newPoints);
+                    whs.push(wh);
+                }
+                console.log(whs);
 
-                if(outPoints.length == 2){
-                    var sVec0 = this.getShortestLenVector(outPoints[0],newPoints);
-                    var xLen0 = this.vecLen(this.getProjectionVector(sVec0,{x:1,y:0}));
-                    var yLen0 = this.vecLen(this.getProjectionVector(sVec0,{x:0,y:1}));
-
-                    var sVec1 = this.getShortestLenVector(outPoints[1],newPoints);
-                    var xLen1 = this.vecLen(this.getProjectionVector(sVec1,{x:1,y:0}));
-                    var yLen1 = this.vecLen(this.getProjectionVector(sVec1,{x:0,y:1}));
-
-                    if(outPoints[0].y == outPoints[1].y){
-                        overW = Math.abs(xLen0 - xLen1);
-                        overH = yLen0 + yLen1;
-                    }else if(outPoints[0].x == outPoints[1].x){
-                        overH = Math.abs(yLen0 - yLen1);
-                        overW = xLen0 + yLen1;
+                //找到超出最多的距离
+                var maxW = whs[0].w;
+                var maxH = whs[0].h;
+                for(var i=1;i<whs.length;i++){
+                    if(whs[i].w > maxW){
+                        maxW = whs[i].w;
                     }
-                }else{
-                    for(var i=0;i<outPoints.length;i++){
-                        var sVec = this.getShortestLenVector(outPoints[i],newPoints);
-                        var xLen = this.vecLen(this.getProjectionVector(sVec,{x:1,y:0}));
-                        var yLen = this.vecLen(this.getProjectionVector(sVec,{x:0,y:1}));
-                        if(xLen>overW){
-                            overW = xLen;
-                        }
-                        if(yLen>overH){
-                            overH = yLen;
-                        }
+                    if(whs[i].h > maxH){
+                        maxH = whs[i].h;
                     }
                 }
 
-                //确定最终移动距离
-                console.log('----');
-                console.log(outPoints);
-                console.log(moveX+' '+moveY);
                 if(moveX > 0){
-                    moveX = moveX - overW;
-                    moveX = moveX < 0 ? 0 : moveX;
+                    moveX = moveX - maxW;
                 }else{
-                    moveX = moveX + overW;
-                    moveX = moveX > 0 ? 0 : moveX;
+                    moveX = moveX + maxW;
                 }
                 if(moveY > 0){
-                    moveY = moveY - overH;
-                    moveY = moveY < 0 ? 0 : moveY;
+                    moveY = moveY - maxH;
                 }else{
-                    moveY = moveY + overH;
-                    moveY = moveY > 0 ? 0 : moveY;
+                    moveY = moveY + maxH;
                 }
-                console.log(moveX+' '+moveY);
             }
 
             var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
@@ -798,62 +778,64 @@
     };
 
     //旋转、缩放、移动
-    SimpleCrop.prototype.transform = function(rotateScale){
+    SimpleCrop.prototype.transform = function(){
         var transform = '';
         var scaleNum = this.scaleTimes / this.times;
+        transform += ' scale('+scaleNum+')';//缩放
+
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        transform += ' rotate('+this.rotateAngle+'deg)';//旋转
 
-        if(rotateScale){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
-            var points0 = [];
-            for(var i=0;i<this.initContentPoints.length;i++){
-                var item = this.initContentPoints[i];
-                points0.push({
-                    x:item.x,
-                    y:item.y
-                });
-            }
-            var points1 = [];
-            for(var i=0;i<points0.length;i++){
-                var p1 = this.scalePoint(points0[i],scaleNum);
-                var p2 = this.translatePoint(p1,moveX,moveY);
-                points1.push(p2);
-            }
-            var center1 = this.getPointsCenter(points1);
-            this.contentPoints = [];
-            for(var i=0;i<points1.length;i++){
-                var p3 = this.rotatePoint(points1[i],center1,this.rotateAngle);
-                this.contentPoints.push(p3);
-            }
-
-            //适当的放大裁剪框限制范围
-            var biggerPoints = [];
-            var exLen = 2;
-            for(var i=0;i<this.cropPoints.length;i++){
-                biggerPoints.push({
-                    x : this.cropPoints[i].x,
-                    y : this.cropPoints[i].y
-                });
-            }
-            biggerPoints[0].x -= exLen;
-            biggerPoints[0].y += exLen;
-            biggerPoints[1].x += exLen;
-            biggerPoints[1].y += exLen;
-            biggerPoints[2].x += exLen;
-            biggerPoints[2].y -= exLen;
-            biggerPoints[3].x -= exLen;
-            biggerPoints[3].y -= exLen;
-            this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
+        //旋转时为了保证裁剪框不出现空白，需要进行一定的缩放
+        var points0 = [];
+        for(var i=0;i<this.initContentPoints.length;i++){
+            var item = this.initContentPoints[i];
+            points0.push({
+                x:item.x,
+                y:item.y
+            });
+        }
+        var points1 = [];
+        for(var i=0;i<points0.length;i++){
+            var p1 = this.scalePoint(points0[i],scaleNum);
+            var p2 = this.translatePoint(p1,moveX,moveY);
+            points1.push(p2);
+        }
+        var center = this.getPointsCenter(points1);
+        this.contentPoints = [];
+        for(var i=0;i<points1.length;i++){
+            var p3 = this.rotatePoint(points1[i],center,this.rotateAngle);
+            this.contentPoints.push(p3);
         }
 
-        scaleNum = scaleNum * this._rotateScale;
+        //适当的放大裁剪框限制范围
+        var biggerPoints = [];
+        var exLen = 2;
+        for(var i=0;i<this.cropPoints.length;i++){
+            biggerPoints.push({
+                x : this.cropPoints[i].x,
+                y : this.cropPoints[i].y
+            });
+        }
+        biggerPoints[0].x -= exLen;
+        biggerPoints[0].y += exLen;
+        biggerPoints[1].x += exLen;
+        biggerPoints[1].y += exLen;
+        biggerPoints[2].x += exLen;
+        biggerPoints[2].y -= exLen;
+        biggerPoints[3].x -= exLen;
+        biggerPoints[3].y -= exLen;
+        this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
 
         //最终变换
-        transform = '';
-        transform += ' scale('+scaleNum+')';//缩放
-        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
-        transform += 'rotate('+this.rotateAngle+'deg)';
-        this.$cropContent.style.transform = this._initTransform+' '+transform;
+        var newTransform = '';
+        var newScaleNum = this.scaleTimes / this.times * this._rotateScale;
+        newTransform += ' scale('+newScaleNum+')';//缩放
+        newTransform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        newTransform += 'rotate('+this.rotateAngle+'deg)';
+        this.$cropContent.style.transform = this._initTransform+' '+newTransform;
 
         //计算最终变换坐标
         var points2 = [];
@@ -866,14 +848,14 @@
         }
         var points3 = [];
         for(var i=0;i<points2.length;i++){
-            var p1 = this.scalePoint(points2[i],scaleNum);
+            var p1 = this.scalePoint(points2[i],newScaleNum);
             var p2 = this.translatePoint(p1,moveX,moveY);
             points3.push(p2);
         }
-        var center2 = this.getPointsCenter(points3);
+        var center = this.getPointsCenter(points3);
         this.contentPoints = [];
         for(var i=0;i<points3.length;i++){
-            var p3 = this.rotatePoint(points3[i],center2,this.rotateAngle);
+            var p3 = this.rotatePoint(points3[i],center,this.rotateAngle);
             this.contentPoints.push(p3);
         }
     };
@@ -1006,90 +988,163 @@
             y : point.y - center.y
         }
 
-        //计算矩形外一点到矩形中心向量在矩形边框向量上的投影距离
+        //分别计算水平或者竖直方向上的缩放倍数
+        var scale1 = 1;
         var len1 = this.vecLen(this.getProjectionVector(line,borderVecs[0]));
         var h1 = this.vecLen(borderVecs[0])/2;
-        var len2 = this.vecLen(this.getProjectionVector(line,borderVecs[1]));
-        var h2 = this.vecLen(borderVecs[1])/2;
-
-        //根据投影距离计算缩放倍数
-        var scale1 = 1;
         if(len1>h1){
             scale1 = scale1 + (len1 - h1)/h1;//只要是正常矩形那么 h1 和 h2 不可能为0
         }
         var scale2 = 1;
+        var len2 = this.vecLen(this.getProjectionVector(line,borderVecs[1]));
+        var h2 = this.vecLen(borderVecs[1])/2;
         if(len2>h2){
             scale2 = scale1 + (len2 - h2)/h2;
         }
+
         var scale = scale2 > scale1 ? scale2 : scale1;
 
         return scale;
     };
 
-    //计算矩形外一点距离矩形最短距离向量
-    SimpleCrop.prototype.getShortestLenVector = function(point,rectPoints){
-        //计算矩形边框向量
-        var borderVecs = [];
-        for(var i=0;i<rectPoints.length;i++){
-            var start = i;
-            var end = i+1;
-            if(end >= rectPoints.length){
-                end = 0;
-            }
-            var vec = {
-                x : rectPoints[end].x - rectPoints[start].x,
-                y : rectPoints[end].y - rectPoints[start].y
-            }
-            borderVecs.push(vec);
+    //计算矩形外一点距离矩形水平和竖直方向的距离
+    SimpleCrop.prototype.getOuterPointRectWh = function(point,rectPoints){
+        //先计算四个向量
+        var vecs = [];
+        for(var i=0; i<rectPoints.length; i++){
+            var p = rectPoints[i];
+            vecs.push({x:(p.x - point.x),y:(p.y - point.y)});
         }
 
-        //计算矩形中心点
-        var center = this.getPointsCenter(rectPoints);
-        var line = {
-            x : point.x - center.x,
-            y : point.y - center.y
+        var maxResult = this.getMaxAngle(vecs);
+        var maxVecs = maxResult.vecs;
+        var othersVecs = maxResult.others;
+
+        var maxPoints = [];
+        for(var i=0;i<maxVecs.length;i++){
+            maxPoints.push({
+                x : maxVecs[i].x + point.x,
+                y : maxVecs[i].y + point.y
+            });
         }
 
-        //计算矩形外一点到矩形中心向量在矩形边框向量上的投影距离
-        var len1 = this.vecLen(this.getProjectionVector(line,borderVecs[0]));
-        var h1 = this.vecLen(borderVecs[0])/2;
-        var len2 = this.vecLen(this.getProjectionVector(line,borderVecs[1]));
-        var h2 = this.vecLen(borderVecs[1])/2;
+        var x0 = 0;
+        var y0 = 0;
+        var x1 = 0;
+        var y1 = 0;
+        var wh = { h : 0, w :0 };
+        if(maxPoints[0].x != maxPoints[1].x && maxPoints[0].y != maxPoints[1].y ){
+            //计算x、y的取值范围
+            var maxX,minX,maxY,minY;
+            if(maxPoints[0].x > maxPoints[1].x){
+                maxX = maxPoints[0].x;
+                minX = maxPoints[1].x;
+            }else{
+                maxX = maxPoints[1].x;
+                minX = maxPoints[0].x;
+            }
+            if(maxPoints[0].y > maxPoints[1].y){
+                maxY = maxPoints[0].y;
+                minY = maxPoints[1].y;
+            }else{
+                maxY = maxPoints[0].x;
+                maxY = maxPoints[1].x;
+            }
 
-        var sLen;
-        var sVec;
-        if(len1 >= h1 && len2 >= h2){
-            //计算顶点向量中的模最小的向量的模
-            for(var i=0;i<rectPoints.length;i++){
-                var iVec = {
-                    x : point.x - rectPoints[i].x,
-                    y : point.y - rectPoints[i].y
-                };
-                var iLen = this.vecLen(iVec);
-                if(!sLen || iLen<sLen){
-                    sLen = iLen;
-                    sVec = iVec;
+            //已知两点求直线方程 y=kx+b
+            var k = (maxPoints[0].y - maxPoints[1].y) / (maxPoints[0].x - maxPoints[1].x);
+            var b = maxPoints[1].y - k * maxPoints[1].x;
+
+            x0 = point.x;
+            y0 = k * x0 + b;
+
+            if(y0>=minY && y0<=maxY){
+                wh.h = Math.abs(point.y - y0);
+            }else{
+                if(y0<minY){
+                    wh.h = Math.abs(minY - y0);
+                }else{
+                    wh.h = Math.abs(y0 - maxY);
+                }
+            }
+
+            y1 = point.y;
+            x1 = (y1 - b) / k;
+
+            if(x1>=minX && x1<=maxX){
+                wh.w = Math.abs(point.x - x1);
+            }else{
+                if(x1<minX){
+                    wh.h = Math.abs(minX - x1);
+                }else{
+                    wh.h = Math.abs(x1 - maxX);
                 }
             }
         }else{
-            var xLine = {x:1,y:0};
-            var angle,rad;
-            if(len1 > h1){
-                sLen = len1 - h1;
-                angle = this.vecAngle(xLine,borderVecs[0]);
+            if(maxPoints[0].x == maxPoints[1].x){
+                //直线方程为 x = c （x为常量）
+                y0 = 0;
+
+                y1 = point.y;
+                x1 = maxPoints[0].x;
+
+                wh = {
+                    h : 0,
+                    w : Math.abs(point.x - x1)
+                }
             }else{
-                sLen = len2 - h2;
-                angle = this.vecAngle(xLine,borderVecs[1]);
-            }
-            angle = angle > 90 ? 180 - angle : angle;
-            rad = angle / 180 * Math.PI;
-            sVec = {
-                x : sLen * Math.cos(rad),
-                y : sLen * Math.sin(rad)
+                //直线方程为 y = d （y为常量）
+                x0 = point.x;
+                y0 = maxPoints[1].y;
+
+                x1 = 0;
+
+                wh = {
+                    h : Math.abs(point.y - y0),
+                    w : 0
+                }
             }
         }
 
-        return sVec;
+        return wh;
+    };
+
+    //计算向量数组中夹角最大的两个向量
+    SimpleCrop.prototype.getMaxAngle = function(vecs){
+        var iIndex = 0;
+        var jIndex = 1;
+        var maxAngle = this.vecAngle(vecs[0],vecs[1]);
+
+        for(i=0;i<vecs.length-1;i++){
+            var v1 = vecs[i];
+            for(j=i+1;j<vecs.length;j++){
+                var v2 = vecs[j];
+                var angle = this.vecAngle(v1,v2);
+                if(angle>maxAngle){
+                    iIndex = i;
+                    jIndex = j;
+                    maxAngle = angle;
+                }else if(angle == maxAngle){//如果同时存在两个向量和第三个向量的夹角相同，那么说明向量数组中存在平行向量，以模小的为准
+                    var len1 = this.vecLen(vecs[jIndex]);
+                    var len2 = this.vecLen(vecs[j]);
+
+                    if(len2 < len1){
+                        iIndex = i;
+                        jIndex = j;
+                        maxAngle = angle;
+                    }
+                }
+            }
+        }
+
+        var vArr = [];
+        vArr = vArr.concat(vecs.splice(jIndex,1));
+        vArr = vArr.concat(vecs.splice(iIndex,1));
+
+        return {
+            vecs:vArr,
+            others:vecs
+        }
     };
 
     //判断点是否在矩形内
@@ -1136,7 +1191,7 @@
         }
 
         //向量之间的夹角等于360度则表示点在矩形内
-        sum = sum.toPrecision(12);//取12位精度能在大部分情况下解决浮点数误差导致的精度问题
+        sum = sum.toPrecision(12);
         if(sum<360){
             return false;
         }else{
