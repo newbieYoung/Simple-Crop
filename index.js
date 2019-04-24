@@ -63,9 +63,7 @@
         this._multiPoint = false;//是否开始多点触控
         this._rotateScale = 1;//旋转缩放
         this._baseMoveX = 0;//刻度位置初始化偏移量
-        this._borderCornerLen = 3;//裁剪框突出长度
         this._downPoint = [];//操作点坐标
-        this._endTimeout = null;//结束操作定时器
         this._isControl = false;//是否正在操作
         /**
          * 旋转交互分为两种：
@@ -250,8 +248,8 @@
         if(!this.noBoldCorner){
             //边框四个角加粗
             var percent = 0.05;
-            var cornerRectWidth = borderRect.width*percent;
-            var cornerRectHeight = borderRect.height*percent;
+            var cornerRectWidth = borderRect.width * percent;
+            var cornerRectHeight = borderRect.height * percent;
             this.cropCoverContext.fillRect(borderRect.left-this.borderWidth,borderRect.top-this.borderWidth,cornerRectWidth,cornerRectHeight);//左上角
             this.cropCoverContext.fillRect(borderRect.left+borderRect.width-cornerRectWidth+this.borderWidth,borderRect.top-this.borderWidth,cornerRectWidth,cornerRectHeight);//右上角
             this.cropCoverContext.fillRect(borderRect.left-this.borderWidth,borderRect.top+borderRect.height-cornerRectHeight+this.borderWidth,cornerRectWidth,cornerRectHeight);//左下角
@@ -383,6 +381,8 @@
                 self._rotateScale = 1;
                 self._baseAngle = 0;
                 self.rotateAngle = 0;
+                self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
+                self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
                 self.scaleTimes = self.minScale;
@@ -672,12 +672,6 @@
             var self = this;
             this._downPoint = [];
             this.scaleDownX = 0;
-            if(this._endTimeout){
-                clearTimeout(this._endTimeout);
-            }
-            this._endTimeout = setTimeout(function(){
-                //self.transform();
-            },500);
         }
     };
 
@@ -685,13 +679,7 @@
     SimpleCrop.prototype.startControl = function(point){
         if(!this._isControl){
             this._isControl = true;
-            if(this._endTimeout){
-                clearTimeout(this._endTimeout);
-            }
             this._downPoint = point?point:[];
-            this.borderDraw();
-            this.coverDraw();
-            //this.transform();
         }
     };
 
