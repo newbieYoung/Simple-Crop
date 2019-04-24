@@ -712,62 +712,42 @@
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
 
-            //计算移动后的新坐标
+            //先移动x轴
             var newPoints = [];
+            for(var i=0;i<this.contentPoints.length;i++){
+                newPoints.push({
+                    x : this.contentPoints[i].x + moveX,
+                    y : this.contentPoints[i].y
+                });
+            }
+            var outPoints = [];
+            for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
+                var pt = this.cropPoints[i];
+                if(!this.isPointInRect(pt,newPoints)){
+                    outPoints.push(pt);
+                }
+            }
+            if(outPoints.length > 0){
+                moveX = 0;
+            }
+
+            //再移动y轴
+            newPoints = [];
             for(var i=0;i<this.contentPoints.length;i++){
                 newPoints.push({
                     x : this.contentPoints[i].x + moveX,
                     y : this.contentPoints[i].y - moveY
                 });
             }
-
-            //计算超出的裁剪框点坐标
             var outPoints = [];
-            for(var i=0;i<this.cropPoints.length;i++){
+            for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
                 if(!this.isPointInRect(pt,newPoints)){
                     outPoints.push(pt);
                 }
             }
-
             if(outPoints.length > 0){
-                var overW = 0;
-                var overH = 0;
-
-                for(var i=0;i<outPoints.length;i++){
-                    var sVec = this.getShortestLenVector(outPoints[i],newPoints);
-                    if(sVec.x>overW){
-                        overW = sVec.x;
-                    }
-                    if(sVec.y>overH){
-                        overH = sVec.y;
-                    }
-                }
-                if(outPoints.length == 2){
-                    var sVec0 = this.getShortestLenVector(outPoints[0],newPoints);
-                    var sVec1 = this.getShortestLenVector(outPoints[1],newPoints);
-                    if(outPoints[0].y == outPoints[1].y){
-                        overW = Math.abs(sVec0.x - sVec1.x);
-                    }else if(outPoints[0].x == outPoints[1].x){
-                        overH = Math.abs(sVec0.y - sVec1.y);
-                    }
-                }
-
-                //确定最终移动距离
-                if(moveX > 0){
-                    moveX = moveX - overW;
-                    moveX = moveX < 0 ? 0 : moveX;
-                }else{
-                    moveX = moveX + overW;
-                    moveX = moveX > 0 ? 0 : moveX;
-                }
-                if(moveY > 0){
-                    moveY = moveY - overH;
-                    moveY = moveY < 0 ? 0 : moveY;
-                }else{
-                    moveY = moveY + overH;
-                    moveY = moveY > 0 ? 0 : moveY;
-                }
+                moveY = 0;
             }
 
             var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
