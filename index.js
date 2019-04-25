@@ -310,8 +310,8 @@
             self.maxScale = self.initScale < self.maxScale ? self.maxScale : self.initScale;
 
             self.scaleTimes = self.initScale;
-            self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
-            self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
+            self._contentCurMoveX = -self.positionOffset.left;
+            self._contentCurMoveY = -self.positionOffset.top;
 
             self.transform();
         }
@@ -387,8 +387,8 @@
                 self._rotateScale = 1;
                 self._baseAngle = 0;
                 self.rotateAngle = 0;
-                self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
-                self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
+                self._contentCurMoveX = -self.positionOffset.left;
+                self._contentCurMoveY = -self.positionOffset.top;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
                 self.scaleTimes = self.initScale;
@@ -776,32 +776,28 @@
             if(outPoints.length > 0){
                 moveY = 0;
             }
-
-            var lastMoveX = parseFloat(this.$cropContent.getAttribute('moveX'));
-            var lastMoveY = parseFloat(this.$cropContent.getAttribute('moveY'));
-            var curMoveX = lastMoveX + moveX;
-            var curMoveY = lastMoveY + moveY;
-            this.$cropContent.setAttribute('moveX',curMoveX);
-            this.$cropContent.setAttribute('moveY',curMoveY);
-            this.transform();
-
+            this._contentCurMoveX += moveX;
+            this._contentCurMoveY += moveY;
             this._downPoint = point;
+
+            this.transform();
         }
     };
 
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(rotateKeepCover,scaleKeepCover){
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
-        var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
-        var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
+        var moveX = this._contentCurMoveX;
+        var moveY = this._contentCurMoveY;
 
         if(scaleKeepCover){//缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的移动
             var scalePoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
             var moveVec = this.getCoverRectTranslate(this.cropPoints,scalePoints,this.contentPoints);
             moveX += moveVec.x;
             moveY -= moveVec.y;
-            this.$cropContent.setAttribute('moveX',moveX);
-            this.$cropContent.setAttribute('moveY',moveY);
+
+            this._contentCurMoveX = moveX;
+            this._contentCurMoveY = moveY;
         }
 
         if(rotateKeepCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
