@@ -37,6 +37,8 @@
      * cropRect 截图区域的屏幕尺寸
      * cropPoints 裁剪区域顶点坐标
      * contentPoints 图片显示区域矩形顶点坐标
+     * _contentCurMoveX 图片 X 轴方向上的位移
+     * _contentCurMoveY 图片 Y 轴方向上的位移
      * initContentPoints 图片显示区域矩形初始顶点坐标
      *
      * ------------------------------------
@@ -738,6 +740,7 @@
         if(this._downPoint.length!=0 && !this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
+            console.log(moveX+' '+moveY);
 
             //先移动x轴
             var newPoints = [];
@@ -948,14 +951,10 @@
                     });
                 }
 
-                if(outPoints.length==3){//之所以会有三个点超出是因为超出的三个点连线相互垂直，此时取最大的向量为移动向量
-                    var maxLine = lines[0];
-                    for(var i=1;i<lines.length;i++){
-                        if(this.vecLen(lines[i])>this.vecLen(maxLine)){
-                            maxLine = lines[i];
-                        }
-                    }
-                    moveVec = maxLine;
+                if(outPoints.length==3){//如果有三个点超出，则直接把大矩形中心移动到另一个矩形中心然后再缩小
+                    var innerCenter = this.getPointsCenter(inner);
+                    moveVec.x = innerCenter.x - center.x;
+                    moveVec.y = innerCenter.y - center.y;
                 }else{
                     for(var i=0;i<lines.length;i++){
                         moveVec.x += lines[i].x;
