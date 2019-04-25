@@ -566,7 +566,7 @@
                 pinch: function (evt) {//缩放
                     if(self._multiPoint){
                         var scale = evt.zoom;
-                        self.scaleTimes = self.scaleTimes/lastScale*scale;
+                        self.scaleTimes = self.scaleTimes / lastScale * scale;
                         lastScale = scale;
                         self.transform(true,true);
                     }
@@ -791,7 +791,6 @@
 
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(rotateKeepCover,scaleKeepCover){
-        var transform = '';
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
@@ -801,6 +800,8 @@
             var moveVec = this.getCoverRectTranslate(this.cropPoints,scalePoints,this.contentPoints);
             moveX += moveVec.x;
             moveY -= moveVec.y;
+            this.$cropContent.setAttribute('moveX',moveX);
+            this.$cropContent.setAttribute('moveY',moveY);
         }
 
         if(rotateKeepCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
@@ -811,7 +812,7 @@
         }
 
         //最终变换
-        transform = '';
+        var transform = '';
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
         transform += 'rotate('+this.rotateAngle+'deg)';
@@ -919,38 +920,41 @@
     //计算一个矩形中心缩小后刚好包含另一个矩形需要的移动向量
     SimpleCrop.prototype.getCoverRectTranslate = function(inner,newOuter,oldOuter){
         var moveVec = {x : 0,y : 0};
-        var outPoints = [];
-        //找出inner中超出newOuter的点坐标
-        for(var i=0;i<inner.length;i++){
-            var point = inner[i];
-            if(!this.isPointInRect(point,newOuter)){
-                outPoints.push(point);
-            }
-        }
 
-        if(outPoints.length>0){
-            var oldLine = {
-                x : oldOuter[1].x - oldOuter[0].x,
-                y : oldOuter[1].y - oldOuter[0].y
-            };
-            var newLine = {
-                x : newOuter[1].x - newOuter[0].x,
-                y : newOuter[1].y - newOuter[0].y
-            };
-            var scale = this.vecLen(newLine) / this.vecLen(oldLine);
+        var oldLine = {
+            x : oldOuter[1].x - oldOuter[0].x,
+            y : oldOuter[1].y - oldOuter[0].y
+        };
+        var newLine = {
+            x : newOuter[1].x - newOuter[0].x,
+            y : newOuter[1].y - newOuter[0].y
+        };
+        var scale = this.vecLen(newLine) / this.vecLen(oldLine);
 
-            var lines = [];
-            var center = this.getPointsCenter(newOuter);
-            for(var i=0;i<outPoints.length;i++){
-                lines.push({
-                    x : (outPoints[i].x - center.x) * (1-scale),
-                    y : (outPoints[i].y - center.y) * (1-scale)
-                });
+        if(scale<1){
+            var outPoints = [];
+            //找出inner中超出newOuter的点坐标
+            for(var i=0;i<inner.length;i++){
+                var point = inner[i];
+                if(!this.isPointInRect(point,newOuter)){
+                    outPoints.push(point);
+                }
             }
 
-            for(var i=0;i<lines.length;i++){
-                moveVec.x += lines[i].x;
-                moveVec.y += lines[i].y;
+            if(outPoints.length>0){
+                var lines = [];
+                var center = this.getPointsCenter(newOuter);
+                for(var i=0;i<outPoints.length;i++){
+                    lines.push({
+                        x : (outPoints[i].x - center.x) * (1-scale),
+                        y : (outPoints[i].y - center.y) * (1-scale)
+                    });
+                }
+
+                for(var i=0;i<lines.length;i++){
+                    moveVec.x += lines[i].x;
+                    moveVec.y += lines[i].y;
+                }
             }
         }
 
