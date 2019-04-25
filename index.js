@@ -740,7 +740,6 @@
         if(this._downPoint.length!=0 && !this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
-            console.log(moveX+' '+moveY);
 
             //先移动x轴
             var newPoints = [];
