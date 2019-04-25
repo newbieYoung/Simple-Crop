@@ -15,10 +15,9 @@
      * @param src   初始图片路径
      * @param times 实际尺寸/显示尺寸
      * @param zIndex 样式层级
-     * @param minScale 最小缩放倍数
+     * @param initScale 初始缩放倍数
+     * @param maxScale 初始缩放倍数
      * @param controller 操控方式
-     * @param maxScale 最大缩放倍数
-     * @param isScaleFixed 缩放倍数范围是否固定
      * @param coverDraw 裁剪框绘制辅助线
      * @param scaleSlider 缩放滑动组件
      * @param rotateSlider 旋转滑动组件
@@ -65,7 +64,7 @@
         this.title = params.title;
         this.src = params.src;
         this.size = params.size;
-        this.isScaleFixed = false;
+        this.maxScale = params.maxScale?params.maxScale:1;
 
         this._multiPoint = false;//是否开始多点触控
         this._rotateScale = 1;//旋转缩放
@@ -152,12 +151,6 @@
         this.cropCallback = params.cropCallback;
         this.closeCallback = params.closeCallback;
         this.uploadCallback = params.uploadCallback;
-
-        if(params.minScale!=null&&params.maxScale!=null){
-            this.minScale = params.minScale;
-            this.maxScale = params.maxScale;
-            this.isScaleFixed = true;//如果缩放倍数范围是传参设置的，那么固定
-        }
 
         this.borderDraw();
         this.coverDraw();
@@ -308,23 +301,15 @@
             }]
             self.contentPoints = self.initContentPoints.slice();
 
-            /**
-             * 默认最大缩放倍数为1；也就是显示原图；
-             * 默认最小缩放倍数为图片刚好填满裁切区域。
-             */
-            if(!self.isScaleFixed){
-                self.maxScale = 1;
-                if(self.size.width/self.size.height>self.$image.width/self.$image.height){
-                    self.minScale = self.size.width/self.$image.width;
-                }else{
-                    self.minScale = self.size.height/self.$image.height;
-                }
-                if(self.minScale>=self.maxScale){
-                    self.maxScale = self.minScale;
-                }
+            //计算初始缩放倍数
+            if(self.size.width/self.size.height>self.$image.width/self.$image.height){
+                self.initScale = self.size.width/self.$image.width;
+            }else{
+                self.initScale = self.size.height/self.$image.height;
             }
-            self.scaleTimes = self.minScale;
+            self.maxScale = self.initScale < self.maxScale ? self.maxScale : self.initScale;
 
+            self.scaleTimes = self.initScale;
             self.$cropContent.setAttribute('moveX', -self.positionOffset.left);
             self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
 
@@ -406,7 +391,7 @@
                 self.$cropContent.setAttribute('moveY',-self.positionOffset.top);
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
                 self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
-                self.scaleTimes = self.minScale;
+                self.scaleTimes = self.initScale;
                 self.transform();
                 self.endControl();
             })
@@ -579,34 +564,13 @@
                     self._multiPoint = true;//多点触摸开始
                 },
                 pinch: function (evt) {//缩放
-                    var scale = evt.zoom;
-                    var newScale = self.scaleTimes/lastScale*scale;
-                    if(newScale>=self.minScale&&newScale<=self.maxScale){
-                        self.scaleTimes = newScale
+                    if(self._multiPoint){
+                        var scale = evt.zoom;
+                        self.scaleTimes = self.scaleTimes/lastScale*scale;
                         lastScale = scale;
-                        self.transform(true);
-                    }else{
-                        /**
-                         * 浮点数计算存在误差会导致缩放时很难回到初始状态；
-                         * 且手指触摸缩放和滑动缩放不一样，并不存在初始化状态按钮；
-                         * 因此需要加上强制回归的逻辑
-                         */
-                        if(newScale!=self.scaleTimes){
-                            if(Math.abs(newScale-self.minScale)>Math.abs(newScale-self.maxScale)){
-                                newScale = self.maxScale;
-                            }else{
-                                newScale = self.minScale;
-                            }
-                            self.scaleTimes = newScale;
-                            self.transform(true);
-                        }
+                        self.transform(true,true);
                     }
                 },
-                // rotate:function(evt){//旋转
-                //     var angle = evt.angle;
-                //     self.rotateAngle += angle;
-                //     self.transform();
-                // },
                 multipointEnd: function () {
                     self._multiPoint = false;//多点触摸结束
                     lastScale = 1;
@@ -765,7 +729,7 @@
         this.$scaleValue.style.width = curMoveX+'px';
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
-        this.scaleTimes = this.minScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.minScale);
+        this.scaleTimes = this.initScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.initScale);
         this.transform();
     };
 
@@ -828,38 +792,23 @@
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(rotateKeepCover,scaleKeepCover){
         var transform = '';
-        var scaleNum = this.scaleTimes / this.times;
+        var scaleNum = this.scaleTimes / this.times * this._rotateScale;
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
 
         if(scaleKeepCover){//缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的移动
-            var scaleNum2 = scaleNum * this._rotateScale;
+            var scalePoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
+            var moveVec = this.getCoverRectTranslate(this.cropPoints,scalePoints,this.contentPoints);
+            moveX += moveVec.x;
+            moveY -= moveVec.y;
         }
 
         if(rotateKeepCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
-            this.contentPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
-
-            //适当的放大裁剪框限制范围
-            var biggerPoints = [];
-            var exLen = 2;
-            for(var i=0;i<this.cropPoints.length;i++){
-                biggerPoints.push({
-                    x : this.cropPoints[i].x,
-                    y : this.cropPoints[i].y
-                });
-            }
-            biggerPoints[0].x -= exLen;
-            biggerPoints[0].y += exLen;
-            biggerPoints[1].x += exLen;
-            biggerPoints[1].y += exLen;
-            biggerPoints[2].x += exLen;
-            biggerPoints[2].y -= exLen;
-            biggerPoints[3].x -= exLen;
-            biggerPoints[3].y -= exLen;
-            this._rotateScale = this.getCoverRectScale(this.contentPoints,biggerPoints);
+            this.rotatePoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
+            var coverScale = this.getCoverRectScale(this.rotatePoints,this.cropPoints);
+            this._rotateScale = this._rotateScale * coverScale;
+            scaleNum = scaleNum * coverScale;
         }
-
-        scaleNum = scaleNum * this._rotateScale;
 
         //最终变换
         transform = '';
@@ -965,6 +914,47 @@
         });
 
         return points;
+    };
+
+    //计算一个矩形中心缩小后刚好包含另一个矩形需要的移动向量
+    SimpleCrop.prototype.getCoverRectTranslate = function(inner,newOuter,oldOuter){
+        var moveVec = {x : 0,y : 0};
+        var outPoints = [];
+        //找出inner中超出newOuter的点坐标
+        for(var i=0;i<inner.length;i++){
+            var point = inner[i];
+            if(!this.isPointInRect(point,newOuter)){
+                outPoints.push(point);
+            }
+        }
+
+        if(outPoints.length>0){
+            var oldLine = {
+                x : oldOuter[1].x - oldOuter[0].x,
+                y : oldOuter[1].y - oldOuter[0].y
+            };
+            var newLine = {
+                x : newOuter[1].x - newOuter[0].x,
+                y : newOuter[1].y - newOuter[0].y
+            };
+            var scale = this.vecLen(newLine) / this.vecLen(oldLine);
+
+            var lines = [];
+            var center = this.getPointsCenter(newOuter);
+            for(var i=0;i<outPoints.length;i++){
+                lines.push({
+                    x : (outPoints[i].x - center.x) * (1-scale),
+                    y : (outPoints[i].y - center.y) * (1-scale)
+                });
+            }
+
+            for(var i=0;i<lines.length;i++){
+                moveVec.x += lines[i].x;
+                moveVec.y += lines[i].y;
+            }
+        }
+
+        return moveVec;
     };
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
