@@ -730,7 +730,7 @@
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
         this.scaleTimes = this.initScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.initScale);
-        this.transform();
+        this.transform(false,true);
     };
 
     //移动
@@ -940,6 +940,7 @@
             if(outPoints.length>0){
                 var lines = [];
                 var center = this.getPointsCenter(newOuter);
+
                 for(var i=0;i<outPoints.length;i++){
                     lines.push({
                         x : (outPoints[i].x - center.x) * (1-scale),
@@ -947,9 +948,19 @@
                     });
                 }
 
-                for(var i=0;i<lines.length;i++){
-                    moveVec.x += lines[i].x;
-                    moveVec.y += lines[i].y;
+                if(outPoints.length==3){//之所以会有三个点超出是因为超出的三个点连线相互垂直，此时取最大的向量为移动向量
+                    var maxLine = lines[0];
+                    for(var i=1;i<lines.length;i++){
+                        if(this.vecLen(lines[i])>this.vecLen(maxLine)){
+                            maxLine = lines[i];
+                        }
+                    }
+                    moveVec = maxLine;
+                }else{
+                    for(var i=0;i<lines.length;i++){
+                        moveVec.x += lines[i].x;
+                        moveVec.y += lines[i].y;
+                    }
                 }
             }
         }
