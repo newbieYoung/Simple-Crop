@@ -826,33 +826,18 @@
     };
 
     //旋转、缩放、移动
-    SimpleCrop.prototype.transform = function(rotateScale){
+    SimpleCrop.prototype.transform = function(rotateKeepCover,scaleKeepCover){
         var transform = '';
         var scaleNum = this.scaleTimes / this.times;
         var moveX = parseFloat(this.$cropContent.getAttribute('moveX'));
         var moveY = parseFloat(this.$cropContent.getAttribute('moveY'));
 
-        if(rotateScale){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
-            var points0 = [];
-            for(var i=0;i<this.initContentPoints.length;i++){
-                var item = this.initContentPoints[i];
-                points0.push({
-                    x:item.x,
-                    y:item.y
-                });
-            }
-            var points1 = [];
-            for(var i=0;i<points0.length;i++){
-                var p1 = this.scalePoint(points0[i],scaleNum);
-                var p2 = this.translatePoint(p1,moveX,moveY);
-                points1.push(p2);
-            }
-            var center1 = this.getPointsCenter(points1);
-            this.contentPoints = [];
-            for(var i=0;i<points1.length;i++){
-                var p3 = this.rotatePoint(points1[i],center1,this.rotateAngle);
-                this.contentPoints.push(p3);
-            }
+        if(scaleKeepCover){//缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的移动
+            var scaleNum2 = scaleNum * this._rotateScale;
+        }
+
+        if(rotateKeepCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
+            this.contentPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
 
             //适当的放大裁剪框限制范围
             var biggerPoints = [];
@@ -884,27 +869,36 @@
         this.$cropContent.style.transform = this._initTransform+' '+transform;
 
         //计算最终变换坐标
-        var points2 = [];
+        this.contentPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
+    };
+
+    //计算新的变换坐标
+    SimpleCrop.prototype.getTransformPoints = function(scaleNum,moveX,moveY,rotateAngle){
+        var points0 = [];
         for(var i=0;i<this.initContentPoints.length;i++){
             var item = this.initContentPoints[i];
-            points2.push({
+            points0.push({
                 x:item.x,
                 y:item.y
             });
         }
-        var points3 = [];
-        for(var i=0;i<points2.length;i++){
-            var p1 = this.scalePoint(points2[i],scaleNum);
+
+        var points1 = [];
+        for(var i=0;i<points0.length;i++){
+            var p1 = this.scalePoint(points0[i],scaleNum);
             var p2 = this.translatePoint(p1,moveX,moveY);
-            points3.push(p2);
+            points1.push(p2);
         }
-        var center2 = this.getPointsCenter(points3);
-        this.contentPoints = [];
-        for(var i=0;i<points3.length;i++){
-            var p3 = this.rotatePoint(points3[i],center2,this.rotateAngle);
-            this.contentPoints.push(p3);
+        var center1 = this.getPointsCenter(points1);
+
+        var points2 = [];
+        for(var i=0;i<points1.length;i++){
+            var p3 = this.rotatePoint(points1[i],center1,this.rotateAngle);
+            points2.push(p3);
         }
-    };
+
+        return points2;
+    }
 
     //点坐标缩放
     SimpleCrop.prototype.scalePoint = function(point,num){
