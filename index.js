@@ -16,7 +16,6 @@
      * @param times 实际尺寸/显示尺寸
      * @param zIndex 样式层级
      * @param minScale 最小缩放倍数
-     * @param bgFilter 背景滤镜
      * @param controller 操控方式
      * @param maxScale 最大缩放倍数
      * @param isScaleFixed 缩放倍数范围是否固定
@@ -89,7 +88,6 @@
         this.$container = params.$container!=null?params.$container:document.body;//组件容器
         this.scaleSlider = params.scaleSlider!=null?params.scaleSlider:true;
         this.positionOffset = params.positionOffset!=null?params.positionOffset:{top:0,left:0};
-        this.bgFilter = params.bgFilter!=null?params.bgFilter:'blur(20px)';
 
         /**
          * 旋转刻度盘
@@ -302,10 +300,10 @@
              */
             if(!self.isScaleFixed){
                 self.maxScale = 1;
-                if(self.size.width*1.0/self.size.height>self.$image.width*1.0/self.$image.height){
-                    self.minScale = self.size.width*1.0/self.$image.width;
+                if(self.size.width/self.size.height>self.$image.width/self.$image.height){
+                    self.minScale = self.size.width/self.$image.width;
                 }else{
-                    self.minScale = self.size.height*1.0/self.$image.height;
+                    self.minScale = self.size.height/self.$image.height;
                 }
                 if(self.minScale>=self.maxScale){
                     self.maxScale = self.minScale;
@@ -343,113 +341,7 @@
         if(self.funcBtns.includes('crop')){
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
-                //复制顶点坐标
-                var points1 = [];
-                for(var i=0;i<self.cropPoints.length;i++){
-                    points1.push({
-                        x : self.cropPoints[i].x,
-                        y : self.cropPoints[i].y
-                    });
-                }
-                var points2 = [];
-                for(var i=0;i<self.contentPoints.length;i++){
-                    points2.push({
-                        x : self.contentPoints[i].x,
-                        y : self.contentPoints[i].y
-                    });
-                }
-
-                //计算原点
-                var origin = {
-                    x : points2[0].x,
-                    y : points2[0].y
-                };
-                for(var i=0;i<points2.length;i++){
-                    if(points2[i].x < origin.x){
-                        origin.x = points2[i].x;
-                    }
-                    if(points2[i].y > origin.y){
-                        origin.y = points2[i].y;
-                    }
-                }
-
-                //转换坐标系
-                var scaleNum = self.scaleTimes / self.times * self._rotateScale;//把坐标系乘以缩放倍数，转换为实际坐标系
-                for(var i=0;i<points2.length;i++){
-                    points2[i].x = Math.abs(points2[i].x - origin.x) / scaleNum;
-                    points2[i].y = Math.abs(points2[i].y - origin.y) / scaleNum;
-                }
-                for(var i=0;i<points1.length;i++){
-                    points1[i].x = Math.abs(points1[i].x - origin.x) / scaleNum;
-                    points1[i].y = Math.abs(points1[i].y - origin.y) / scaleNum;
-                }
-
-                //计算图片旋转之前的位置
-                var center = self.getPointsCenter(points2);
-                var borderTop = {
-                    x : points2[1].x - points2[0].x,
-                    y : points2[1].y - points2[0].y
-                };
-                var width = self.vecLen(borderTop);
-                var borderRight = {
-                    x : points2[2].x - points2[1].x,
-                    y : points2[2].y - points2[1].y,
-                };
-                var height = self.vecLen(borderRight);
-                var imageInitRect = {
-                    left : center.x - width/2,
-                    top : center.y - height/2,
-                    width : width,
-                    height : height
-                };
-                //console.log(imageInitRect);//可以根据宽高校验转换是否有异常
-
-                //绘制图片
-                var imageRect = {
-                    left : 0,
-                    top : 0,
-                    width : 0,
-                    height : 0
-                };
-                for(var i=0;i<points2.length;i++){
-                    if(points2[i].x > imageRect.width){
-                        imageRect.width = points2[i].x;
-                    }
-                    if(points2[i].y > imageRect.height){
-                        imageRect.height = points2[i].y;
-                    }
-                }
-                //console.log(points2);
-                //console.log(imageRect);
-                var $imageCanvas = document.createElement('canvas');
-                $imageCanvas.width = imageRect.width;
-                $imageCanvas.height = imageRect.height;
-                var imageCtx = $imageCanvas.getContext('2d');
-                imageCtx._setTransformOrigin(center.x,center.y);//中心点
-                imageCtx._rotate(self.rotateAngle);
-                imageCtx.drawImage(self.$image,imageInitRect.left,imageInitRect.top,imageInitRect.width,imageInitRect.height);
-                //document.body.appendChild($imageCanvas);
-
-                //计算裁剪位置并截图
-                var cropRect = {
-                    left : points1[0].x,
-                    top : points1[0].y,
-                    width : points1[1].x - points1[0].x,
-                    height : points1[3].y - points1[0].y
-                };
-                var $cropCanvas = document.createElement('canvas');
-                $cropCanvas.width = cropRect.width;
-                $cropCanvas.height = cropRect.height;
-                var cropCtx = $cropCanvas.getContext('2d');
-                cropCtx.drawImage($imageCanvas,cropRect.left,cropRect.top,cropRect.width,cropRect.height,0,0,cropRect.width,cropRect.height);
-
-                //缩放成最终大小
-                self.$resultCanvas = document.createElement('canvas');
-                self.$resultCanvas.width = self.size.width;
-                self.$resultCanvas.height = self.size.height;
-                var resultCtx = self.$resultCanvas.getContext('2d');
-                resultCtx.drawImage($cropCanvas,0,0,self.size.width,self.size.height);
-
+                self.getCropImage();
                 self.cropCallback();
             });
         }
@@ -730,54 +622,108 @@
 
     //获取裁剪图片
     SimpleCrop.prototype.getCropImage = function () {
-        var scaleWidth = this.$cropContent.width*this._rotateScale;
-        var scaleHeight = this.$cropContent.height*this._rotateScale;
+        //复制顶点坐标
+        var points1 = [];
+        for(var i=0;i<this.cropPoints.length;i++){
+            points1.push({
+                x : this.cropPoints[i].x,
+                y : this.cropPoints[i].y
+            });
+        }
+        var points2 = [];
+        for(var i=0;i<this.contentPoints.length;i++){
+            points2.push({
+                x : this.contentPoints[i].x,
+                y : this.contentPoints[i].y
+            });
+        }
 
-        var $scaleCanvas = document.createElement('canvas');
-        $scaleCanvas.width = scaleWidth;
-        $scaleCanvas.height = scaleHeight;
-        var scaleContext = $scaleCanvas.getContext('2d');
-        scaleContext.scale(this._rotateScale,this._rotateScale);
-        scaleContext.drawImage(this.$cropContent,0,0,this.$cropContent.width,this.$cropContent.height);
-
-        //document.body.appendChild($scaleCanvas);
-
-        var rad = this.rotateAngle * Math.PI / 180;
+        //计算原点
         var origin = {
-            x:scaleWidth*this._contentCenter.left,
-            y:scaleHeight*this._contentCenter.top
+            x : points2[0].x,
+            y : points2[0].y
+        };
+        for(var i=0;i<points2.length;i++){
+            if(points2[i].x < origin.x){
+                origin.x = points2[i].x;
+            }
+            if(points2[i].y > origin.y){
+                origin.y = points2[i].y;
+            }
         }
-        var $rotateCanvas = document.createElement('canvas');
-        $rotateCanvas.width = scaleWidth;
-        $rotateCanvas.height = scaleHeight;
-        var rotateContext = $rotateCanvas.getContext('2d');
-        //图片绕画布某个点旋转
-        rotateContext.translate(origin.x,origin.y);
-        rotateContext.rotate(rad);
-        rotateContext.translate(-origin.x,-origin.y);
-        rotateContext.drawImage($scaleCanvas,0,0);
 
-        //document.body.appendChild($rotateCanvas);
-
-        var $newContentCanvas = document.createElement('canvas');
-        $newContentCanvas.width = this.$cropContent.width;
-        $newContentCanvas.height = this.$cropContent.height;
-        var newContentContext = $newContentCanvas.getContext('2d');
-        var offset = {
-            left:(scaleWidth-this.$cropContent.width)*this._contentCenter.left,
-            top:(scaleHeight-this.$cropContent.height)*this._contentCenter.top,
+        //转换坐标系
+        var scaleNum = this.scaleTimes / this.times * this._rotateScale;//把坐标系乘以缩放倍数，转换为实际坐标系
+        for(var i=0;i<points2.length;i++){
+            points2[i].x = Math.abs(points2[i].x - origin.x) / scaleNum;
+            points2[i].y = Math.abs(points2[i].y - origin.y) / scaleNum;
         }
-        newContentContext.drawImage($rotateCanvas,offset.left,offset.top,this.$cropContent.width,this.$cropContent.height,0,0,this.$cropContent.width,this.$cropContent.height);
+        for(var i=0;i<points1.length;i++){
+            points1[i].x = Math.abs(points1[i].x - origin.x) / scaleNum;
+            points1[i].y = Math.abs(points1[i].y - origin.y) / scaleNum;
+        }
 
-        //document.body.appendChild($newContentCanvas);
+        //计算图片旋转之前的位置（可以根据宽高校验转换是否有异常）
+        var center = this.getPointsCenter(points2);
+        var borderTop = {
+            x : points2[1].x - points2[0].x,
+            y : points2[1].y - points2[0].y
+        };
+        var width = this.vecLen(borderTop);
+        var borderRight = {
+            x : points2[2].x - points2[1].x,
+            y : points2[2].y - points2[1].y,
+        };
+        var height = this.vecLen(borderRight);
+        var imageInitRect = {
+            left : center.x - width/2,
+            top : center.y - height/2,
+            width : width,
+            height : height
+        };
 
-        var $cropImage = document.createElement('canvas');
-        $cropImage.width = this.size.width;
-        $cropImage.height = this.size.height;
-        var imageContext = $cropImage.getContext('2d');
-        imageContext.drawImage($newContentCanvas,this.size.left,this.size.top,this.size.width,this.size.height,0,0,this.size.width,this.size.height);
+        //绘制图片
+        var imageRect = {
+            left : 0,
+            top : 0,
+            width : 0,
+            height : 0
+        };
+        for(var i=0;i<points2.length;i++){
+            if(points2[i].x > imageRect.width){
+                imageRect.width = points2[i].x;
+            }
+            if(points2[i].y > imageRect.height){
+                imageRect.height = points2[i].y;
+            }
+        }
+        var $imageCanvas = document.createElement('canvas');
+        $imageCanvas.width = imageRect.width;
+        $imageCanvas.height = imageRect.height;
+        var imageCtx = $imageCanvas.getContext('2d');
+        imageCtx._setTransformOrigin(center.x,center.y);//中心点
+        imageCtx._rotate(this.rotateAngle);
+        imageCtx.drawImage(this.$image,imageInitRect.left,imageInitRect.top,imageInitRect.width,imageInitRect.height);
 
-        return $cropImage;
+        //计算裁剪位置并截图
+        var _cropRect = {
+            left : points1[0].x,
+            top : points1[0].y,
+            width : points1[1].x - points1[0].x,
+            height : points1[3].y - points1[0].y
+        };
+        var $cropCanvas = document.createElement('canvas');
+        $cropCanvas.width = _cropRect.width;
+        $cropCanvas.height = _cropRect.height;
+        var cropCtx = $cropCanvas.getContext('2d');
+        cropCtx.drawImage($imageCanvas,_cropRect.left,_cropRect.top,_cropRect.width,_cropRect.height,0,0,_cropRect.width,_cropRect.height);
+
+        //缩放成最终大小
+        this.$resultCanvas = document.createElement('canvas');
+        this.$resultCanvas.width = this.size.width;
+        this.$resultCanvas.height = this.size.height;
+        var resultCtx = this.$resultCanvas.getContext('2d');
+        resultCtx.drawImage($cropCanvas,0,0,this.size.width,this.size.height);
     };
 
     //操作结束

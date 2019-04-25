@@ -46,8 +46,7 @@
     cursor:move;
     overflow: hidden;
 }
-.crop-component .crop-cover,
-.crop-component .crop-content{
+.crop-component .crop-cover{
     position: absolute;
     top:0;
     left:0;
@@ -80,7 +79,7 @@
     display:inline-block;
     width:16px;
     height:13px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAYAAACgu+4kAAAAaklEQVR4AWNgY2PbysrK+p8cDNLLAGIwkAfAeqlqANg7IEypAVuo6QV5IF4DxMeBOIpUA5SB+BEQ/0fCjYQMwNSMiWcBMTMeAxCa8eANQMwJN4AkzQh8hIWFBWIAyZoRGGYAQjOpmOK8AAA8TXRJ6uOJawAAAABJRU5ErkJggg==);
+    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAQAAAAKsiavAAAAXklEQVR42mNg28r6Hzdk28rA+p8BD2D9T6wCtq1sWwkp2EKcFfIMaxiOM0ThUqDM8IjhPxg2YlOAkAbBWQzMqApQpUFwAwMnQgGmNAgeYYEqwC4Ngaz/8Ur/ZyAUFwBk/nILZQYsUQAAAABJRU5ErkJggg==);
     background-size:100% 100%;
     cursor:pointer;
 }
@@ -88,7 +87,7 @@
     display:inline-block;
     width:22px;
     height:17px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAAjklEQVR42tXUMQ6AIBBEUTDAISwsvak30mvYa29j6wFwhmaLLYeYaPKDWDw3FIRSypZzrj2DuQa+hM4Pzf/DPPMF3x6uXWGiqHL9euIBTSj1POMR7aiiE80abOjRUOsirsAe9biHBdThDhZQhxssoR43WEI9nlIyWEetGKPBMmrdbWLencS54Z/USenA3F5Md7KrR0KEEgAAAABJRU5ErkJggg==);
+    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAQAAABzuJQIAAAAe0lEQVR42r3OMRJAQBAEwKF29xECoZ/6Ed+Qk0uk94BRlMJx3JXATtoztbBWmRZroETiKX/AVquzOhGrU6r7upyjhKT9XKADMaCK4wI9uGY8eBgf1OMh7NMTv+M73fkVh+nGffxMVy4n/E4JZjuOUkxCWKOUpRVZFVo7A34dsBPvGarIAAAAAElFTkSuQmCC);
     background-size:100% 100%;
     cursor:pointer;
 }
@@ -224,7 +223,7 @@
     position: absolute;
     right:32px;
     top:18px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAnUlEQVR4AX3SvQkCQRDF8SnAVPNLLMImrMBejO1gP9hgA4Ptwh7MLOE6MFDnCYNycP8HxyXvx8JjTMk5H8YYG+NEd19Kmb4opfT2/721tiXk4Ojdp3cfppeEGP+Qev6dTVF5iQFdLAIYEOBa6wkQ4tcCcfTSH5px7ZUhZl57ZT1emyaHtREh1u0RivTed4H9u+m1SbcXZ0QRFvL+9QMdTP/NWfh9BgAAAABJRU5ErkJggg==);
+    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAgklEQVR42m3QsRFAQBCF4VeAlFyiCE2oQC9iHew7IxAIrovrQaYEHQgwZxh3ezb9Nvh3AbC2GZJhZUqwlpPLmMdkGtm5wmZcNHuSUzoAYx7zQ/2zGbKikIc2oYCPH/IztDdtuvzL2H4OezN0uYpXrOMDZpXGT4VncTAl1/tRiFkc5wuPN4DZROZKrAAAAABJRU5ErkJggg==);
     background-size:100% 100%;
     cursor:pointer;
     border:none;

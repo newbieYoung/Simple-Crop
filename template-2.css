@@ -30,8 +30,7 @@
     height:100%;
     overflow: hidden;
 }
-.crop-component .crop-cover,
-.crop-component .crop-content{
+.crop-component .crop-cover{
     position: absolute;
     top:0;
     left:0;
