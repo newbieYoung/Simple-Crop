@@ -29,6 +29,7 @@
      * @param closeCallback 关闭回调函数
      * @param size 截图实际宽高
      * @param cropSizePercent 裁剪区域占画布比例
+     *
      * ------------------------------------
      *
      * 为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸
@@ -39,9 +40,16 @@
      * cropPoints 裁剪区域顶点坐标
      * contentPoints 图片显示区域矩形顶点坐标
      * initContentPoints 图片显示区域矩形初始顶点坐标
+     *
+     * ------------------------------------
+     *
+     * $resultCanvas 裁切结果
      */
     function SimpleCrop(params){
         var self = this;
+
+        //初始化 canvas transform
+        self.initCanvasTransform();
 
         //判断是否支持passive
         self.passiveSupported = false;
@@ -335,6 +343,113 @@
         if(self.funcBtns.includes('crop')){
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
+                //复制顶点坐标
+                var points1 = [];
+                for(var i=0;i<self.cropPoints.length;i++){
+                    points1.push({
+                        x : self.cropPoints[i].x,
+                        y : self.cropPoints[i].y
+                    });
+                }
+                var points2 = [];
+                for(var i=0;i<self.contentPoints.length;i++){
+                    points2.push({
+                        x : self.contentPoints[i].x,
+                        y : self.contentPoints[i].y
+                    });
+                }
+
+                //计算原点
+                var origin = {
+                    x : points2[0].x,
+                    y : points2[0].y
+                };
+                for(var i=0;i<points2.length;i++){
+                    if(points2[i].x < origin.x){
+                        origin.x = points2[i].x;
+                    }
+                    if(points2[i].y > origin.y){
+                        origin.y = points2[i].y;
+                    }
+                }
+
+                //转换坐标系
+                var scaleNum = self.scaleTimes / self.times * self._rotateScale;//把坐标系乘以缩放倍数，转换为实际坐标系
+                for(var i=0;i<points2.length;i++){
+                    points2[i].x = Math.abs(points2[i].x - origin.x) / scaleNum;
+                    points2[i].y = Math.abs(points2[i].y - origin.y) / scaleNum;
+                }
+                for(var i=0;i<points1.length;i++){
+                    points1[i].x = Math.abs(points1[i].x - origin.x) / scaleNum;
+                    points1[i].y = Math.abs(points1[i].y - origin.y) / scaleNum;
+                }
+
+                //计算图片旋转之前的位置
+                var center = self.getPointsCenter(points2);
+                var borderTop = {
+                    x : points2[1].x - points2[0].x,
+                    y : points2[1].y - points2[0].y
+                };
+                var width = self.vecLen(borderTop);
+                var borderRight = {
+                    x : points2[2].x - points2[1].x,
+                    y : points2[2].y - points2[1].y,
+                };
+                var height = self.vecLen(borderRight);
+                var imageInitRect = {
+                    left : center.x - width/2,
+                    top : center.y - height/2,
+                    width : width,
+                    height : height
+                };
+                //console.log(imageInitRect);//可以根据宽高校验转换是否有异常
+
+                //绘制图片
+                var imageRect = {
+                    left : 0,
+                    top : 0,
+                    width : 0,
+                    height : 0
+                };
+                for(var i=0;i<points2.length;i++){
+                    if(points2[i].x > imageRect.width){
+                        imageRect.width = points2[i].x;
+                    }
+                    if(points2[i].y > imageRect.height){
+                        imageRect.height = points2[i].y;
+                    }
+                }
+                //console.log(points2);
+                //console.log(imageRect);
+                var $imageCanvas = document.createElement('canvas');
+                $imageCanvas.width = imageRect.width;
+                $imageCanvas.height = imageRect.height;
+                var imageCtx = $imageCanvas.getContext('2d');
+                imageCtx._setTransformOrigin(center.x,center.y);//中心点
+                imageCtx._rotate(self.rotateAngle);
+                imageCtx.drawImage(self.$image,imageInitRect.left,imageInitRect.top,imageInitRect.width,imageInitRect.height);
+                //document.body.appendChild($imageCanvas);
+
+                //计算裁剪位置并截图
+                var cropRect = {
+                    left : points1[0].x,
+                    top : points1[0].y,
+                    width : points1[1].x - points1[0].x,
+                    height : points1[3].y - points1[0].y
+                };
+                var $cropCanvas = document.createElement('canvas');
+                $cropCanvas.width = cropRect.width;
+                $cropCanvas.height = cropRect.height;
+                var cropCtx = $cropCanvas.getContext('2d');
+                cropCtx.drawImage($imageCanvas,cropRect.left,cropRect.top,cropRect.width,cropRect.height,0,0,cropRect.width,cropRect.height);
+
+                //缩放成最终大小
+                self.$resultCanvas = document.createElement('canvas');
+                self.$resultCanvas.width = self.size.width;
+                self.$resultCanvas.height = self.size.height;
+                var resultCtx = self.$resultCanvas.getContext('2d');
+                resultCtx.drawImage($cropCanvas,0,0,self.size.width,self.size.height);
+
                 self.cropCallback();
             });
         }
@@ -1065,6 +1180,46 @@
             callback(e.target.result);
         }
         reader.readAsDataURL(file)
+    };
+
+    //让canvas transform类似css3 transform
+    SimpleCrop.prototype.initCanvasTransform = function(){
+
+        CanvasRenderingContext2D.prototype._setTransformOrigin = function(x,y){
+            this._transformOrigin = {x:x,y:y};
+        }
+        CanvasRenderingContext2D.prototype._scale = function(x,y){
+            if(this._transformOrigin==null){
+                this._transformOrigin = {x:0,y:0};
+            }
+            this.translate(this._transformOrigin.x,this._transformOrigin.y);
+            this.scale(x,y);
+            this.translate(-this._transformOrigin.x,-this._transformOrigin.y);
+        }
+        CanvasRenderingContext2D.prototype._rotate = function(deg){
+            if(this._transformOrigin==null){
+                this._transformOrigin = {x:0,y:0};
+            }
+            this.translate(this._transformOrigin.x,this._transformOrigin.y);
+            this.rotate(deg/180*Math.PI);
+            this.translate(-this._transformOrigin.x,-this._transformOrigin.y);
+        }
+        CanvasRenderingContext2D.prototype._skew = function(xDeg,yDeg){
+            if(this._transformOrigin==null){
+                this._transformOrigin = {x:0,y:0};
+            }
+            this.translate(this._transformOrigin.x,this._transformOrigin.y);
+            this.transform(1, xDeg/180*Math.PI, yDeg/180*Math.PI, 1, 0, 0);
+            this.translate(-this._transformOrigin.x,-this._transformOrigin.y);
+        }
+        CanvasRenderingContext2D.prototype._transform = function(a,b,c,d,e,f){
+            if(this._transformOrigin==null){
+                this._transformOrigin = {x:0,y:0};
+            }
+            this.translate(this._transformOrigin.x,this._transformOrigin.y);
+            this.transform(a,b,c,d,e,f);
+            this.translate(-this._transformOrigin.x,-this._transformOrigin.y);
+        }
     };
 
     return SimpleCrop;
