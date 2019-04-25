@@ -291,7 +291,21 @@
             self.$cropContent.style.top = '50%';
             self.$cropContent.style.transform = self._initTransform;
 
-            self.initContentPoints = self.rectToPoints(self.$cropContent.getBoundingClientRect());
+            var width = self.$image.width/2;
+            var height = self.$image.height/2;
+            self.initContentPoints = [{
+                x : -width,
+                y : height
+            },{
+                x : width,
+                y : height
+            },{
+                x : width,
+                y : -height
+            },{
+                x : -width,
+                y : -height
+            }]
             self.contentPoints = self.initContentPoints.slice();
 
             /**
@@ -757,7 +771,7 @@
 
     //移动
     SimpleCrop.prototype.move = function(point){
-        if(this._downPoint.length!=0&&!this._multiPoint){
+        if(this._downPoint.length!=0 && !this._multiPoint){
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
 
@@ -788,7 +802,7 @@
                     y : this.contentPoints[i].y - moveY
                 });
             }
-            var outPoints = [];
+            outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
                 if(!this.isPointInRect(pt,newPoints)){
