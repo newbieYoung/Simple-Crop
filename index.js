@@ -237,12 +237,12 @@
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = '#ffffff';
 
-        //绘制边框
+        //绘制边框（边框内嵌）
         var borderRect = {
-            left:this.cropRect.left - this.borderWidth,
-            top:this.cropRect.top - this.borderWidth,
-            width:this.cropRect.width + this.borderWidth * 2,
-            height:this.cropRect.height + this.borderWidth * 2
+            left:this.cropRect.left,
+            top:this.cropRect.top,
+            width:this.cropRect.width,
+            height:this.cropRect.height
         }
         this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRect.width,borderRect.height);
 
@@ -258,7 +258,7 @@
         }
 
         //清空内容区域
-        this.cropCoverContext.clearRect(this.cropRect.left,this.cropRect.top,this.cropRect.width,this.cropRect.height);
+        this.cropCoverContext.clearRect(this.cropRect.left+this.borderWidth,this.cropRect.top+this.borderWidth,this.cropRect.width-2*this.borderWidth,this.cropRect.height-2*this.borderWidth);
     };
 
     //默认绘制辅助线
