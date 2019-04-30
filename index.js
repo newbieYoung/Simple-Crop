@@ -528,6 +528,7 @@
                     self._downPoint = point;
                 }
                 e.stopPropagation();//阻止事件冒泡
+                e.preventDefault();
             });
             //刻度触摸结束
             self.$cropRotate.addEventListener('touchend',self.endControl.bind(self));
