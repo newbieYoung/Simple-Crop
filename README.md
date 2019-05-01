@@ -68,11 +68,11 @@ var simpleCrop = new SimpleCrop({
 	</tr>
 	<tr>
 		<td>borderWidth</td>
-		<td>裁剪框宽度</td>
+		<td>裁剪框边框宽度</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>裁剪框占裁剪显示区域比例，0.9表示所占比例为90%</td>
+		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
 	</tr>
 	<tr>
 		<td>controller</td>
