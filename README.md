@@ -1,37 +1,12 @@
 # SimpleCrop
 
-> &copy; Young 2018-07-28 11:27
-> Welcome to My [GitHub](https://github.com/newbieYoung "GitHub")
+一个在功能和交互上参考 IOS 系统的原生图片裁剪功能并支持任意角度旋转的 Web 图片裁剪组件。
 
-从前有座山，山里有个程序员，他造了一个裁剪图片的轮子，最近又丰富了这个轮子的功能；
-
-[SimpleCrop](https://github.com/newbieYoung/Simple-Crop)
-
-至于为什么要造这个轮子，主要是因为已知的图片裁剪组件不能完全满足自己的要求，比如：
-
-[Croppie](https://github.com/foliotek/croppie)
-
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-2.jpg">
-
-> 只支持旋转固定角度；
-
-[AlloyCrop ](https://github.com/AlloyTeam/AlloyCrop)
-
-> 完全不支持旋转；
-
-[cropperjs](https://github.com/fengyuanchen/cropperjs)
-
-> 这个组件功能倒是挺全，但是交互和预想的差别挺大，另外代码偏多（不想用别人的总得找点理由不是）。
-
-> 顺便吐槽一句，那些个支持圆形裁剪框的组件，怕不是开发没有做过重构吧，就目前来说要在网页里边展示圆形等各种非矩形图片，还真的需要图片一定是圆形或者其它形状吗...
-
-还有一些需要依赖`jQuery`，直接就PASS了，不要问我为什么...
-
-`SimpleCrop`在功能和交互上完全参考了IOS的原生图片裁剪功能；
+### 示例一
 
 <img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-0.jpg">
 
-> 左侧是IOS系统自带的图片裁剪功能，右侧为组件的示例二；
+> 左侧是IOS系统自带的图片裁剪功能，右侧为组件的示例一；
 
 可以扫描二维码体验：
 
@@ -41,13 +16,42 @@
 
 [https://newbieyoung.github.io/Simple-Crop/test-2.html](https://newbieyoung.github.io/Simple-Crop/test-2.html)
 
-### 示例二
+相关配置参数以及样式适用于移动端；
 
-相关配置参数以及样式适用于移动端，代码如下：
+```
+<link rel="stylesheet" href="./dist/template-2.css">
+```
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-3.jpg">
+```
+var offsetTop = document.documentElement.clientHeight*0.04;
+var offsetLeft = document.documentElement.clientWidth*0.02;
+
+var simpleCrop = new SimpleCrop({
+    src:'./img/test1.jpg',
+    size:{
+        width:1000,
+        height:600
+    },
+    borderWidth:1,
+    cropSizePercent:0.9,
+    controller:['touch'],
+    positionOffset:{left:offsetLeft,top:offsetTop},
+    coverColor:'rgba(0,0,0,.3)',
+    funcBtns:['close','crop','around','reset'],
+    scaleSlider:false,
+    rotateSlider:true,
+    cropCallback:function(){
+        this.$resultCanvas.style.marginRight = '10px';
+        document.body.appendChild(this.$resultCanvas);
+    }
+});
+```
 
 因为需要用到多指触摸操作，目前使用[AlloyFinger](https://github.com/AlloyTeam/AlloyFinger)
+
+```
+<script src="./lib/alloy_finger.js"></script>
+```
 
 <table style="word-break: normal;">
 	<tr>
@@ -60,15 +64,15 @@
 	</tr>
 	<tr>
 		<td>size</td>
-		<td>裁剪区域实际尺寸</td>
+		<td>裁剪图片尺寸</td>
 	</tr>
 	<tr>
 		<td>borderWidth</td>
-		<td>裁剪区域边框宽度</td>
+		<td>裁剪框宽度</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>裁剪区域占画布比例，0.9表示所占比例为90%，示例二实际尺寸宽高相等，但是移动端一般宽度小于高度，因此表现为裁剪区域的显示尺寸为宽度等于屏幕宽度的90%</td>
+		<td>裁剪框占裁剪显示区域比例，0.9表示所占比例为90%</td>
 	</tr>
 	<tr>
 		<td>controller</td>
@@ -78,6 +82,10 @@
 		<td>positionOffset</td>
 		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
 	</tr>
+	<tr>
+        <td>coverColor</td>
+        <td>非裁剪框区域遮罩颜色</td>
+    </tr>
 	<tr>
 		<td>funcBtns</td>
 		<td>功能按钮设置，取值有四种，分别为<b>close</b>表示关闭功能按钮、<b>reset</b>表示还原功能按钮、<b>around</b>表示整角90度旋转按钮、<b>crop</b>表示裁剪按钮；属性中的顺序决定其DOM元素的层级顺序</td>
@@ -96,17 +104,40 @@
 	</tr>
 </table>
 
-### 示例一
+### 示例二
 
 如图：
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-5.jpg">
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-11.jpg">
 
 请访问以下链接[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
 
-相关配置参数以及样式适用于PC端，代码如下：
+相关配置参数以及样式适用于PC端；
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-4.jpg">
+```
+<link rel="stylesheet" href="./dist/template-1.css">
+```
+
+```
+var simpleCrop = new SimpleCrop({
+    title:'上传图片过大，请裁剪',
+    src:'./img/test1.jpg',
+    size:{
+        width:800,
+        height:900
+    },
+    cropCallback:function(){
+        this.$resultCanvas.style.marginRight = '10px';
+        document.body.appendChild(this.$resultCanvas);
+    },
+    borderDraw:function(){
+        //...
+    },
+    coverDraw:function(){
+        //...
+    }
+});
+```
 
 <table style="word-break: normal;">
 	<tr>
@@ -119,7 +150,7 @@
 	</tr>
 	<tr>
 		<td>borderDraw</td>
-		<td>裁剪区域边框绘制函数，默认的边框绘制函数会绘制出<b>示例二</b>的样子，同时支持自定义，不过需要注意的是必需在第一行执行<b>this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);</b>来清空遮罩层（设计略不合理，待改进）</td>
+		<td>裁剪框绘制函数，默认的边框绘制函数会绘制出<b>示例一</b>的样子，同时支持自定义，不过需要注意的是必需在第一行执行<b>this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);</b>来清空遮罩层（设计略不合理，待改进）</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
@@ -127,14 +158,6 @@
 	</tr>
 </table>
 
-### 小结
+### 其它
 
-整个组件并没有什么所谓的技术难点，可能是因为毕业太久的原因，三个坐标系之间的转换弄的我略微有点头晕，至于为什么会有三个坐标系？
-
-举例来说：
-
-比如需要的截图的实际尺寸为680*680，但是因为容器的原因不能显示为实际尺寸，这里会保持宽高比例不变，进行一定的缩放，缩放之后也就存在逻辑尺寸和显示尺寸了；
-
-另外图片尺寸固定，但是绘制时存在缩放，比如初始化时会让裁剪框尽量填满最多的图片，那么这里也就产生了一个逻辑上的画布坐标系；
-
-再有移动、缩放、旋转素材图片时不能让裁剪框出现空白，这里的判断需要在一个坐标系中进行。
+相关原理以及实现请查看[SimpleCrop 支持任意角度旋转的图片裁剪组件](https://juejin.im/post/5cc965d5e51d453afb40d812)
