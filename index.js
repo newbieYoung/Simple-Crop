@@ -814,7 +814,7 @@
         var transform = '';
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
-        transform += ' rotate('+this.rotateAngle+'deg)';
+        transform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform+' '+transform;
 
         //计算最终变换坐标
@@ -823,84 +823,66 @@
 
     //计算新的变换坐标
     SimpleCrop.prototype.getTransformPoints = function(scaleNum,moveX,moveY,rotateAngle){
-        var mirror = 'scaleY(-1)';
-        var transform = 'scaleX('+scaleNum+')';//缩放
-        transform += 'scaleY('+scaleNum+')';//缩放
-        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';
-        transform += ' rotate('+rotateAngle+'deg)';
-        var matrix = this.getTransformMatrix(mirror+' '+transform);
-
         var points0 = [];
-        for(var  i=0;i<this.initContentPoints.length;i++){
-            points0[i] = this.getMatrixPoints(this.initContentPoints[i],matrix);
-        }
-        points0.reverse();
-
-        return points0;
-    }
-
-    //矩阵解析
-    SimpleCrop.prototype.matrixAnalyze = function(mat){
-        //解析矩阵
-        var start = mat.indexOf('matrix(');
-        var end = mat.indexOf(')');
-        var arr = [];
-        var numbers = mat.substring(start+7,end);
-        arr = numbers.split(',');
-        for(var i=0;i<arr.length;i++){
-            arr[i] = parseFloat(arr[i]);
-        }
-        return arr;
-    }
-
-    //计算矩阵变换后的坐标点
-    SimpleCrop.prototype.getMatrixPoints = function(p,matrix){
-        var mat = this.matrixAnalyze(matrix);
-
-        // var mat3 = [mat[0],mat[2],mat[4],
-        //             mat[1],mat[3],mat[5],
-        //             0,0,1];
-        // var mat3 = [a,c,e,
-        //             b,d,f,
-        //             0,0,1];
-        // var newX = a * x + c * y + 1 * e;
-        // var newY = b * x + d * y + 1 * f;
-        // var newZ = 0 + 0 +1;
-
-        //计算变换后点坐标
-        var newX = mat[0] * p.x + mat[2] * p.y + 1 * mat[4];
-        var newY = mat[1] * p.x + mat[3] * p.y + 1 * mat[5];
-        var newZ = 0 + 0 +1;
-
-        return {x:newX/newZ,y:newY/newZ};
-    }
-
-    //获得transform属性对应的矩阵形式
-    SimpleCrop.prototype.getTransformMatrix = function(transform){
-        var $div = document.createElement('div');
-        $div.style.visibility = 'hidden';
-        $div.style.position = 'fixed';
-
-        //处理transform属性的兼容性
-        var transformProperty = 'transform';
-        if('transform' in $div.style){
-            transformProperty='transform'
-        } else if( 'WebkitTransform' in $div.style ){
-            transformProperty='webkitTransform'
-        } else if('MozTransform' in $div.style){
-            transformProperty='MozTransform'
-        } else if('OTransform' in $div.style){
-            transformProperty='OTransform'
+        for(var i=0;i<this.initContentPoints.length;i++){
+            var item = this.initContentPoints[i];
+            points0.push({
+                x:item.x,
+                y:item.y
+            });
         }
 
-        $div.style[transformProperty] = transform;
-        document.body.appendChild($div);
-        var style = window.getComputedStyle($div);
-        var matrix = style[transformProperty];
-        document.body.removeChild($div);
+        var points1 = [];
+        for(var i=0;i<points0.length;i++){
+            var p1 = this.scalePoint(points0[i],scaleNum);
+            var p2 = this.translatePoint(p1,moveX,moveY);
+            points1.push(p2);
+        }
+        var center1 = this.getPointsCenter(points1);
 
-        return matrix;
+        var points2 = [];
+        for(var i=0;i<points1.length;i++){
+            var p3 = this.rotatePoint(points1[i],center1,this.rotateAngle);
+            points2.push(p3);
+        }
+
+        return points2;
     }
+
+    //点坐标缩放
+    SimpleCrop.prototype.scalePoint = function(point,num){
+        point.x = point.x * num;
+        point.y = point.y * num;
+        return point;
+    };
+
+    //点坐标位移
+    SimpleCrop.prototype.translatePoint = function(point,x,y){
+        point.x = point.x + x;
+        point.y = point.y - y;
+        return point;
+    };
+
+    //点坐标旋转
+    SimpleCrop.prototype.rotatePoint = function(p1,p0,angle){
+        //任意点(x,y)，绕一个坐标点(rx0,ry0)逆时针旋转a角度后的新的坐标设为(x0, y0)
+        //x0= (x - rx0)*cos(a) - (y - ry0)*sin(a) + rx0 ;
+        //y0= (x - rx0)*sin(a) + (y - ry0)*cos(a) + ry0 ;
+
+        var a = - angle / 180 * Math.PI;
+        var rx0 = p0.x;
+        var ry0 = p0.y;
+
+        var x = p1.x;
+        var y = p1.y;
+
+        var p = {
+            x : (x - rx0)*Math.cos(a) - (y - ry0)*Math.sin(a) + rx0,
+            y : (x - rx0)*Math.sin(a) + (y - ry0)*Math.cos(a) + ry0
+        }
+
+        return p;
+    };
 
     //获得矩形点坐标中心
     SimpleCrop.prototype.getPointsCenter = function(points){
@@ -1110,7 +1092,7 @@
         }
 
         //向量之间的夹角等于360度则表示点在矩形内
-        sum = sum.toPrecision(5);//考虑到浮点数误差，取6位精度
+        sum = sum.toPrecision(12);//取12位精度能在大部分情况下解决浮点数误差导致的精度问题
         if(sum<360){
             return false;
         }else{
