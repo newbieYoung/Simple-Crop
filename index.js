@@ -755,7 +755,7 @@
             var outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
-                if(!this.isPointInRectCheckByAngle(pt,newPoints)){
+                if(!this.isPointInRectCheckByLen(pt,newPoints)){
                     outPoints.push(pt);
                 }
             }
@@ -774,7 +774,7 @@
             outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
-                if(!this.isPointInRectCheckByAngle(pt,newPoints)){
+                if(!this.isPointInRectCheckByLen(pt,newPoints)){
                     outPoints.push(pt);
                 }
             }
@@ -937,7 +937,7 @@
             //找出inner中超出newOuter的点坐标
             for(var i=0;i<inner.length;i++){
                 var point = inner[i];
-                if(!this.isPointInRectCheckByAngle(point,newOuter)){
+                if(!this.isPointInRectCheckByLen(point,newOuter)){
                     outPoints.push(point);
                 }
             }
@@ -976,7 +976,7 @@
         //找出inner中超出outer的点坐标
         for(var i=0;i<inner.length;i++){
             var point = inner[i];
-            if(!this.isPointInRectCheckByAngle(point,outer)){
+            if(!this.isPointInRectCheckByLen(point,outer)){
                 outPoints.push(point);
             }
         }
@@ -1007,7 +1007,7 @@
     };
 
     //计算矩形中心到某点的向量在矩形边框上的投影向量
-    SimpleCrop.property.getPCVectorProjVOnBorderVector = function(point,rectPoints){
+    SimpleCrop.prototype.getPCVectorProjVOnBorderVector = function(point,rectPoints){
         //计算矩形边框向量
         var borderVecs = [];
         for(var i=0;i<rectPoints.length;i++){
