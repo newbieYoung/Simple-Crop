@@ -823,68 +823,35 @@
         this.contentPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle);
     };
 
-    //计算新的变换坐标
-    SimpleCrop.prototype.getTransformPoints = function(scaleNum,moveX,moveY,rotateAngle){
-        var points0 = [];
-        for(var i=0;i<this.initContentPoints.length;i++){
-            var item = this.initContentPoints[i];
-            points0.push({
-                x:item.x,
-                y:item.y
-            });
-        }
+    //获得位移变换属性
+    SimpleCrop.prototype.getTransformProperty = function(scaleNum,moveX,moveY,rotateAngle){
+        var transform = '';
+        transform += ' scaleY(-1)';//Y轴镜像变换
+        transform += ' scale('+scaleNum+')';//缩放
+        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        transform += ' rotate('+this.rotateAngle+'deg)';
 
-        var points1 = [];
-        for(var i=0;i<points0.length;i++){
-            var p1 = this.scalePoint(points0[i],scaleNum);
-            var p2 = this.translatePoint(p1,moveX,moveY);
-            points1.push(p2);
-        }
-        var center1 = this.getPointsCenter(points1);
-
-        var points2 = [];
-        for(var i=0;i<points1.length;i++){
-            var p3 = this.rotatePoint(points1[i],center1,this.rotateAngle);
-            points2.push(p3);
-        }
-
-        return points2;
+        return transform;
     }
 
-    //点坐标缩放
-    SimpleCrop.prototype.scalePoint = function(point,num){
-        point.x = point.x * num;
-        point.y = point.y * num;
-        return point;
-    };
+    //计算新的变换坐标
+    SimpleCrop.prototype.getTransformPoints = function(scaleNum,moveX,moveY,rotateAngle){
+        var transform = this.getTransformProperty(scaleNum,moveX,moveY,rotateAngle);
+        var matrix = this.getTransformMatrix(transform);
 
-    //点坐标位移
-    SimpleCrop.prototype.translatePoint = function(point,x,y){
-        point.x = point.x + x;
-        point.y = point.y - y;
-        return point;
-    };
-
-    //点坐标旋转
-    SimpleCrop.prototype.rotatePoint = function(p1,p0,angle){
-        //任意点(x,y)，绕一个坐标点(rx0,ry0)逆时针旋转a角度后的新的坐标设为(x0, y0)
-        //x0= (x - rx0)*cos(a) - (y - ry0)*sin(a) + rx0 ;
-        //y0= (x - rx0)*sin(a) + (y - ry0)*cos(a) + ry0 ;
-
-        var a = - angle / 180 * Math.PI;
-        var rx0 = p0.x;
-        var ry0 = p0.y;
-
-        var x = p1.x;
-        var y = p1.y;
-
-        var p = {
-            x : (x - rx0)*Math.cos(a) - (y - ry0)*Math.sin(a) + rx0,
-            y : (x - rx0)*Math.sin(a) + (y - ry0)*Math.cos(a) + ry0
+        var points = [];
+        for(var i=0;i<this.initContentPoints.length;i++){
+            var item = {
+                x : this.initContentPoints[i].x,
+                y : this.initContentPoints[i].y
+            };
+            item = this.getMatrixPoints(item,matrix);
+            points.push(item);
         }
+        points.reverse();//顶点顺序发生了变化，需要颠倒
 
-        return p;
-    };
+        return points;
+    }
 
     //获得矩形点坐标中心
     SimpleCrop.prototype.getPointsCenter = function(points){
@@ -993,6 +960,71 @@
         return scale;
     };
 
+    //计算矩阵变换后的坐标点
+    SimpleCrop.prototype.getMatrixPoints = function(p,matrix){
+        var mat = this.cssMatrixAnalyze(matrix);
+
+        // var mat3 = [mat[0],mat[2],mat[4],
+        //             mat[1],mat[3],mat[5],
+        //             0,0,1];
+
+        // var mat3 = [a,c,e,
+        //             b,d,f,
+        //             0,0,1];
+
+        // var nx = a * x + c * y + 1 * e;
+        // var ny = b * x + d * y + 1 * f;
+        // var nz = 0 + 0 +1;
+
+        //计算变换后点坐标
+        var nx = mat[0] * p.x + mat[2] * p.y + 1 * mat[4];
+        var ny = mat[1] * p.x + mat[3] * p.y + 1 * mat[5];
+        var nz = 0 + 0 +1;
+
+        return {x:nx/nz,y:ny/nz};
+    };
+
+    //css矩阵解析
+    SimpleCrop.prototype.cssMatrixAnalyze = function(mat){
+        var start = mat.indexOf('matrix(');
+        var end = mat.indexOf(')');
+        var arr = [];
+        var numbers = mat.substring(start+7,end);
+        arr = numbers.split(',');
+        for(var i=0;i<arr.length;i++){
+            arr[i] = parseFloat(arr[i]);
+        }
+        return arr;
+    };
+
+    //获取transform属性对应的矩形形式
+    SimpleCrop.prototype.getTransformMatrix = function(transform){
+        var $div = document.createElement('div');
+        $div.style.visibility = 'hidden';
+        $div.style.position = 'fixed';
+
+        //处理transform属性的兼容性
+        var transformProperty = 'transform';
+        if('transform' in $div.style){
+            transformProperty='transform'
+        } else if( 'WebkitTransform' in $div.style ){
+            transformProperty='webkitTransform'
+        } else if('MozTransform' in $div.style){
+            transformProperty='MozTransform'
+        } else if('OTransform' in $div.style){
+            transformProperty='OTransform'
+        }
+
+        $div.style[transformProperty] = transform;
+        document.body.appendChild($div);
+
+        var style = window.getComputedStyle($div);
+        var matrix = style[transformProperty];
+        document.body.removeChild($div);
+
+        return matrix;
+    };
+
     //计算向量 a 在向量 b 上的投影向量
     SimpleCrop.prototype.getProjectionVector = function(vecA,vecB){
         var bLen = this.vecLen(vecB);
@@ -1072,10 +1104,12 @@
     SimpleCrop.prototype.isPointInRectCheckByLen = function(point,rectPoints){
         var pcvs = this.getPCVectorProjVOnBorderVector(point,rectPoints);
 
-        var len1 = this.vecLen(pcvs.proj1);
-        var h1 = this.vecLen(pcvs.bv1)/2;
-        var len2 = this.vecLen(pcvs.proj2);
-        var h2 = this.vecLen(pcvs.bv2)/2;
+        var precision = 100;//保留两位小数
+
+        var len1 = Math.round(this.vecLen(pcvs.proj1) * precision);
+        var h1 = Math.round(this.vecLen(pcvs.bv1) / 2 * precision);
+        var len2 = Math.round(this.vecLen(pcvs.proj2) * precision);
+        var h2 = Math.round(this.vecLen(pcvs.bv2) / 2 * precision);
 
         if(len1<=h1 && len2<=h2){
             return true;
