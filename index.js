@@ -755,7 +755,7 @@
             var outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
-                if(!this.isPointInRect(pt,newPoints)){
+                if(!this.isPointInRectCheckByAngle(pt,newPoints)){
                     outPoints.push(pt);
                 }
             }
@@ -774,7 +774,7 @@
             outPoints = [];
             for(var i=0;i<this.cropPoints.length;i++){//计算超出的裁剪框点坐标
                 var pt = this.cropPoints[i];
-                if(!this.isPointInRect(pt,newPoints)){
+                if(!this.isPointInRectCheckByAngle(pt,newPoints)){
                     outPoints.push(pt);
                 }
             }
@@ -937,7 +937,7 @@
             //找出inner中超出newOuter的点坐标
             for(var i=0;i<inner.length;i++){
                 var point = inner[i];
-                if(!this.isPointInRect(point,newOuter)){
+                if(!this.isPointInRectCheckByAngle(point,newOuter)){
                     outPoints.push(point);
                 }
             }
@@ -976,7 +976,7 @@
         //找出inner中超出outer的点坐标
         for(var i=0;i<inner.length;i++){
             var point = inner[i];
-            if(!this.isPointInRect(point,outer)){
+            if(!this.isPointInRectCheckByAngle(point,outer)){
                 outPoints.push(point);
             }
         }
@@ -1006,8 +1006,8 @@
         return proj
     };
 
-    //计算一个矩形刚好包含矩形外一点需要的缩放倍数
-    SimpleCrop.prototype.getCoverPointScale = function(point,rectPoints){
+    //计算矩形中心到某点的向量在矩形边框上的投影向量
+    SimpleCrop.property.getPCVectorProjVOnBorderVector = function(point,rectPoints){
         //计算矩形边框向量
         var borderVecs = [];
         for(var i=0;i<rectPoints.length;i++){
@@ -1030,11 +1030,29 @@
             y : point.y - center.y
         }
 
+        var bv1 = borderVecs[0];
+        var proj1 = this.getProjectionVector(line,bv1);
+
+        var bv2 = borderVecs[1];
+        var proj2 = this.getProjectionVector(line,bv2);
+
+        return {
+            bv1 : bv1,
+            proj1 : proj1,
+            bv2 : bv2,
+            proj2 : proj2
+        };
+    };
+
+    //计算一个矩形刚好包含矩形外一点需要的缩放倍数
+    SimpleCrop.prototype.getCoverPointScale = function(point,rectPoints){
+        var pcvs = this.getPCVectorProjVOnBorderVector(point,rectPoints);
+
         //计算矩形外一点到矩形中心向量在矩形边框向量上的投影距离
-        var len1 = this.vecLen(this.getProjectionVector(line,borderVecs[0]));
-        var h1 = this.vecLen(borderVecs[0])/2;
-        var len2 = this.vecLen(this.getProjectionVector(line,borderVecs[1]));
-        var h2 = this.vecLen(borderVecs[1])/2;
+        var len1 = this.vecLen(pcvs.proj1);
+        var h1 = this.vecLen(pcvs.bv1)/2;
+        var len2 = this.vecLen(pcvs.proj2);
+        var h2 = this.vecLen(pcvs.bv2)/2;
 
         //根据投影距离计算缩放倍数
         var scale1 = 1;
@@ -1050,8 +1068,8 @@
         return scale;
     };
 
-    //判断点是否在矩形内
-    SimpleCrop.prototype.isPointInRect = function(point,rectPoints){
+    //根据角度和判断点是否在矩形内
+    SimpleCrop.prototype.isPointInRectCheckByAngle = function(point,rectPoints){
         //先计算四个向量
         var vecs = [];
         for(var i=0; i<rectPoints.length; i++){
