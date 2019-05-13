@@ -1077,7 +1077,7 @@
         var len2 = this.vecLen(pcvs.proj2);
         var h2 = this.vecLen(pcvs.bv2)/2;
 
-        if(len1>h1 || len2 > h2){
+        if(len1<=h1 && len2<=h2){
             return true;
         }else{
             return false;
