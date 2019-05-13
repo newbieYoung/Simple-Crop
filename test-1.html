@@ -16,19 +16,11 @@
                     width:800,
                     height:900
                 },
+                borderWidth:2,
+                borderColor:'#0BFF00',
                 cropCallback:function(){
                     this.$resultCanvas.style.marginRight = '10px';
                     document.body.appendChild(this.$resultCanvas);
-                },
-                borderDraw:function(){
-                    this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);
-                    this.cropCoverContext.fillStyle = 'rgba(0,0,0,.3)';
-                    this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
-                    this.cropCoverContext.fillStyle = '#0BFF00';
-                    var width = this.borderWidth*2 + this.cropRect.width;
-                    var height = this.borderWidth*2 + this.cropRect.height;
-                    this.cropCoverContext.fillRect((this.maskViewSize.width-width)/2,(this.maskViewSize.height-height)/2,width,height);
-                    this.cropCoverContext.clearRect((this.maskViewSize.width-this.cropRect.width)/2,(this.maskViewSize.height-this.cropRect.height)/2,this.cropRect.width,this.cropRect.height);
                 },
                 coverDraw:function(){
                     this.cropCoverContext.setLineDash([15, 20]);
@@ -36,10 +28,10 @@
 
                     this.cropCoverContext.beginPath();
                     var rect1 = {
-                        left:(this.maskViewSize.width-this.cropRect.width)*1.0/2,
-                        top:(this.maskViewSize.height-this.cropRect.height)*1.0/2+this.cropRect.height*0.125,
-                        right:(this.maskViewSize.width-this.cropRect.width)*1.0/2+this.cropRect.width,
-                        bottom:(this.maskViewSize.height-this.cropRect.height)*1.0/2+this.cropRect.height-this.cropRect.height*0.125
+                        left:this.cropRect.left * window.devicePixelRatio,
+                        top:(this.cropRect.top+this.cropRect.height*0.125) * window.devicePixelRatio,
+                        right:(this.cropRect.left+this.cropRect.width) * window.devicePixelRatio,
+                        bottom:(this.cropRect.top+this.cropRect.height-this.cropRect.height*0.125) * window.devicePixelRatio
                     }
                     this.cropCoverContext.moveTo(rect1.left,rect1.top);
                     this.cropCoverContext.lineTo(rect1.right,rect1.top);
@@ -50,10 +42,10 @@
 
                     this.cropCoverContext.beginPath();
                     var rect2 = {
-                        left:(this.maskViewSize.width-this.cropRect.width)*1.0/2+this.cropRect.width*0.2,
-                        top:(this.maskViewSize.height-this.cropRect.height)*1.0/2+this.cropRect.height*0.2,
-                        right:(this.maskViewSize.width-this.cropRect.width)*1.0/2+this.cropRect.width-this.cropRect.width*0.2 ,
-                        bottom:(this.maskViewSize.height-this.cropRect.height)*1.0/2+this.cropRect.height-this.cropRect.height*0.2
+                        left:(this.cropRect.left+this.cropRect.width*0.2) * window.devicePixelRatio,
+                        top:(this.cropRect.top+this.cropRect.height*0.2) * window.devicePixelRatio,
+                        right:(this.cropRect.left+this.cropRect.width-this.cropRect.width*0.2) * window.devicePixelRatio,
+                        bottom:(this.cropRect.top+this.cropRect.height-this.cropRect.height*0.2) * window.devicePixelRatio
                     }
                     this.cropCoverContext.moveTo(rect2.left,rect2.top);
                     this.cropCoverContext.lineTo(rect2.right,rect2.top);

@@ -27,6 +27,7 @@
      * @param closeCallback 关闭回调函数
      * @param size 截图实际宽高
      * @param cropSizePercent 裁剪区域占画布比例
+     * @param borderColor 裁剪框边框颜色
      *
      * ------------------------------------
      *
@@ -134,12 +135,13 @@
 
         this.$cropCover = document.querySelector('#'+this.id+' .crop-cover');
         this.cropCoverContext = this.$cropCover.getContext('2d');
-        this.$cropCover.width = this.maskViewSize.width;
-        this.$cropCover.height = this.maskViewSize.height;
+        this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
+        this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
         this.cropContentContext = this.$cropContent.getContext('2d');
 
-        this.borderWidth = params.borderWidth!=null?params.borderWidth:2;
+        this.borderWidth = params.borderWidth!=null?params.borderWidth:1;
+        this.borderColor = params.borderColor!=null?params.borderColor:'#fff';
 
         //裁剪框位置相关
         this.cropRect = {
@@ -239,10 +241,10 @@
 
         //绘制边框（边框内嵌）
         var borderRect = {
-            left:this.cropRect.left,
-            top:this.cropRect.top,
-            width:this.cropRect.width,
-            height:this.cropRect.height
+            left:this.cropRect.left * window.devicePixelRatio,
+            top:this.cropRect.top * window.devicePixelRatio,
+            width:this.cropRect.width * window.devicePixelRatio,
+            height:this.cropRect.height * window.devicePixelRatio
         }
         this.cropCoverContext.fillRect(borderRect.left,borderRect.top,borderRect.width,borderRect.height);
 
@@ -258,7 +260,7 @@
         }
 
         //清空内容区域
-        this.cropCoverContext.clearRect(this.cropRect.left+this.borderWidth,this.cropRect.top+this.borderWidth,this.cropRect.width-2*this.borderWidth,this.cropRect.height-2*this.borderWidth);
+        this.cropCoverContext.clearRect(borderRect.left+this.borderWidth,borderRect.top+this.borderWidth,borderRect.width-2*this.borderWidth,borderRect.height-2*this.borderWidth);
     };
 
     //默认绘制辅助线
