@@ -1068,6 +1068,22 @@
         return scale;
     };
 
+    //根据矩形中心到某一点向量在矩形边框向量的投影长度判断该点是否在矩形内
+    SimpleCrop.prototype.isPointInRectCheckByLen = function(point,rectPoints){
+        var pcvs = this.getPCVectorProjVOnBorderVector(point,rectPoints);
+
+        var len1 = this.vecLen(pcvs.proj1);
+        var h1 = this.vecLen(pcvs.bv1)/2;
+        var len2 = this.vecLen(pcvs.proj2);
+        var h2 = this.vecLen(pcvs.bv2)/2;
+
+        if(len1>h1 || len2 > h2){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     //根据角度和判断点是否在矩形内
     SimpleCrop.prototype.isPointInRectCheckByAngle = function(point,rectPoints){
         //先计算四个向量
