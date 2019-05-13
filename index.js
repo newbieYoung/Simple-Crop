@@ -237,7 +237,7 @@
         this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);
         this.cropCoverContext.fillStyle = this.coverColor;
         this.cropCoverContext.fillRect(0,0,this.$cropCover.width,this.$cropCover.height);
-        this.cropCoverContext.fillStyle = '#ffffff';
+        this.cropCoverContext.fillStyle = this.borderColor;
 
         //绘制边框（边框内嵌）
         var borderRect = {
