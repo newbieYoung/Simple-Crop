@@ -10,6 +10,26 @@
         window.SimpleCrop = factory(window.AlloyFinger);
     }
 }(function (finger) {
+    //transitionend事件兼容性
+    function whichTransitionEvent(){
+        var t;
+        var el = document.createElement('fakeelement');
+        var transitions = {
+            'transition':'transitionend',
+            'OTransition':'oTransitionEnd',
+            'MozTransition':'transitionend',
+            'WebkitTransition':'webkitTransitionEnd',
+            'MsTransition':'msTransitionEnd'
+        };
+        for(t in transitions){
+            if( el.style[t] !== undefined ){
+                return transitions[t];
+            }
+        }
+    }
+    var transitionEndEvent = whichTransitionEvent();
+
+
     /**
      * @param title 组件标题
      * @param src   初始图片路径
@@ -573,7 +593,7 @@
                         var scale = evt.zoom;
                         self.scaleTimes = self.scaleTimes / lastScale * scale;
                         lastScale = scale;
-                        self.transform(true,true);
+                        self.transform();
                     }
                 },
                 multipointEnd: function () {
@@ -587,7 +607,6 @@
          * 鼠标事件
          */
         if(self.controller.includes('mouse')){
-
             //裁剪区域鼠标按下
             self.$cropMask.addEventListener('mousedown',function(ev){
                 self.startControl([ev.clientX,ev.clientY]);
@@ -601,6 +620,10 @@
             //裁剪区域超出范围
             self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self));
         }
+
+        self.$cropContent.addEventListener(transitionEndEvent,function(){
+            self.$cropContent.transtion = 'none';
+        })
     };
 
     //获取裁剪图片
@@ -712,10 +735,30 @@
     //操作结束
     SimpleCrop.prototype.endControl = function(){
         if(this._isControl){
+            console.log('endControl');
             this._isControl = false;
             var self = this;
             this._downPoint = [];
             this.scaleDownX = 0;
+
+            if(!this.isCover(this.contentPoints,this.cropPoints)){//如果没有完全包含则需要进行适配变换
+                var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+                var transform = '';
+                transform += ' scale('+scaleNum+')';//缩放
+                transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
+                transform += ' rotate('+this.rotateAngle+'deg)';
+
+                //适配变换
+                console.log(transform);
+                var coverTr = this.getCoverTransform(transform);
+                var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
+                console.log(coverTr);
+                this._contentCurMoveX = finalMat[4];
+                this._contentCurMoveY = finalMat[5];
+                this.$cropContent.style.tansition = 'transform 1s linear';
+                this.$cropContent.style.transform = this._initTransform + coverTr;
+                this.contentPoints = this.getTransformPoints('scaleY(-1)'+coverTr,this.initContentPoints);
+            }
         }
     };
 
@@ -735,7 +778,7 @@
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
         this.scaleTimes = this.initScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.initScale);
-        this.transform(false,true);
+        this.transform();
     };
 
     //移动
@@ -753,24 +796,63 @@
     };
 
     //旋转、缩放、移动
-    SimpleCrop.prototype.transform = function(){
+    SimpleCrop.prototype.transform = function(rotateCover){
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+        var transform = '';
+        transform += ' scale('+scaleNum+')';//缩放
+        transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
+        transform += ' rotate('+this.rotateAngle+'deg)';
+
+        if(rotateCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
+            var rotatePoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
+            var coverScale = this.getCoverRectScale(rotatePoints,this.cropPoints);
+            this._rotateScale = this._rotateScale * coverScale;
+            scaleNum = scaleNum * coverScale;
+        }
 
         //操作变换
-        var transform = '';
+        transform = '';
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
         transform += ' rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform + transform;
         this.contentPoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
 
-        //适配变换
-        var coverTr = this.getCoverTransform(transform);
-        var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
-        this._contentCurMoveX = finalMat[4];
-        this._contentCurMoveY = finalMat[5];
-        this.$cropContent.style.transform = this._initTransform + coverTr;
-        this.contentPoints = this.getTransformPoints('scaleY(-1)'+coverTr,this.initContentPoints);
+        transform = 'scale(0.340887) translateX(-730.906px) translateY(-579.932px) rotate(44.131deg)';
+    };
+
+    //计算一个矩形刚好包含另一个矩形需要的缩放倍数
+    SimpleCrop.prototype.getCoverRectScale = function(outer,inner){
+        var scale = 1;
+        var outPoints = [];
+        //找出inner中超出outer的点坐标
+        for(var i=0;i<inner.length;i++){
+            var point = inner[i];
+            if(!this.isPointInRectCheckByLen(point,outer)){
+                outPoints.push(point);
+            }
+        }
+
+        if(outPoints.length>0){
+            for(var i=0;i<outPoints.length;i++){
+                var num = this.getCoverPointScale(outPoints[i],outer);
+                if(num > scale){
+                    scale = num;
+                }
+            }
+        }
+
+        return scale;
+    };
+
+    //判断 矩形A 是否完全包含 矩形B
+    SimpleCrop.prototype.isCover = function(rectA,rectB){
+        for(var i=0;i<rectB.length;i++){
+            if(!this.isPointInRectCheckByLen(rectB[i],rectA)){
+                return false;
+            }
+        }
+        return true;
     };
 
     //计算一个矩形刚好包含矩形外一点需要的缩放倍数
