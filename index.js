@@ -38,8 +38,8 @@
      * cropRect 截图区域的屏幕尺寸
      * cropPoints 裁剪区域顶点坐标
      * contentPoints 图片显示区域矩形顶点坐标
-     * _contentCurMoveX 图片 X 轴方向上的位移
-     * _contentCurMoveY 图片 Y 轴方向上的位移
+     * _contentCurMoveX 图片 X 轴方向上的总位移
+     * _contentCurMoveY 图片 Y 轴方向上的总位移
      * initContentPoints 图片显示区域矩形初始顶点坐标
      *
      * ------------------------------------
@@ -755,98 +755,22 @@
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function(){
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
-        var moveX = this._contentCurMoveX;
-        var moveY = this._contentCurMoveY;
 
         //操作变换
         var transform = '';
         transform += ' scale('+scaleNum+')';//缩放
-        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
+        transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
         transform += ' rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform + transform;
         this.contentPoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
 
         //适配变换
         var coverTr = this.getCoverTransform(transform);
+        var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
+        this._contentCurMoveX = finalMat[4];
+        this._contentCurMoveY = finalMat[5];
         this.$cropContent.style.transform = this._initTransform + coverTr;
         this.contentPoints = this.getTransformPoints('scaleY(-1)'+coverTr,this.initContentPoints);
-    };
-
-    /* --------- */
-
-    //计算一个矩形中心缩小后刚好包含另一个矩形需要的移动向量
-    SimpleCrop.prototype.getCoverRectTranslate = function(inner,newOuter,oldOuter){
-        var moveVec = {x : 0,y : 0};
-
-        var oldLine = {
-            x : oldOuter[1].x - oldOuter[0].x,
-            y : oldOuter[1].y - oldOuter[0].y
-        };
-        var newLine = {
-            x : newOuter[1].x - newOuter[0].x,
-            y : newOuter[1].y - newOuter[0].y
-        };
-        var scale = this.vecLen(newLine) / this.vecLen(oldLine);
-
-        if(scale<1){
-            var outPoints = [];
-            //找出inner中超出newOuter的点坐标
-            for(var i=0;i<inner.length;i++){
-                var point = inner[i];
-                if(!this.isPointInRectCheckByLen(point,newOuter)){
-                    outPoints.push(point);
-                }
-            }
-
-            if(outPoints.length>0){
-                var lines = [];
-                var center = this.getPointsCenter(newOuter);
-
-                for(var i=0;i<outPoints.length;i++){
-                    lines.push({
-                        x : (outPoints[i].x - center.x) * (1-scale),
-                        y : (outPoints[i].y - center.y) * (1-scale)
-                    });
-                }
-
-                if(outPoints.length==3){//如果有三个点超出，则直接把大矩形中心移动到另一个矩形中心然后再缩小
-                    var innerCenter = this.getPointsCenter(inner);
-                    moveVec.x = innerCenter.x - center.x;
-                    moveVec.y = innerCenter.y - center.y;
-                }else{
-                    for(var i=0;i<lines.length;i++){
-                        moveVec.x += lines[i].x;
-                        moveVec.y += lines[i].y;
-                    }
-                }
-            }
-        }
-
-        return moveVec;
-    };
-
-    //计算一个矩形刚好包含另一个矩形需要的缩放倍数
-    SimpleCrop.prototype.getCoverRectScale = function(outer,inner){
-        var scale = 1;
-        var outPoints = [];
-        //找出inner中超出outer的点坐标
-        for(var i=0;i<inner.length;i++){
-            var point = inner[i];
-            if(!this.isPointInRectCheckByLen(point,outer)){
-                outPoints.push(point);
-            }
-        }
-
-        if(outPoints.length>0){
-            for(var i=0;i<outPoints.length;i++){
-                var num = this.getCoverPointScale(outPoints[i],outer);
-                if(num > scale){
-                    scale = num;
-                }
-            }
-        }
-
-        return scale;
     };
 
     //计算一个矩形刚好包含矩形外一点需要的缩放倍数
@@ -908,12 +832,12 @@
                     var uOver = 0;
                     var rOver = 0;
                     if(uLen>height){
-                        uOver = (uLen - height) / height;
+                        uOver = (uLen - height) / uLen;
                         iv.x += pcv.uproj.x * uOver;
                         iv.y += pcv.uproj.y * uOver;
                     }
                     if(rLen>width){
-                        rOver = (rLen - width) / width;
+                        rOver = (rLen - width) / rLen;
                         iv.x += pcv.rproj.x * rOver;
                         iv.y += pcv.rproj.y * rOver;
                     }
@@ -956,9 +880,9 @@
                     var uLen = this.vecLen(minPcv.uproj);
                     var moveY = 0;
                     if(uAng==0){//同方向
-                        moveY = uLen * minUOver;
-                    }else{
                         moveY = - uLen * minUOver;
+                    }else{
+                        moveY = uLen * minUOver;
                     }
                     if(moveY!=0){
                         transform += ' translateY('+moveY/scaleNum+'px)';
@@ -1005,8 +929,6 @@
 
         return transform;
     }
-
-    /* --------- */
 
     //计算新的变换坐标
     SimpleCrop.prototype.getTransformPoints = function(transform,points){
