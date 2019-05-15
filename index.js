@@ -759,30 +759,12 @@
         var moveX = this._contentCurMoveX;
         var moveY = this._contentCurMoveY;
 
-        // if(scaleKeepCover){//缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的移动
-        //     var scalePoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle,this.initContentPoints);
-        //     var moveVec = this.getCoverRectTranslate(this.cropPoints,scalePoints,this.contentPoints);
-        //     moveX += moveVec.x;
-        //     moveY -= moveVec.y;
-        //
-        //     this._contentCurMoveX = moveX;
-        //     this._contentCurMoveY = moveY;
-        // }
-        //
-        // if(rotateKeepCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
-        //     this.rotatePoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle,this.initContentPoints);
-        //     var coverScale = this.getCoverRectScale(this.rotatePoints,this.cropPoints);
-        //     this._rotateScale = this._rotateScale * coverScale;
-        //     scaleNum = scaleNum * coverScale;
-        // }
-
         //操作变换
         var transform = '';
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
         transform += 'rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform+' '+transform;
-        //var cPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle,this.initContentPoints);
 
         //适配变换
         // var autoTr = this.getCoverTransform(this.cropPoints,cPoints);
@@ -801,7 +783,9 @@
         // this.$cropContent.style.transform = this._initTransform+' '+finalTr;
 
         //计算最终变换坐标
-        this.contentPoints = this.getTransformPoints(scaleNum,moveX,moveY,this.rotateAngle,this.initContentPoints);
+        var finalTr = 'scaleY(-1)' + transform;
+        this.contentPoints = this.getTransformPoints(finalTr,this.initContentPoints);
+        this.contentPoints.reverse();//顶点顺序发生了变化，需要颠倒
 
         var sf = this;
         setTimeout(function(){
@@ -809,7 +793,7 @@
             var tr = sf.getCoverTransform(sf.cropPoints,sf.contentPoints);
             console.log(tr);
             console.log(sf.$cropContent.style.transform);
-            sf.$cropContent.style.transform = sf.$cropContent.style.transform + 'translateX('+(tr.moveX / scaleNum)+'px) translateY('+(tr.moveY / scaleNum)+'px) scale('+tr.scale+')';
+            sf.$cropContent.style.transform = sf.$cropContent.style.transform + 'translateX('+( tr.moveX / scaleNum)+'px) translateY('+( tr.moveY / scaleNum)+'px) scale('+tr.scale+')';
         },1000)
     };
 
@@ -933,13 +917,15 @@
 
         do{
             var outNum = 0;
-            var minLen,minPcv,minMv;
+            var minLen = null;
+            var minPcv = null;
+            var minMv = null;
             //找出inner中超出的点坐标，并计算其投影向量
             for(var i=0;i<inner.length;i++){
                 var point = inner[i];
                 if(!this.isPointInRectCheckByLen(point,points)){
                     outNum++;
-                    var pcv = this.getPCVectorProjVOnBorderVector(point,outer);
+                    var pcv = this.getPCVectorProjVOnBorderVector(point,points);
                     var iv = {x:0,y:0};
                     var len1 = this.vecLen(pcv.proj1);
                     var h1 = this.vecLen(pcv.bv1) / 2;
@@ -986,8 +972,9 @@
 
                 //判断移动后的超出是否变少
                 if(nOutNum < outNum){//如果变少，那么此次移动有效
-                    transform.moveX += (minMv.x * transform.scale);
-                    transform.moveY -= (minMv.y * transform.scale);
+                    transform.moveX -= (minMv.x);
+                    transform.moveY -= (minMv.y);
+                    points = nPoints;
                 }else{//反之此次移动无效，此时需要进行放大
                     var len1 = this.vecLen(minPcv.proj1);
                     var h1 = this.vecLen(minPcv.bv1)/2;
@@ -1004,10 +991,9 @@
                     }
                     var scale = scale2 > scale1 ? scale2 : scale1;
                     transform.scale = transform.scale * scale;
+                    points = this.getTransformPoints('scale('+scale+')',points);
                 }
             }
-
-            points = this.getTransformPoints(transform.scale,transform.moveX,transform.moveY,0,outer);
         }while(outNum>1)
 
         return transform;
@@ -1015,22 +1001,9 @@
 
     /* --------- */
 
-    //获得位移变换属性
-    SimpleCrop.prototype.getTransformProperty = function(scaleNum,moveX,moveY,rotateAngle){
-        var transform = '';
-        transform += ' scaleY(-1)';//Y轴镜像变换
-        transform += ' scale('+scaleNum+')';//缩放
-        transform += ' translateX('+moveX/scaleNum+'px) translateY('+moveY/scaleNum+'px)';//移动
-        transform += ' rotate('+this.rotateAngle+'deg)';
-
-        return transform;
-    }
-
     //计算新的变换坐标
-    SimpleCrop.prototype.getTransformPoints = function(scaleNum,moveX,moveY,rotateAngle,points){
-        var transform = this.getTransformProperty(scaleNum,moveX,moveY,rotateAngle);
+    SimpleCrop.prototype.getTransformPoints = function(transform,points){
         var matrix = this.getTransformMatrix(transform);
-
         var nPoints = [];
         for(var i=0;i<points.length;i++){
             var item = {
@@ -1040,8 +1013,6 @@
             item = this.getMatrixPoints(item,matrix);
             nPoints.push(item);
         }
-        nPoints.reverse();//顶点顺序发生了变化，需要颠倒
-
         return nPoints;
     }
 
