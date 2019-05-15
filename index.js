@@ -48,6 +48,7 @@
      * @param size 截图实际宽高
      * @param cropSizePercent 裁剪区域占画布比例
      * @param borderColor 裁剪框边框颜色
+     * @param endDuration 调整变换缓动时长
      *
      * ------------------------------------
      *
@@ -159,6 +160,7 @@
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
         this.cropContentContext = this.$cropContent.getContext('2d');
+        this.endDuration = params.endDuration!=null?params.endDuration:0.2;
 
         this.borderWidth = params.borderWidth!=null?params.borderWidth:1;
         this.borderColor = params.borderColor!=null?params.borderColor:'#fff';
@@ -621,8 +623,9 @@
             self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self));
         }
 
+        //调整变换结束监听
         self.$cropContent.addEventListener(transitionEndEvent,function(){
-            self.$cropContent.transtion = 'none';
+            self.$cropContent.style.transition = 'none';
         })
     };
 
@@ -735,7 +738,6 @@
     //操作结束
     SimpleCrop.prototype.endControl = function(){
         if(this._isControl){
-            console.log('endControl');
             this._isControl = false;
             var self = this;
             this._downPoint = [];
@@ -749,13 +751,11 @@
                 transform += ' rotate('+this.rotateAngle+'deg)';
 
                 //适配变换
-                console.log(transform);
                 var coverTr = this.getCoverTransform(transform);
                 var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
-                console.log(coverTr);
                 this._contentCurMoveX = finalMat[4];
                 this._contentCurMoveY = finalMat[5];
-                this.$cropContent.style.tansition = 'transform 1s linear';
+                this.$cropContent.style.transition = 'transform '+this.endDuration+'s linear';
                 this.$cropContent.style.transform = this._initTransform + coverTr;
                 this.contentPoints = this.getTransformPoints('scaleY(-1)'+coverTr,this.initContentPoints);
             }
@@ -817,8 +817,6 @@
         transform += ' rotate('+this.rotateAngle+'deg)';
         this.$cropContent.style.transform = this._initTransform + transform;
         this.contentPoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
-
-        transform = 'scale(0.340887) translateX(-730.906px) translateY(-579.932px) rotate(44.131deg)';
     };
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
@@ -956,12 +954,15 @@
                     }
                 }
 
+
                 //判断移动后的超出是否变少
                 if(nOutNum < outNum){//如果变少，那么此次移动有效
                     var uAng = this.vecAngle(minPcv.up,minPcv.uproj);
                     var uLen = this.vecLen(minPcv.uproj);
                     var moveY = 0;
-                    if(uAng==0){//同方向
+
+                    //if(uAng == 0){ //同方向
+                    if(Math.abs(uAng)<90){//浮点数精度问题，接近0时小于90 ，接近180时大于90
                         moveY = - uLen * minUOver;
                     }else{
                         moveY = uLen * minUOver;
@@ -973,7 +974,8 @@
                     var rAng = this.vecAngle(minPcv.right,minPcv.rproj);
                     var rLen = this.vecLen(minPcv.rproj);
                     var moveX = 0;
-                    if(rAng==0){//同方向
+
+                    if(Math.abs(rAng)<90){//同方向
                         moveX = rLen * minROver;
                     }else{
                         moveX = - rLen * minROver;
