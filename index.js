@@ -747,18 +747,18 @@
                 transform += ' rotate('+this.rotateAngle+'deg) ';
 
                 //适配变换
-                var coverTr = this.getCoverTransform().trim();
-                var finalTr = transform + coverTr;
-                var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(finalTr));
-                this._contentCurMoveX = finalMat[4];
-                this._contentCurMoveY = finalMat[5];
+                var coverTr = this.getCoverTransform(transform);
+                var coverMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
+                this._contentCurMoveX = coverMat[4];
+                this._contentCurMoveY = coverMat[5];
                 this.$cropContent.style.transition = 'transform '+this.endDuration+'s linear';
-                this.contentPoints = this.getTransformPoints('scaleY(-1)' + finalTr,this.initContentPoints);
+                this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr,this.initContentPoints);
 
                 if(!this.debug){
-                    this.$cropContent.style.transform = this._initTransform + finalTr;
+                    this.$cropContent.style.transform = this._initTransform + coverTr;
                 }else{
-                    var coverTrAr = coverTr.split(' ');
+                    var start = coverTr.indexOf(transform)+transform.length;
+                    var coverTrAr = coverTr.substring(start,coverTr.length).split(' ');
                     var no = 0;
                     var tr = this._initTransform + transform + coverTrAr[no];
                     this.$cropContent.style.transform = tr;
@@ -892,141 +892,200 @@
     };
 
     //计算图片内容刚好包含裁剪框的transform变换
-    SimpleCrop.prototype.getCoverTransform = function(){
-        var transform = '';
-        //复制
-        var points = [];
+    SimpleCrop.prototype.getCoverTransform = function(transform){
+        var cRect  = this.getCoveRect(this.cropPoints,this.rotateAngle);
+
+        //计算放大倍数
+        var uScale = 1;//水平缩放倍数和垂直缩放倍数
+        var rScale = 1;
+        var cup = {
+            x : this.contentPoints[1].x - this.contentPoints[2].x,
+            y : this.contentPoints[1].y - this.contentPoints[2].y
+        }
+        var cright = {
+            x : this.contentPoints[1].x - this.contentPoints[0].x,
+            y : this.contentPoints[1].y - this.contentPoints[0].y
+        }
+        var tup = {
+            x : cRect[1].x - cRect[2].x,
+            y : cRect[1].y - cRect[2].y
+        }
+        var tright = {
+            x : cRect[1].x - cRect[0].x,
+            y : cRect[1].y - cRect[0].y
+        }
+        var uAng = this.vecAngle(cup,tup);
+        if(Math.abs(180 - uAng) < Math.abs(90 - uAng) || Math.abs(0 - uAng) < Math.abs(90 - uAng)){//更接近180或者0
+            uScale = this.vecLen(tup) / this.vecLen(cup);
+            rScale = this.vecLen(tright) / this.vecLen(cright);
+        }else{
+            uScale = this.vecLen(tup) / this.vecLen(cright);
+            rScale = this.vecLen(tright) / this.vecLen(cup);
+        }
+        uScale = uScale < 1 ? 1 : uScale;
+        rScale = rScale < 1 ? 1 : rScale;
+
+        var scale = uScale > rScale ? uScale : rScale;
+
+        //复制坐标
+        var scalePoints = [];
         for(var i=0;i<this.contentPoints.length;i++){
-            points.push({
+            scalePoints.push({
                 x : this.contentPoints[i].x,
                 y : this.contentPoints[i].y
             });
         }
 
-        var count = 0;//计数
+        //计算放大后的新坐标
+        if(scale>1){
+            transform += 'scale('+scale+')';
+            scalePoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
+        }
+
+        //位移变换
+        var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+        var count = 0;
+        var self = this;
+        var outDetails = [];
         do{
-            var scaleNum = this.scaleTimes / this.times * this._rotateScale;
-            var outNum = 0;
-            var minLen = null;
-            var minPcv = null;
-            var minMv = null;
-            var minUOver = 0;
-            var minROver = 0;
-            //找超出的点坐标，并计算其投影向量
-            for(var i=0;i<this.cropPoints.length;i++){
-                var point = this.cropPoints[i];
-                if(!this.isPointInRectCheckByLen(point,points)){
-                    outNum++;
-                    var pcv = this.getPCVectorProjOnUpAndRight(point,points);
-                    var iv = {x:0,y:0};
-
-                    var uLen = this.vecLen(pcv.uproj);
-                    var height = this.vecLen(pcv.up) / 2;
-                    var rLen = this.vecLen(pcv.rproj);
-                    var width = this.vecLen(pcv.right) / 2;
-                    var uOver = 0;
-                    var rOver = 0;
-                    if(uLen>height){
-                        uOver = (uLen - height) / uLen;
-                        iv.x += pcv.uproj.x * uOver;
-                        iv.y += pcv.uproj.y * uOver;
+            //找出裁剪框超出的顶点
+            outDetails = this.getOutDetails(this.cropPoints,scalePoints);
+            if(outDetails.length>0){
+                count++;
+                outDetails.sort(function(a,b){//找出距离最远的点
+                    var aLen = self.vecLen(a.iv);
+                    var bLen = self.vecLen(b.iv);
+                    if (aLen < bLen ) {
+                        return 1;
                     }
-                    if(rLen>width){
-                        rOver = (rLen - width) / rLen;
-                        iv.x += pcv.rproj.x * rOver;
-                        iv.y += pcv.rproj.y * rOver;
+                    if (aLen > bLen ) {
+                        return -1;
                     }
-                    var ivLen = this.vecLen(iv);
+                    return 0;
+                });
 
-                    if(!minLen || ivLen<minLen){
-                        minLen = ivLen;
-                        minMv = iv;
-                        minPcv = pcv;
-                        minUOver = uOver;
-                        minROver = rOver;
+                //开始移动
+                var maxFarOut = outDetails[0];
+                var maxFarPcv = maxFarOut.pcv;
+
+                //计算X轴位移
+                var uAng = this.vecAngle(maxFarPcv.up,maxFarPcv.uproj);
+                var uLen = this.vecLen(maxFarPcv.uproj);
+                var moveY = 0;
+
+                //if(uAng == 0){ //同方向
+                if(Math.abs(uAng)<90){//浮点数精度问题，接近0时小于90 ，接近180时大于90
+                    moveY = - uLen * maxFarOut.uOver;
+                }else{
+                    moveY = uLen * maxFarOut.uOver;
+                }
+                if(moveY!=0){
+                    transform += ' translateY('+moveY/scaleNum+'px)';
+                }
+
+                //计算Y轴位移
+                var rAng = this.vecAngle(maxFarPcv.right,maxFarPcv.rproj);
+                var rLen = this.vecLen(maxFarPcv.rproj);
+                var moveX = 0;
+
+                if(Math.abs(rAng)<90){//同方向
+                    moveX = rLen * maxFarOut.rOver;
+                }else{
+                    moveX = - rLen * maxFarOut.rOver;
+                }
+                if(moveX!=0){
+                    transform += ' translateX('+moveX/scaleNum+'px)';
+                }
+
+                //计算位移后的新坐标
+                if(moveX!=0 || moveY!=0){
+                    for(var i=0;i<scalePoints.length;i++){
+                        scalePoints[i].x = scalePoints[i].x + maxFarOut.iv.x,
+                        scalePoints[i].y = scalePoints[i].y + maxFarOut.iv.y;
                     }
                 }
             }
-
-            var nOutNum = 0;
-            if(outNum>0){
-                count ++;
-
-                //先移动
-                var nPoints = [];
-                for(var i=0;i<points.length;i++){
-                    nPoints.push({
-                        x : points[i].x + minMv.x,
-                        y : points[i].y + minMv.y
-                    })
-                }
-
-                //再找超出的点坐标
-                for(var i=0;i<this.cropPoints.length;i++){
-                    var point = this.cropPoints[i];
-                    if(!this.isPointInRectCheckByLen(point,nPoints)){
-                        nOutNum ++;
-                    }
-                }
-
-
-                //判断移动后的超出是否变少
-                if(nOutNum < outNum){//如果变少，那么此次移动有效
-                    var uAng = this.vecAngle(minPcv.up,minPcv.uproj);
-                    var uLen = this.vecLen(minPcv.uproj);
-                    var moveY = 0;
-
-                    //if(uAng == 0){ //同方向
-                    if(Math.abs(uAng)<90){//浮点数精度问题，接近0时小于90 ，接近180时大于90
-                        moveY = - uLen * minUOver;
-                    }else{
-                        moveY = uLen * minUOver;
-                    }
-                    if(moveY!=0){
-                        transform += ' translateY('+moveY/scaleNum+'px)';
-                    }
-
-                    var rAng = this.vecAngle(minPcv.right,minPcv.rproj);
-                    var rLen = this.vecLen(minPcv.rproj);
-                    var moveX = 0;
-
-                    if(Math.abs(rAng)<90){//同方向
-                        moveX = rLen * minROver;
-                    }else{
-                        moveX = - rLen * minROver;
-                    }
-                    if(moveX!=0){
-                        transform += ' translateX('+moveX/scaleNum+'px)';
-                    }
-
-                    if(moveX!=0 || moveY!=0){
-                        points = nPoints;
-                    }
-                }else{//反之此次移动无效，此时需要进行放大
-                    var uLen = this.vecLen(minPcv.uproj);
-                    var height = this.vecLen(minPcv.up)/2;
-                    var rLen = this.vecLen(minPcv.rproj);
-                    var width = this.vecLen(minPcv.right)/2;
-                    //根据投影距离计算缩放倍数
-                    var scale1 = 1;
-                    if(uLen>height){
-                        scale1 = scale1 + (uLen - height)/height;//只要是正常矩形那么 height 和 width 不可能为0
-                    }
-                    var scale2 = 1;
-                    if(rLen>width){
-                        scale2 = scale2 + (rLen - width)/width;
-                    }
-                    var scale = scale2 > scale1 ? scale2 : scale1;
-                    this._rotateScale = this._rotateScale * scale;
-                    if(scale > 1){
-                        transform += ' scale('+ scale +')';
-                        points = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
-                    }
-                }
-            }
-        }while(outNum>1 && count<4)//加入计数防止无限循环
+        }while(count<2 && outDetails.length>0)
 
         return transform;
+    }
+
+    //找出一个矩形在另一个矩形外的顶点数据
+    SimpleCrop.prototype.getOutDetails = function(inner,outer){
+        var outDetails = [];
+        for(var i=0;i<inner.length;i++){
+            var pt = inner[i];
+            if(!this.isPointInRectCheckByLen(pt,outer)){
+                var pcv = this.getPCVectorProjOnUpAndRight(pt,outer);
+                var iv = {x:0,y:0};
+                var uLen = this.vecLen(pcv.uproj);
+                var height = this.vecLen(pcv.up) / 2;
+                var rLen = this.vecLen(pcv.rproj);
+                var width = this.vecLen(pcv.right) / 2;
+                var uOver = 0;
+                var rOver = 0;
+                if(uLen>height){
+                    uOver = (uLen - height) / uLen;
+                    iv.x += pcv.uproj.x * uOver;
+                    iv.y += pcv.uproj.y * uOver;
+                }
+                if(rLen>width){
+                    rOver = (rLen - width) / rLen;
+                    iv.x += pcv.rproj.x * rOver;
+                    iv.y += pcv.rproj.y * rOver;
+                }
+                var ivLen = this.vecLen(iv);
+                outDetails.push({
+                    x : pt.x,
+                    y : pt.y,
+                    iv : iv,
+                    uOver : uOver,
+                    rOver : rOver,
+                    pcv : pcv
+                });
+            }
+        }
+        return outDetails;
+    }
+
+    //获取刚好包含某个矩形的新矩形
+    SimpleCrop.prototype.getCoveRect = function(rect,angle){
+        if(angle<0){
+            angle = 90 + angle % 90;
+        }else{
+            angle = angle % 90;
+        }
+        var rad = angle / 180 * Math.PI;
+
+        var up = {
+            x : rect[1].x - rect[2].x,
+            y : rect[1].y - rect[2].y
+        }
+        var right = {
+            x : rect[1].x - rect[0].x,
+            y : rect[1].y - rect[0].y
+        }
+        var rLen = this.vecLen(right);
+        var uLen = this.vecLen(up);
+
+        var nRect = [];
+        nRect[0] = {};
+        nRect[0].x = rect[0].x + rLen * Math.sin(rad) * Math.sin(rad);
+        nRect[0].y = rect[0].y + rLen * Math.sin(rad) * Math.cos(rad);
+
+        nRect[1] = {};
+        nRect[1].x = rect[1].x + uLen * Math.sin(rad) * Math.cos(rad);
+        nRect[1].y = rect[1].y - uLen * Math.sin(rad) * Math.sin(rad);
+
+        nRect[2] = {};
+        nRect[2].x = rect[2].x - rLen * Math.sin(rad) * Math.sin(rad);
+        nRect[2].y = rect[2].y - rLen * Math.sin(rad) * Math.cos(rad);
+
+        nRect[3] = {};
+        nRect[3].x = rect[3].x - uLen * Math.sin(rad) * Math.cos(rad);
+        nRect[3].y = rect[3].y + uLen * Math.sin(rad) * Math.sin(rad);
+
+        return nRect;
     }
 
     //计算新的变换坐标
