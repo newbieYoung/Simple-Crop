@@ -737,7 +737,7 @@
             this._downPoint = [];
             this.scaleDownX = 0;
 
-            if(!this.isCover(this.contentPoints,this.cropPoints)){//如果没有完全包含则需要进行适配变换
+            if(!this.isWholeCover(this.contentPoints,this.cropPoints)){//如果没有完全包含则需要进行适配变换
                 var scaleNum = this.scaleTimes / this.times * this._rotateScale;
                 var transform = '';
                 transform += ' scale('+scaleNum+')';//缩放
@@ -863,7 +863,7 @@
     };
 
     //判断 矩形A 是否完全包含 矩形B
-    SimpleCrop.prototype.isCover = function(rectA,rectB){
+    SimpleCrop.prototype.isWholeCover = function(rectA,rectB){
         for(var i=0;i<rectB.length;i++){
             if(!this.isPointInRectCheckByLen(rectB[i],rectA)){
                 return false;
@@ -1368,7 +1368,6 @@
 
     //让canvas transform类似css3 transform
     SimpleCrop.prototype.initCanvasTransform = function(){
-
         CanvasRenderingContext2D.prototype._setTransformOrigin = function(x,y){
             this._transformOrigin = {x:x,y:y};
         }
