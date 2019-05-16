@@ -758,7 +758,7 @@
                     this.$cropContent.style.transform = this._initTransform + coverTr;
                 }else{
                     var start = coverTr.indexOf(transform)+transform.length;
-                    var coverTrAr = coverTr.substring(start,coverTr.length).split(' ');
+                    var coverTrAr = coverTr.substring(start,coverTr.length).trim().split(' ');
                     var no = 0;
                     var tr = this._initTransform + transform + coverTrAr[no];
                     this.$cropContent.style.transform = tr;
@@ -939,6 +939,7 @@
         //计算放大后的新坐标
         if(scale>1){
             transform += 'scale('+scale+')';
+            this._rotateScale = this._rotateScale * scale;
             scalePoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
         }
 
