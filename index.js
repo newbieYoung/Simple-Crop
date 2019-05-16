@@ -29,7 +29,6 @@
     }
     var transitionEndEvent = whichTransitionEvent();
 
-
     /**
      * @param title 组件标题
      * @param src   初始图片路径
@@ -49,6 +48,7 @@
      * @param cropSizePercent 裁剪区域占画布比例
      * @param borderColor 裁剪框边框颜色
      * @param endDuration 调整变换缓动时长
+     * @param debug 调试模式
      *
      * ------------------------------------
      *
@@ -104,6 +104,7 @@
 
         this.cropSizePercent = params.cropSizePercent!=null?params.cropSizePercent:0.5;//默认0.5则表示高度或者宽度最多占50%
         this.zIndex = params.zIndex!=null?params.zIndex:9999;
+        this.debug = params.debug!=null?params.debug:false;
         this.coverDraw = params.coverDraw!=null?params.coverDraw:this.defaultCoverDraw;
         this.borderDraw = params.borderDraw!=null?params.borderDraw:this.defaultBorderDraw;
         this.noBoldCorner = params.noBoldCorner!=null?params.noBoldCorner:false;//裁剪框边角是否不加粗
@@ -622,11 +623,6 @@
             //裁剪区域超出范围
             self.$cropMask.addEventListener('mouseleave',self.endControl.bind(self));
         }
-
-        //调整变换结束监听
-        self.$cropContent.addEventListener(transitionEndEvent,function(){
-            self.$cropContent.style.transition = 'none';
-        })
     };
 
     //获取裁剪图片
@@ -748,16 +744,33 @@
                 var transform = '';
                 transform += ' scale('+scaleNum+')';//缩放
                 transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
-                transform += ' rotate('+this.rotateAngle+'deg)';
+                transform += ' rotate('+this.rotateAngle+'deg) ';
 
                 //适配变换
-                var coverTr = this.getCoverTransform(transform);
-                var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
+                var coverTr = this.getCoverTransform().trim();
+                var finalTr = transform + coverTr;
+                var finalMat = this.cssMatrixAnalyze(this.getTransformMatrix(finalTr));
                 this._contentCurMoveX = finalMat[4];
                 this._contentCurMoveY = finalMat[5];
                 this.$cropContent.style.transition = 'transform '+this.endDuration+'s linear';
-                this.$cropContent.style.transform = this._initTransform + coverTr;
-                this.contentPoints = this.getTransformPoints('scaleY(-1)'+coverTr,this.initContentPoints);
+                this.contentPoints = this.getTransformPoints('scaleY(-1)' + finalTr,this.initContentPoints);
+
+                if(!this.debug){
+                    this.$cropContent.style.transform = this._initTransform + finalTr;
+                }else{
+                    var coverTrAr = coverTr.split(' ');
+                    var no = 0;
+                    var tr = this._initTransform + transform + coverTrAr[no];
+                    this.$cropContent.style.transform = tr;
+                    var self = this;
+                    this.$cropContent.addEventListener(transitionEndEvent,function(){
+                        no++;
+                        if(no<coverTr.length){
+                            tr += coverTrAr[no];
+                            self.$cropContent.style.transform = tr;
+                        }
+                    });
+                }
             }
         }
     };
@@ -766,6 +779,7 @@
     SimpleCrop.prototype.startControl = function(point){
         if(!this._isControl){
             this._isControl = true;
+            this.$cropContent.style.transition = 'none';
             this._downPoint = point?point:[];
         }
     };
@@ -878,7 +892,8 @@
     };
 
     //计算图片内容刚好包含裁剪框的transform变换
-    SimpleCrop.prototype.getCoverTransform = function(transform){
+    SimpleCrop.prototype.getCoverTransform = function(){
+        var transform = '';
         //复制
         var points = [];
         for(var i=0;i<this.contentPoints.length;i++){
