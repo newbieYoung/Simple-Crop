@@ -47,7 +47,6 @@
      * @param size 截图实际宽高
      * @param cropSizePercent 裁剪区域占画布比例
      * @param borderColor 裁剪框边框颜色
-     * @param endDuration 调整变换缓动时长
      * @param debug 调试模式
      *
      * ------------------------------------
@@ -161,7 +160,6 @@
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
         this.cropContentContext = this.$cropContent.getContext('2d');
-        this.endDuration = params.endDuration!=null?params.endDuration:0.2;
 
         this.borderWidth = params.borderWidth!=null?params.borderWidth:1;
         this.borderColor = params.borderColor!=null?params.borderColor:'#fff';
@@ -596,7 +594,7 @@
                         var scale = evt.zoom;
                         self.scaleTimes = self.scaleTimes / lastScale * scale;
                         lastScale = scale;
-                        self.transform();
+                        self.transform(false,true);
                     }
                 },
                 multipointEnd: function () {
@@ -751,12 +749,12 @@
                 var coverMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
                 this._contentCurMoveX = coverMat[4];
                 this._contentCurMoveY = coverMat[5];
-                this.$cropContent.style.transition = 'transform '+this.endDuration+'s linear';
                 this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr,this.initContentPoints);
 
                 if(!this.debug){
                     this.$cropContent.style.transform = this._initTransform + coverTr;
                 }else{
+                    this.$cropContent.style.transition = 'transform .5s linear';
                     var start = coverTr.indexOf(transform)+transform.length;
                     var coverTrAr = coverTr.substring(start,coverTr.length).trim().split(' ');
                     var no = 0;
@@ -792,7 +790,7 @@
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
         this.scaleTimes = this.initScale+curMoveX*1.0/this.scaleWidth*(this.maxScale-this.initScale);
-        this.transform();
+        this.transform(false,true);
     };
 
     //移动
@@ -810,14 +808,21 @@
     };
 
     //旋转、缩放、移动
-    SimpleCrop.prototype.transform = function(rotateCover){
+    SimpleCrop.prototype.transform = function(rotateCover,scaleKeepCover){
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
         var transform = '';
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
         transform += ' rotate('+this.rotateAngle+'deg)';
 
-        if(rotateCover){//旋转时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的缩放，因此需要重新计算_rotateScale
+        if(scaleKeepCover){//缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的位移变换
+            transform = this.getCoverTransform(transform,true);
+            var scMat = this.cssMatrixAnalyze(this.getTransformMatrix(transform));
+            this._contentCurMoveX = scMat[4];
+            this._contentCurMoveY = scMat[5];
+        }
+
+        if(rotateCover){//旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints,this.cropPoints);
             this._rotateScale = this._rotateScale * coverScale;
@@ -892,8 +897,9 @@
     };
 
     //计算图片内容刚好包含裁剪框的transform变换
-    SimpleCrop.prototype.getCoverTransform = function(transform){
+    SimpleCrop.prototype.getCoverTransform = function(transform,onlyTranslate){
         var cRect  = this.getCoveRect(this.cropPoints,this.rotateAngle);
+        onlyTranslate = onlyTranslate?onlyTranslate:false;
 
         //计算放大倍数
         var uScale = 1;//水平缩放倍数和垂直缩放倍数
@@ -926,6 +932,10 @@
         rScale = rScale < 1 ? 1 : rScale;
 
         var scale = uScale > rScale ? uScale : rScale;
+
+        if(onlyTranslate && scale > 1){
+            return transform;
+        }
 
         //复制坐标
         var scalePoints = [];
