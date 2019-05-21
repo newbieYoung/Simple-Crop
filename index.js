@@ -13,13 +13,10 @@
     //transitionend事件兼容性
     function whichTransitionEvent(){
         var t;
-        var el = document.createElement('fakeelement');
+        var el = document.createElement('div');
         var transitions = {
             'transition':'transitionend',
-            'OTransition':'oTransitionEnd',
-            'MozTransition':'transitionend',
-            'WebkitTransition':'webkitTransitionEnd',
-            'MsTransition':'msTransitionEnd'
+            'WebkitTransition':'webkitTransitionEnd'
         };
         for(t in transitions){
             if( el.style[t] !== undefined ){
@@ -28,6 +25,38 @@
         }
     }
     var transitionEndEvent = whichTransitionEvent();
+
+    //transform兼容性
+    function whichTransform(){
+        var t;
+        var el = document.createElement('div');
+        var transforms = {
+            'transform':'transform',
+            'WebkitTransform':'webkitTransform'
+        };
+        for(t in transforms){
+            if( el.style[t] !== undefined ){
+                return transforms[t];
+            }
+        }
+    }
+    var transformProperty = whichTransform();
+
+    //transition兼容性
+    function whichTransition(){
+        var t;
+        var el = document.createElement('div');
+        var transitions = {
+            'transition':'transition',
+            'WebkitTransition':'webkitTransition'
+        };
+        for(t in transitions){
+            if( el.style[t] !== undefined ){
+                return transitions[t];
+            }
+        }
+    }
+    var transitionProperty = whichTransition();
 
     //includes方法兼容
     if (!Array.prototype.includes) {
@@ -333,7 +362,7 @@
             self.$cropContent.style.position = 'absolute';
             self.$cropContent.style.left = '50%';
             self.$cropContent.style.top = '50%';
-            self.$cropContent.style.transform = self._initTransform;
+            self.$cropContent.style[transformProperty] = self._initTransform;
 
             var width = self.$image.width/2;
             var height = self.$image.height/2;
@@ -424,7 +453,7 @@
                 self.rotateAngle = self._baseAngle-90;
                 self._baseAngle = self.rotateAngle;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
-                self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+                self.$lineation.style[transformProperty] = 'translateX('+self._baseMoveX+'px)';
                 self.transform();
                 self.endControl();
             })
@@ -441,7 +470,7 @@
                 self._contentCurMoveX = -self.positionOffset.left;
                 self._contentCurMoveY = -self.positionOffset.top;
                 self.$lineation.setAttribute('moveX',self._baseMoveX);
-                self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+                self.$lineation.style[transformProperty] = 'translateX('+self._baseMoveX+'px)';
                 self.scaleTimes = self.initScale;
                 self.transform();
                 self.endControl();
@@ -548,7 +577,7 @@
             var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
             self._baseMoveX = -(lineationWidth/2-rotateWidth/2);
             self.$lineation.setAttribute('moveX',self._baseMoveX);
-            self.$lineation.style.transform = 'translateX('+self._baseMoveX+'px)';
+            self.$lineation.style[transformProperty] = 'translateX('+self._baseMoveX+'px)';
 
             //刻度触摸开始
             self.$cropRotate.addEventListener('touchstart',function(e){
@@ -571,7 +600,7 @@
 
                 if(angle<=45&&angle>=-45){
                     self.$lineation.setAttribute('moveX',curMoveX);
-                    self.$lineation.style.transform = 'translateX('+curMoveX+'px)';
+                    self.$lineation.style[transformProperty] = 'translateX('+curMoveX+'px)';
                     self.rotateAngle = self._baseAngle+angle;
                     self.transform(true);
                     self._downPoint = point;
@@ -778,20 +807,20 @@
                 this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr,this.initContentPoints);
 
                 if(!this.debug){
-                    this.$cropContent.style.transform = this._initTransform + coverTr;
+                    this.$cropContent.style[transformProperty] = this._initTransform + coverTr;
                 }else{
-                    this.$cropContent.style.transition = 'transform .5s linear';
+                    this.$cropContent.style[transitionProperty] = 'transform .5s linear';
                     var start = coverTr.indexOf(transform)+transform.length;
                     var coverTrAr = coverTr.substring(start,coverTr.length).trim().split(' ');
                     var no = 0;
                     var tr = this._initTransform + transform + coverTrAr[no];
-                    this.$cropContent.style.transform = tr;
+                    this.$cropContent.style[transformProperty] = tr;
                     var self = this;
                     this.$cropContent.addEventListener(transitionEndEvent,function(){
                         no++;
                         if(no<coverTr.length){
                             tr += coverTrAr[no];
-                            self.$cropContent.style.transform = tr;
+                            self.$cropContent.style[transformProperty] = tr;
                         }
                     });
                 }
@@ -803,7 +832,7 @@
     SimpleCrop.prototype.startControl = function(point){
         if(!this._isControl){
             this._isControl = true;
-            this.$cropContent.style.transition = 'none';
+            this.$cropContent.style[transitionProperty] = 'none';
             this._downPoint = point?point:[];
         }
     };
@@ -811,7 +840,7 @@
     //滑动按钮移动
     SimpleCrop.prototype.scaleMove = function(curMoveX){
         this.startControl();
-        this.$scaleBtn.style.transform = 'translateX('+curMoveX+'px)';
+        this.$scaleBtn.style[transformProperty] = 'translateX('+curMoveX+'px)';
         this.$scaleValue.style.width = curMoveX+'px';
         this.$scaleBtn.setAttribute('moveX',curMoveX);
         this.scaleCurLeft = this.scaleInitLeft+curMoveX;
@@ -860,7 +889,7 @@
         transform += ' scale('+scaleNum+')';//缩放
         transform += ' translateX('+this._contentCurMoveX/scaleNum+'px) translateY('+this._contentCurMoveY/scaleNum+'px)';//移动
         transform += ' rotate('+this.rotateAngle+'deg)';
-        this.$cropContent.style.transform = this._initTransform + transform;
+        this.$cropContent.style[transformProperty] = this._initTransform + transform;
         this.contentPoints = this.getTransformPoints('scaleY(-1)'+transform,this.initContentPoints);
     };
 
@@ -1038,7 +1067,7 @@
                 if(moveX!=0 || moveY!=0){
                     for(var i=0;i<scalePoints.length;i++){
                         scalePoints[i].x = scalePoints[i].x + maxFarOut.iv.x,
-                        scalePoints[i].y = scalePoints[i].y + maxFarOut.iv.y;
+                            scalePoints[i].y = scalePoints[i].y + maxFarOut.iv.y;
                     }
                 }
             }
@@ -1216,18 +1245,6 @@
         var $div = document.createElement('div');
         $div.style.visibility = 'hidden';
         $div.style.position = 'fixed';
-
-        //处理transform属性的兼容性
-        var transformProperty = 'transform';
-        if('transform' in $div.style){
-            transformProperty='transform'
-        } else if( 'WebkitTransform' in $div.style ){
-            transformProperty='webkitTransform'
-        } else if('MozTransform' in $div.style){
-            transformProperty='MozTransform'
-        } else if('OTransform' in $div.style){
-            transformProperty='OTransform'
-        }
 
         $div.style[transformProperty] = transform;
         document.body.appendChild($div);
