@@ -1,6 +1,24 @@
 # SimpleCrop
 
-一个在功能和交互上参考 IOS 系统的原生图片裁剪功能并支持任意角度旋转的 Web 图片裁剪组件。
+一个在`功能`和`交互`上复刻移动设备原生图片裁剪功能的Web图片裁剪组件。
+
+之所以会做这个项目主要是因为已知的图片裁剪组件并不能完全满足自己的要求，比如：
+
+- `Croppie`：[https://github.com/foliotek/croppie](https://github.com/foliotek/croppie)
+ 
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-2.jpg">
+ 
+只支持旋转固定角度。
+
+- `AlloyCrop`：[https://github.com/AlloyTeam/AlloyCrop](https://github.com/AlloyTeam/AlloyCrop)
+
+完全不支持旋转。
+
+因此和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
+
+- 1、裁剪图片支持任意角度旋转；
+- 2、支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
+- 3、裁剪框位置支持偏移（可以不用固定在页面中心）。
 
 ### 示例一
 
@@ -42,6 +60,7 @@ var simpleCrop = new SimpleCrop({
     rotateSlider:true,
     cropCallback:function(){
         this.$resultCanvas.style.marginRight = '10px';
+        this.$resultCanvas.style.width = '50%';
         document.body.appendChild(this.$resultCanvas);
     }
 });
@@ -128,10 +147,8 @@ var simpleCrop = new SimpleCrop({
     },
     cropCallback:function(){
         this.$resultCanvas.style.marginRight = '10px';
+        this.$resultCanvas.style.width = '50%';
         document.body.appendChild(this.$resultCanvas);
-    },
-    borderDraw:function(){
-        //...
     },
     coverDraw:function(){
         //...
@@ -147,10 +164,6 @@ var simpleCrop = new SimpleCrop({
 	<tr>
 		<td>title</td>
 		<td>标题</td>
-	</tr>
-	<tr>
-		<td>borderDraw</td>
-		<td>裁剪框绘制函数，默认的边框绘制函数会绘制出<b>示例一</b>的样子，同时支持自定义，不过需要注意的是必需在第一行执行<b>this.cropCoverContext.clearRect(0,0,this.$cropCover.width,this.$cropCover.height);</b>来清空遮罩层（设计略不合理，待改进）</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
