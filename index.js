@@ -214,7 +214,6 @@
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
         this.$cropContent = document.querySelector('#'+this.id+' .crop-content');
-        this.cropContentContext = this.$cropContent.getContext('2d');
 
         this.borderWidth = params.borderWidth!=null?params.borderWidth:1;
         this.borderColor = params.borderColor!=null?params.borderColor:'#fff';
@@ -248,7 +247,7 @@
         }
 
         html += '<div class="crop-mask">'
-        html += '<canvas class="crop-content"></canvas>';
+        html += '<img class="crop-content" src="'+this.src+'">';
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
 
@@ -347,25 +346,16 @@
     //加载图片
     SimpleCrop.prototype.load = function(){
         var self = this;
-        if(!self.$image){
-            self.$image = new Image();
-        }
-        self.$image.src = self.src;
-        self.$image.onload = function(){
-
-            self.$cropContent.width = self.$image.width;
-            self.$cropContent.height = self.$image.height;
-            self.cropContentContext.drawImage(self.$image,0,0,self.$image.width,self.$image.height);
-
+        self.$cropContent.onload = function(){
             //初始位置垂直水平居中
-            self._initTransform = 'translate(-50%,-50%)';
+            self._initTransform = 'translate3d(-50%,-50%,0)';
             self.$cropContent.style.position = 'absolute';
             self.$cropContent.style.left = '50%';
             self.$cropContent.style.top = '50%';
             self.$cropContent.style[transformProperty] = self._initTransform;
 
-            var width = self.$image.width/2;
-            var height = self.$image.height/2;
+            var width = self.$cropContent.width/2;
+            var height = self.$cropContent.height/2;
             self.initContentPoints = [{
                 x : -width,
                 y : height
@@ -382,10 +372,10 @@
             self.contentPoints = self.initContentPoints.slice();
 
             //计算初始缩放倍数
-            if(self.size.width/self.size.height>self.$image.width/self.$image.height){
-                self.initScale = self.size.width/self.$image.width;
+            if(self.size.width/self.size.height>self.$cropContent.width/self.$cropContent.height){
+                self.initScale = self.size.width/self.$cropContent.width;
             }else{
-                self.initScale = self.size.height/self.$image.height;
+                self.initScale = self.size.height/self.$cropContent.height;
             }
             self.maxScale = self.initScale < self.maxScale ? self.maxScale : self.initScale;
 
@@ -761,7 +751,7 @@
         var imageCtx = $imageCanvas.getContext('2d');
         imageCtx._setTransformOrigin(center.x,center.y);//中心点
         imageCtx._rotate(this.rotateAngle);
-        imageCtx.drawImage(this.$image,imageInitRect.left,imageInitRect.top,imageInitRect.width,imageInitRect.height);
+        imageCtx.drawImage(this.$cropContent,imageInitRect.left,imageInitRect.top,imageInitRect.width,imageInitRect.height);
 
         //计算裁剪位置并截图
         var _cropRect = {
