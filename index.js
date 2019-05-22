@@ -1,22 +1,26 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['alloyfinger'], factory);
+        define(['alloyfinger','prefix-umd'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node/CommonJS
-        module.exports = factory(require('alloyfinger'));
+        module.exports = factory(require('alloyfinger'),require('prefix-umd'));
     } else {
         // Browser globals
-        window.SimpleCrop = factory(window.AlloyFinger);
+        window.SimpleCrop = factory(window.AlloyFinger,window.Prefix);
     }
-}(function (finger) {
-    //transitionend事件兼容性
+}(function (finger,Prefix) {
+
+    //兼容性处理
     function whichTransitionEvent(){
         var t;
         var el = document.createElement('div');
         var transitions = {
             'transition':'transitionend',
-            'WebkitTransition':'webkitTransitionEnd'
+            'OTransition':'oTransitionEnd',
+            'MozTransition':'transitionend',
+            'WebkitTransition':'webkitTransitionEnd',
+            'MsTransition':'msTransitionEnd'
         };
         for(t in transitions){
             if( el.style[t] !== undefined ){
@@ -25,38 +29,8 @@
         }
     }
     var transitionEndEvent = whichTransitionEvent();
-
-    //transform兼容性
-    function whichTransform(){
-        var t;
-        var el = document.createElement('div');
-        var transforms = {
-            'transform':'transform',
-            'WebkitTransform':'webkitTransform'
-        };
-        for(t in transforms){
-            if( el.style[t] !== undefined ){
-                return transforms[t];
-            }
-        }
-    }
-    var transformProperty = whichTransform();
-
-    //transition兼容性
-    function whichTransition(){
-        var t;
-        var el = document.createElement('div');
-        var transitions = {
-            'transition':'transition',
-            'WebkitTransition':'webkitTransition'
-        };
-        for(t in transitions){
-            if( el.style[t] !== undefined ){
-                return transitions[t];
-            }
-        }
-    }
-    var transitionProperty = whichTransition();
+    var transformProperty = Prefix.prefix('transform');
+    var transitionProperty = Prefix.prefix('transition');
 
     //includes方法兼容
     if (!Array.prototype.includes) {

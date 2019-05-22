@@ -8,37 +8,38 @@
     <link rel="stylesheet" href="./dist/template-3.css">
 </head>
 <body>
-<script src="./lib/alloy_finger.js"></script>
-<script src="./index.js"></script>
-<script>
-    //假设是iphonex 44+44
-    var widthPercent = 0.556;
-    var width = document.documentElement.clientWidth;
-    var height = document.documentElement.clientHeight;
-    var offsetTop = (height - height * widthPercent)/2 - 88;
+    <script src="./node_modules/prefix-umd/index.js"></script>
+    <script src="./node_modules/alloyfinger/alloy_finger.js"></script>
+    <script src="./index.js"></script>
+    <script>
+        //假设是iphonex 44+44
+        var widthPercent = 0.556;
+        var width = document.documentElement.clientWidth;
+        var height = document.documentElement.clientHeight;
+        var offsetTop = (height - height * widthPercent)/2 - 88;
 
-    var simpleCrop = new SimpleCrop({
-        src:'./img/test2.jpg',
-        size:{
-            width:width,
-            height:height
-        },
-        borderWidth:1,
-        noBoldCorner:true,
-        coverColor:'rgba(0,0,0,.3)',
-        $container:document.body,
-        cropSizePercent:widthPercent,
-        controller:['touch'],
-        positionOffset:{left:0,top:offsetTop},
-        funcBtns:[],
-        scaleSlider:false,
-        rotateSlider:false,
-        cropCallback:function(){
-            this.$resultCanvas.style.marginRight = '10px';
-            this.$resultCanvas.style.width = '50%';
-            document.body.appendChild(this.$resultCanvas);
-        }
-    });
-</script>
+        var simpleCrop = new SimpleCrop({
+            src:'./img/test2.jpg',
+            size:{
+                width:width,
+                height:height
+            },
+            borderWidth:1,
+            noBoldCorner:true,
+            coverColor:'rgba(0,0,0,.3)',
+            $container:document.body,
+            cropSizePercent:widthPercent,
+            controller:['touch'],
+            positionOffset:{left:0,top:offsetTop},
+            funcBtns:[],
+            scaleSlider:false,
+            rotateSlider:false,
+            cropCallback:function(){
+                this.$resultCanvas.style.marginRight = '10px';
+                this.$resultCanvas.style.width = '50%';
+                document.body.appendChild(this.$resultCanvas);
+            }
+        });
+    </script>
 </body>
 </html>
