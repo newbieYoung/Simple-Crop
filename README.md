@@ -173,4 +173,4 @@ var simpleCrop = new SimpleCrop({
 
 ### 其它
 
-相关原理以及实现请查看[SimpleCrop 支持任意角度旋转的图片裁剪组件](https://newbieweb.lione.me/?p=34)
+相关原理以及实现请查看[SimpleCrop 媲美原生体验的Web图片裁剪组件](https://newbieweb.lione.me/2019/05/16/simple-crop/)
