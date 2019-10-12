@@ -365,6 +365,7 @@
     SimpleCrop.prototype.show = function(src){
         if(src){
             this.src = src;
+            this.$cropContent.src = this.src;
             this.load();
         }
         this.$target.style.display = 'block';
@@ -401,6 +402,7 @@
                     }else{
                         self.fileToSrc(files[0],function(src){
                             self.src = src;
+                            self.$cropContent.src = self.src;
                             self.load();
                         });
                     }
