@@ -363,12 +363,12 @@
 
     //显示
     SimpleCrop.prototype.show = function(image){
-        if(Object.prototype.toString(image)==='[object String]'){//字符串
+        if(Object.prototype.toString.call(image)==='[object String]'){//字符串
             this.src = image;
             this.$cropContent.src = this.src;
             this.load();
             this.uploadCallback();
-        }else if(Object.prototype.toString(image)==='[object File]'){//文件
+        }else if(Object.prototype.toString.call(image)==='[object File]'){//文件
             var self = this;
             self.fileToSrc(image,function(src){
                 self.src = src;
