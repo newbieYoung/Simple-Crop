@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "alloyfinger": "^0.1.15",
+    "exif-js": "^2.3.0",
     "prefix-umd": "^1.0.0"
   },
   "devDependencies": {

@@ -1,15 +1,15 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['alloyfinger','prefix-umd'], factory);
+        define(['alloyfinger','prefix-umd','exif-js'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node/CommonJS
-        module.exports = factory(require('alloyfinger'),require('prefix-umd'));
+        module.exports = factory(require('alloyfinger'),require('prefix-umd'),require('exif-js'));
     } else {
         // Browser globals
-        window.SimpleCrop = factory(window.AlloyFinger,window.Prefix);
+        window.SimpleCrop = factory(window.AlloyFinger,window.Prefix,window.EXIF);
     }
-}(function (finger,Prefix) {
+}(function (finger,Prefix,EXIF) {
 
     //兼容性处理
     function whichTransitionEvent(){
@@ -89,6 +89,7 @@
      * contentPoints 图片显示区域矩形顶点坐标
      * _contentCurMoveX 图片 X 轴方向上的总位移
      * _contentCurMoveY 图片 Y 轴方向上的总位移
+     * _orientation 图片元数据方向角
      * initContentPoints 图片显示区域矩形初始顶点坐标
      *
      * ------------------------------------
@@ -208,7 +209,7 @@
         this.borderDraw();
         this.coverDraw();
         this.bindEvent();
-        this.load();
+        this.show(this.src);
     }
 
     //html结构
@@ -221,7 +222,7 @@
         }
 
         html += '<div class="crop-mask">'
-        html += '<img class="crop-content" src="'+this.src+'">';
+        html += '<img class="crop-content">';
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
 
@@ -321,6 +322,9 @@
     SimpleCrop.prototype.load = function(){
         var self = this;
         self.$cropContent.onload = function(){
+            //图片元数据
+            self._orientation = null;
+
             //初始位置垂直水平居中
             self._initTransform = 'translate3d(-50%,-50%,0)';
             self.$cropContent.style.position = 'absolute';
@@ -395,8 +399,16 @@
         if(self.funcBtns.includes('crop')){
             self.$cropBtn = document.querySelector('#'+self.id+' .crop-btn');
             self.$cropBtn.addEventListener('click',function(){
-                self.getCropImage();
-                self.cropCallback();
+                if(self._orientation==null){
+                    EXIF.getData(self.$cropContent, function() {
+                        self._orientation = EXIF.getTag(this, 'Orientation');
+                        self.getCropImage();
+                        self.cropCallback();
+                    });
+                }else{
+                    self.getCropImage();
+                    self.cropCallback();
+                }
             });
         }
 
