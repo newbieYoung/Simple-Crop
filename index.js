@@ -201,9 +201,9 @@
         this.cropRect.top = (this.maskViewSize.height - this.cropRect.height)/2 - this.positionOffset.top;
         this.cropPoints = this.rectToPoints(this.cropRect);
 
-        this.cropCallback = params.cropCallback;
-        this.closeCallback = params.closeCallback;
-        this.uploadCallback = params.uploadCallback;
+        this.cropCallback = params.cropCallback || function(){};
+        this.closeCallback = params.closeCallback || function(){};
+        this.uploadCallback = params.uploadCallback || function(){};
 
         this.borderDraw();
         this.coverDraw();
@@ -362,12 +362,22 @@
     };
 
     //显示
-    SimpleCrop.prototype.show = function(src){
-        if(src){
-            this.src = src;
+    SimpleCrop.prototype.show = function(image){
+        if(Object.prototype.toString(image)==='[object String]'){//字符串
+            this.src = image;
             this.$cropContent.src = this.src;
             this.load();
+            this.uploadCallback();
+        }else if(Object.prototype.toString(image)==='[object File]'){//文件
+            var self = this;
+            self.fileToSrc(image,function(src){
+                self.src = src;
+                self.$cropContent.src = self.src;
+                self.load();
+                self.uploadCallback();
+            });
         }
+        
         this.$target.style.display = 'block';
     };
 
@@ -397,15 +407,12 @@
             self.$uploadBtn.addEventListener('change',function(evt){
                 var files = evt.target.files;
                 if(files.length>0){
-                    if(self.uploadCallback){
-                        self.uploadCallback(files[0]);
-                    }else{
-                        self.fileToSrc(files[0],function(src){
-                            self.src = src;
-                            self.$cropContent.src = self.src;
-                            self.load();
-                        });
-                    }
+                    self.fileToSrc(files[0],function(src){
+                        self.src = src;
+                        self.$cropContent.src = self.src;
+                        self.load();
+                        self.uploadCallback();
+                    });
                 }
                 self.$uploadInput.value = '';//清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
             });
@@ -448,9 +455,7 @@
             self.$closeBtn = document.querySelector('#'+self.id+' .crop-close');
             self.$closeBtn.addEventListener('click',function(){
                 self.hide();
-                if(self.closeCallback){
-                    self.closeCallback();
-                }
+                self.closeCallback();
             });
         }
 
