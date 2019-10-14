@@ -1,59 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>测试一</title>
     <link rel="stylesheet" href="./dist/template-1.css">
 </head>
+
 <body>
     <script src="./lib/prefix-umd.js"></script>
+    <script src="./lib/alloy_finger.js"></script>
+    <script src="./lib/exif.js"></script>
     <script src="./index.js"></script>
     <script>
-        window.onload = function(){
+        window.onload = function () {
             var simpleCrop = new SimpleCrop({
-                title:'上传图片过大，请裁剪',
-                src:'./img/test1.jpg',
-                size:{
-                    width:800,
-                    height:900
+                title: '上传图片过大，请裁剪',
+                src: './img/test1.jpg',
+                size: {
+                    width: 800,
+                    height: 900
                 },
-                borderWidth:2,
-                borderColor:'#0BFF00',
-                cropCallback:function(){
+                borderWidth: 2,
+                borderColor: '#0BFF00',
+                cropCallback: function () {
                     this.$resultCanvas.style.marginRight = '10px';
                     this.$resultCanvas.style.width = '50%';
                     document.body.appendChild(this.$resultCanvas);
                 },
-                coverDraw:function(){
+                coverDraw: function () {
                     this.cropCoverContext.setLineDash([15, 20]);
                     this.cropCoverContext.lineWidth = this.borderWidth;
 
                     this.cropCoverContext.beginPath();
                     var rect1 = {
-                        left:this.cropRect.left * window.devicePixelRatio,
-                        top:(this.cropRect.top+this.cropRect.height*0.125) * window.devicePixelRatio,
-                        right:(this.cropRect.left+this.cropRect.width) * window.devicePixelRatio,
-                        bottom:(this.cropRect.top+this.cropRect.height-this.cropRect.height*0.125) * window.devicePixelRatio
+                        left: this.cropRect.left * window.devicePixelRatio,
+                        top: (this.cropRect.top + this.cropRect.height * 0.125) * window
+                            .devicePixelRatio,
+                        right: (this.cropRect.left + this.cropRect.width) * window.devicePixelRatio,
+                        bottom: (this.cropRect.top + this.cropRect.height - this.cropRect.height *
+                            0.125) * window.devicePixelRatio
                     }
-                    this.cropCoverContext.moveTo(rect1.left,rect1.top);
-                    this.cropCoverContext.lineTo(rect1.right,rect1.top);
-                    this.cropCoverContext.moveTo(rect1.left,rect1.bottom);
-                    this.cropCoverContext.lineTo(rect1.right,rect1.bottom);
+                    this.cropCoverContext.moveTo(rect1.left, rect1.top);
+                    this.cropCoverContext.lineTo(rect1.right, rect1.top);
+                    this.cropCoverContext.moveTo(rect1.left, rect1.bottom);
+                    this.cropCoverContext.lineTo(rect1.right, rect1.bottom);
                     this.cropCoverContext.strokeStyle = '#ffffff';
                     this.cropCoverContext.stroke();
 
                     this.cropCoverContext.beginPath();
                     var rect2 = {
-                        left:(this.cropRect.left+this.cropRect.width*0.2) * window.devicePixelRatio,
-                        top:(this.cropRect.top+this.cropRect.height*0.2) * window.devicePixelRatio,
-                        right:(this.cropRect.left+this.cropRect.width-this.cropRect.width*0.2) * window.devicePixelRatio,
-                        bottom:(this.cropRect.top+this.cropRect.height-this.cropRect.height*0.2) * window.devicePixelRatio
+                        left: (this.cropRect.left + this.cropRect.width * 0.2) * window
+                            .devicePixelRatio,
+                        top: (this.cropRect.top + this.cropRect.height * 0.2) * window
+                            .devicePixelRatio,
+                        right: (this.cropRect.left + this.cropRect.width - this.cropRect.width *
+                            0.2) * window.devicePixelRatio,
+                        bottom: (this.cropRect.top + this.cropRect.height - this.cropRect.height *
+                            0.2) * window.devicePixelRatio
                     }
-                    this.cropCoverContext.moveTo(rect2.left,rect2.top);
-                    this.cropCoverContext.lineTo(rect2.right,rect2.top);
-                    this.cropCoverContext.lineTo(rect2.right,rect2.bottom);
-                    this.cropCoverContext.lineTo(rect2.left,rect2.bottom);
-                    this.cropCoverContext.lineTo(rect2.left,rect2.top);
+                    this.cropCoverContext.moveTo(rect2.left, rect2.top);
+                    this.cropCoverContext.lineTo(rect2.right, rect2.top);
+                    this.cropCoverContext.lineTo(rect2.right, rect2.bottom);
+                    this.cropCoverContext.lineTo(rect2.left, rect2.bottom);
+                    this.cropCoverContext.lineTo(rect2.left, rect2.top);
                     this.cropCoverContext.strokeStyle = '#ffeb3b';
                     this.cropCoverContext.stroke();
                 }
@@ -61,4 +71,5 @@
         }
     </script>
 </body>
+
 </html>
