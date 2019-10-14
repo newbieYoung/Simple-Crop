@@ -387,6 +387,9 @@
     //显示
     SimpleCrop.prototype.show = function (image) {
         var self = this;
+        if (self.$cropContent) {
+            self.$cropMask.removeChild(self.$cropContent);
+        }
         if (Object.prototype.toString.call(image) === '[object String]') { //字符串
             self.src = image;
             self.$cropContent = new Image();
@@ -401,9 +404,6 @@
                 self.load();
                 self.uploadCallback();
             });
-        }
-        if (self.$cropContent) {
-            self.$cropMask.removeChild(self.$cropContent);
         }
         self.$target.style.display = 'block';
     };
