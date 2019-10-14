@@ -92,6 +92,10 @@
      * _contentCurMoveY 图片 Y 轴方向上的总位移
      * _orientation 图片元数据方向角
      * initContentPoints 图片显示区域矩形初始顶点坐标
+     * 
+     * ------------------------------------
+     * 
+     * 原始信息
      * originImage 原始裁剪图片
      * originWidth 裁剪图片原始宽度（考虑方向角）
      * originHeight 裁剪图片原始高度（考虑方向角）
@@ -435,12 +439,7 @@
             self.$uploadBtn.addEventListener('change', function (evt) {
                 var files = evt.target.files;
                 if (files.length > 0) {
-                    self.fileToSrc(files[0], function (src) {
-                        self.src = src;
-                        self.$cropContent.src = self.src;
-                        self.load();
-                        self.uploadCallback();
-                    });
+                    self.show(files[0]);
                 }
                 self.$uploadInput.value = ''; //清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
             });
