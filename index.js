@@ -668,6 +668,64 @@
         }
     };
 
+    //处理方向角坐标系
+    SimpleCrop.prototype.transformCoordinates = function () {
+        var imageWidth = this.$cropContent.width;
+        var imageHeight = this.$cropContent.height;
+
+        var $imageCanvas = document.createElement('canvas');
+        var imageCtx = $imageCanvas.getContext('2d');
+        $imageCanvas.width = imageWidth;
+        $imageCanvas.height = imageHeight;
+
+        //宽高互换
+        if (this._orientation > 4) {
+            $imageCanvas.width = imageHeight;
+            $imageCanvas.height = imageWidth;
+        }
+        switch (this._orientation) {
+            case 2:
+                // horizontal flip
+                imageCtx.translate(imageWidth, 0);
+                imageCtx.scale(-1, 1);
+                break;
+            case 3:
+                // 180° rotate left
+                imageCtx.translate(imageWidth, imageHeight);
+                imageCtx.rotate(Math.PI);
+                break;
+            case 4:
+                // vertical flip
+                imageCtx.translate(0, imageHeight);
+                imageCtx.scale(1, -1);
+                break;
+            case 5:
+                // vertical flip + 90 rotate right
+                imageCtx.rotate(0.5 * Math.PI);
+                imageCtx.scale(1, -1);
+                break;
+            case 6:
+                // 90° rotate right
+                imageCtx.rotate(0.5 * Math.PI);
+                imageCtx.translate(0, -imageHeight);
+                break;
+            case 7:
+                // horizontal flip + 90 rotate right
+                imageCtx.rotate(0.5 * Math.PI);
+                imageCtx.translate(imageWidth, -imageHeight);
+                imageCtx.scale(-1, 1);
+                break;
+            case 8:
+                // 90° rotate left
+                imageCtx.rotate(-0.5 * Math.PI);
+                imageCtx.translate(-imageWidth, 0);
+                break;
+        }
+        imageCtx.drawImage(this.$cropContent, 0, 0, imageWidth, imageHeight);
+
+        return $imageCanvas;
+    }
+
     //获取裁剪图片
     SimpleCrop.prototype.getCropImage = function () {
         //复制顶点坐标
@@ -730,6 +788,9 @@
             height: height
         };
 
+        //带有方向角度的图片绘制到 canvas 之前需要进行坐标转换
+        //var $coorCanvas = this.transformCoordinates();
+
         //绘制图片
         var imageRect = {
             left: 0,
@@ -751,7 +812,7 @@
         var imageCtx = $imageCanvas.getContext('2d');
         imageCtx._setTransformOrigin(center.x, center.y); //中心点
         imageCtx._rotate(this.rotateAngle);
-        imageCtx.drawImage(this.$cropContent, imageInitRect.left, imageInitRect.top, imageInitRect.width, imageInitRect.height);
+        imageCtx.drawImage(self.$cropContent, imageInitRect.left, imageInitRect.top, imageInitRect.width, imageInitRect.height);
 
         //计算裁剪位置并截图
         var _cropRect = {
