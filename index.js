@@ -92,6 +92,8 @@
      * _contentCurMoveY 图片 Y 轴方向上的总位移
      * _orientation 图片元数据方向角
      * initContentPoints 图片显示区域矩形初始顶点坐标
+     * imageOriginWidth 裁剪图片原始宽度（考虑方向角）
+     * imageOriginHeight 裁剪图片原始高度（考虑方向角）
      *
      * ------------------------------------
      *
@@ -322,50 +324,62 @@
 
     };
 
+    //初始化
+    SimpleCrop.prototype.init = function () {
+        //初始位置垂直水平居中
+        this._initTransform = 'translate3d(-50%,-50%,0)';
+        this.$cropContent.style.position = 'absolute';
+        this.$cropContent.style.left = '50%';
+        this.$cropContent.style.top = '50%';
+        this.$cropContent.style[transformProperty] = this._initTransform;
+
+        var width = this.imageOriginWidth / 2;
+        var height = this.imageOriginHeight / 2;
+        this.initContentPoints = [{
+            x: -width,
+            y: height
+        }, {
+            x: width,
+            y: height
+        }, {
+            x: width,
+            y: -height
+        }, {
+            x: -width,
+            y: -height
+        }]
+        this.contentPoints = this.initContentPoints.slice();
+
+        //计算初始缩放倍数
+        if (this.size.width / this.size.height > this.imageOriginWidth / this.imageOriginHeight) {
+            this.initScale = this.size.width / this.imageOriginWidth;
+        } else {
+            this.initScale = this.size.height / this.imageOriginHeight;
+        }
+        this.maxScale = this.initScale < this.maxScale ? this.maxScale : this.initScale;
+
+        this.scaleTimes = this.initScale;
+        this._contentCurMoveX = -this.positionOffset.left;
+        this._contentCurMoveY = -this.positionOffset.top;
+
+        this.transform();
+    }
+
     //加载图片
     SimpleCrop.prototype.load = function () {
         var self = this;
         self.$cropContent.onload = function () {
-            //图片元数据
-            self._orientation = null;
-
-            //初始位置垂直水平居中
-            self._initTransform = 'translate3d(-50%,-50%,0)';
-            self.$cropContent.style.position = 'absolute';
-            self.$cropContent.style.left = '50%';
-            self.$cropContent.style.top = '50%';
-            self.$cropContent.style[transformProperty] = self._initTransform;
-
-            var width = self.$cropContent.width / 2;
-            var height = self.$cropContent.height / 2;
-            self.initContentPoints = [{
-                x: -width,
-                y: height
-            }, {
-                x: width,
-                y: height
-            }, {
-                x: width,
-                y: -height
-            }, {
-                x: -width,
-                y: -height
-            }]
-            self.contentPoints = self.initContentPoints.slice();
-
-            //计算初始缩放倍数
-            if (self.size.width / self.size.height > self.$cropContent.width / self.$cropContent.height) {
-                self.initScale = self.size.width / self.$cropContent.width;
-            } else {
-                self.initScale = self.size.height / self.$cropContent.height;
-            }
-            self.maxScale = self.initScale < self.maxScale ? self.maxScale : self.initScale;
-
-            self.scaleTimes = self.initScale;
-            self._contentCurMoveX = -self.positionOffset.left;
-            self._contentCurMoveY = -self.positionOffset.top;
-
-            self.transform();
+            EXIF.getData(self.$cropContent, function () {
+                self._orientation = EXIF.getTag(this, 'Orientation');
+                self.imageOriginWidth = self.$cropContent.width;
+                self.imageOriginHeight = self.$cropContent.height;
+                //方向角大于4时，宽高互换
+                if (self._orientation > 4) {
+                    self.imageOriginWidth = self.$cropContent.height;
+                    self.imageOriginHeight = self.$cropContent.width;
+                }
+                self.init();
+            });
         }
     };
 
@@ -403,16 +417,8 @@
         if (self.funcBtns.includes('crop')) {
             self.$cropBtn = document.querySelector('#' + self.id + ' .crop-btn');
             self.$cropBtn.addEventListener('click', function () {
-                if (self._orientation == null) {
-                    EXIF.getData(self.$cropContent, function () {
-                        self._orientation = EXIF.getTag(this, 'Orientation');
-                        self.getCropImage();
-                        self.cropCallback();
-                    });
-                } else {
-                    self.getCropImage();
-                    self.cropCallback();
-                }
+                self.getCropImage();
+                self.cropCallback();
             });
         }
 
@@ -670,33 +676,25 @@
 
     //处理方向角坐标系
     SimpleCrop.prototype.transformCoordinates = function () {
-        var imageWidth = this.$cropContent.width;
-        var imageHeight = this.$cropContent.height;
-
         var $imageCanvas = document.createElement('canvas');
         var imageCtx = $imageCanvas.getContext('2d');
-        $imageCanvas.width = imageWidth;
-        $imageCanvas.height = imageHeight;
+        $imageCanvas.width = this.imageOriginWidth;
+        $imageCanvas.height = this.imageOriginHeight;
 
-        //宽高互换
-        if (this._orientation > 4) {
-            $imageCanvas.width = imageHeight;
-            $imageCanvas.height = imageWidth;
-        }
         switch (this._orientation) {
             case 2:
                 // horizontal flip
-                imageCtx.translate(imageWidth, 0);
+                imageCtx.translate(this.imageOriginWidth, 0);
                 imageCtx.scale(-1, 1);
                 break;
             case 3:
                 // 180° rotate left
-                imageCtx.translate(imageWidth, imageHeight);
+                imageCtx.translate(this.imageOriginWidth, this.imageOriginHeight);
                 imageCtx.rotate(Math.PI);
                 break;
             case 4:
                 // vertical flip
-                imageCtx.translate(0, imageHeight);
+                imageCtx.translate(0, this.imageOriginHeight);
                 imageCtx.scale(1, -1);
                 break;
             case 5:
@@ -707,21 +705,21 @@
             case 6:
                 // 90° rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(0, -imageHeight);
+                imageCtx.translate(0, -this.imageOriginHeight);
                 break;
             case 7:
                 // horizontal flip + 90 rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(imageWidth, -imageHeight);
+                imageCtx.translate(this.imageOriginWidth, -this.imageOriginHeight);
                 imageCtx.scale(-1, 1);
                 break;
             case 8:
                 // 90° rotate left
                 imageCtx.rotate(-0.5 * Math.PI);
-                imageCtx.translate(-imageWidth, 0);
+                imageCtx.translate(-this.imageOriginWidth, 0);
                 break;
         }
-        imageCtx.drawImage(this.$cropContent, 0, 0, imageWidth, imageHeight);
+        imageCtx.drawImage(this.$cropContent, 0, 0, this.imageOriginWidth, this.imageOriginWidth);
 
         return $imageCanvas;
     }
