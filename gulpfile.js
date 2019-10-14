@@ -9,8 +9,4 @@ gulp.task('css-img-base64', function () {
     gulp.src('./template-2.css')
         .pipe(cssBase64())
         .pipe(gulp.dest('./dist'));
-
-    gulp.src('./template-3.css')
-        .pipe(cssBase64())
-        .pipe(gulp.dest('./dist'));
 });
