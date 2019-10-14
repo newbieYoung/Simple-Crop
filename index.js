@@ -92,7 +92,6 @@
      * _contentCurMoveY 图片 Y 轴方向上的总位移
      * _orientation 图片元数据方向角
      * initContentPoints 图片显示区域矩形初始顶点坐标
-     * originImage 原始裁剪图片
      * imageOriginWidth 裁剪图片原始宽度（考虑方向角）
      * imageOriginHeight 裁剪图片原始高度（考虑方向角）
      *
@@ -329,12 +328,10 @@
     SimpleCrop.prototype.init = function () {
         //初始位置垂直水平居中
         this._initTransform = 'translate3d(-50%,-50%,0)';
-        this.$cropContent.classList.add('crop-content');
         this.$cropContent.style.position = 'absolute';
         this.$cropContent.style.left = '50%';
         this.$cropContent.style.top = '50%';
         this.$cropContent.style[transformProperty] = this._initTransform;
-        this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
 
         var width = this.imageOriginWidth / 2;
         var height = this.imageOriginHeight / 2;
@@ -372,15 +369,14 @@
     SimpleCrop.prototype.load = function () {
         var self = this;
         self.$cropContent.onload = function () {
-            self.originImage = self.$cropContent.cloneNode(true);
             EXIF.getData(self.$cropContent, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
-                self.imageOriginWidth = self.originImage.width;
-                self.imageOriginHeight = self.originImage.height;
+                self.imageOriginWidth = self.$cropContent.width;
+                self.imageOriginHeight = self.$cropContent.height;
                 //方向角大于4时，宽高互换
                 if (self._orientation > 4) {
-                    self.imageOriginWidth = self.originImage.height;
-                    self.imageOriginHeight = self.originImage.width;
+                    self.imageOriginWidth = self.$cropContent.height;
+                    self.imageOriginHeight = self.$cropContent.width;
                 }
                 self.init();
             });
@@ -389,25 +385,22 @@
 
     //显示
     SimpleCrop.prototype.show = function (image) {
-        var self = this;
         if (Object.prototype.toString.call(image) === '[object String]') { //字符串
-            self.src = image;
-            self.$cropMask.removeChild(self.$cropContent);
-            self.$cropContent = new Image();
-            self.$cropContent.src = self.src;
-            self.load();
-            self.uploadCallback();
+            this.src = image;
+            this.$cropContent.src = this.src;
+            this.load();
+            this.uploadCallback();
         } else if (Object.prototype.toString.call(image) === '[object File]') { //文件
+            var self = this;
             self.fileToSrc(image, function (src) {
                 self.src = src;
-                self.$cropMask.removeChild(self.$cropContent);
-                self.$cropContent = new Image();
                 self.$cropContent.src = self.src;
                 self.load();
                 self.uploadCallback();
             });
         }
-        self.$target.style.display = 'block';
+
+        this.$target.style.display = 'block';
     };
 
     //隐藏
@@ -688,23 +681,20 @@
         $imageCanvas.width = this.imageOriginWidth;
         $imageCanvas.height = this.imageOriginHeight;
 
-        var width = this.originImage.width;
-        var height = this.originImage.height;
-
         switch (this._orientation) {
             case 2:
                 // horizontal flip
-                imageCtx.translate(width, 0);
+                imageCtx.translate(this.imageOriginWidth, 0);
                 imageCtx.scale(-1, 1);
                 break;
             case 3:
                 // 180° rotate left
-                imageCtx.translate(width, height);
+                imageCtx.translate(this.imageOriginWidth, this.imageOriginHeight);
                 imageCtx.rotate(Math.PI);
                 break;
             case 4:
                 // vertical flip
-                imageCtx.translate(0, height);
+                imageCtx.translate(0, this.imageOriginHeight);
                 imageCtx.scale(1, -1);
                 break;
             case 5:
@@ -715,21 +705,21 @@
             case 6:
                 // 90° rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(0, -height);
+                imageCtx.translate(0, -this.imageOriginHeight);
                 break;
             case 7:
                 // horizontal flip + 90 rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(width, -height);
+                imageCtx.translate(this.imageOriginWidth, -this.imageOriginHeight);
                 imageCtx.scale(-1, 1);
                 break;
             case 8:
                 // 90° rotate left
                 imageCtx.rotate(-0.5 * Math.PI);
-                imageCtx.translate(-width, 0);
+                imageCtx.translate(-this.imageOriginWidth, 0);
                 break;
         }
-        imageCtx.drawImage(this.originImage, 0, 0, width, height);
+        imageCtx.drawImage(this.$cropContent, 0, 0, this.imageOriginWidth, this.imageOriginWidth);
 
         return $imageCanvas;
     }
