@@ -370,6 +370,7 @@
     SimpleCrop.prototype.load = function () {
         var self = this;
         self.$cropContent.onload = function () {
+            self.originImage = self.$cropContent.cloneNode(true);
             EXIF.getData(self.$cropContent, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
                 self.originWidth = self.$cropContent.width;
@@ -686,20 +687,23 @@
         $imageCanvas.width = this.originWidth;
         $imageCanvas.height = this.originHeight;
 
+        var width = this.originImage.width;
+        var height = this.originImage.height;
+
         switch (this._orientation) {
             case 2:
                 // horizontal flip
-                imageCtx.translate(this.originWidth, 0);
+                imageCtx.translate(width, 0);
                 imageCtx.scale(-1, 1);
                 break;
             case 3:
                 // 180° rotate left
-                imageCtx.translate(this.originWidth, this.originHeight);
+                imageCtx.translate(width, height);
                 imageCtx.rotate(Math.PI);
                 break;
             case 4:
                 // vertical flip
-                imageCtx.translate(0, this.originHeight);
+                imageCtx.translate(0, height);
                 imageCtx.scale(1, -1);
                 break;
             case 5:
@@ -710,21 +714,21 @@
             case 6:
                 // 90° rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(0, -this.originHeight);
+                imageCtx.translate(0, -height);
                 break;
             case 7:
                 // horizontal flip + 90 rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(this.originWidth, -this.originHeight);
+                imageCtx.translate(width, -height);
                 imageCtx.scale(-1, 1);
                 break;
             case 8:
                 // 90° rotate left
                 imageCtx.rotate(-0.5 * Math.PI);
-                imageCtx.translate(-this.originWidth, 0);
+                imageCtx.translate(-width, 0);
                 break;
         }
-        imageCtx.drawImage(this.$cropContent, 0, 0, this.originWidth, this.originWidth);
+        imageCtx.drawImage(this.originImage, 0, 0, width, height);
 
         return $imageCanvas;
     }
