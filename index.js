@@ -92,8 +92,9 @@
      * _contentCurMoveY 图片 Y 轴方向上的总位移
      * _orientation 图片元数据方向角
      * initContentPoints 图片显示区域矩形初始顶点坐标
-     * imageOriginWidth 裁剪图片原始宽度（考虑方向角）
-     * imageOriginHeight 裁剪图片原始高度（考虑方向角）
+     * originImage 原始裁剪图片
+     * originWidth 裁剪图片原始宽度（考虑方向角）
+     * originHeight 裁剪图片原始高度（考虑方向角）
      *
      * ------------------------------------
      *
@@ -333,8 +334,8 @@
         this.$cropContent.style[transformProperty] = this._initTransform;
         this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
 
-        var width = this.imageOriginWidth / 2;
-        var height = this.imageOriginHeight / 2;
+        var width = this.originWidth / 2;
+        var height = this.originHeight / 2;
         this.initContentPoints = [{
             x: -width,
             y: height
@@ -351,10 +352,10 @@
         this.contentPoints = this.initContentPoints.slice();
 
         //计算初始缩放倍数
-        if (this.size.width / this.size.height > this.imageOriginWidth / this.imageOriginHeight) {
-            this.initScale = this.size.width / this.imageOriginWidth;
+        if (this.size.width / this.size.height > this.originWidth / this.originHeight) {
+            this.initScale = this.size.width / this.originWidth;
         } else {
-            this.initScale = this.size.height / this.imageOriginHeight;
+            this.initScale = this.size.height / this.originHeight;
         }
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : this.initScale;
 
@@ -371,12 +372,12 @@
         self.$cropContent.onload = function () {
             EXIF.getData(self.$cropContent, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
-                self.imageOriginWidth = self.$cropContent.width;
-                self.imageOriginHeight = self.$cropContent.height;
+                self.originWidth = self.$cropContent.width;
+                self.originHeight = self.$cropContent.height;
                 //方向角大于4时，宽高互换
                 if (self._orientation > 4) {
-                    self.imageOriginWidth = self.$cropContent.height;
-                    self.imageOriginHeight = self.$cropContent.width;
+                    self.originWidth = self.$cropContent.height;
+                    self.originHeight = self.$cropContent.width;
                 }
                 self.init();
             });
@@ -682,23 +683,23 @@
     SimpleCrop.prototype.transformCoordinates = function () {
         var $imageCanvas = document.createElement('canvas');
         var imageCtx = $imageCanvas.getContext('2d');
-        $imageCanvas.width = this.imageOriginWidth;
-        $imageCanvas.height = this.imageOriginHeight;
+        $imageCanvas.width = this.originWidth;
+        $imageCanvas.height = this.originHeight;
 
         switch (this._orientation) {
             case 2:
                 // horizontal flip
-                imageCtx.translate(this.imageOriginWidth, 0);
+                imageCtx.translate(this.originWidth, 0);
                 imageCtx.scale(-1, 1);
                 break;
             case 3:
                 // 180° rotate left
-                imageCtx.translate(this.imageOriginWidth, this.imageOriginHeight);
+                imageCtx.translate(this.originWidth, this.originHeight);
                 imageCtx.rotate(Math.PI);
                 break;
             case 4:
                 // vertical flip
-                imageCtx.translate(0, this.imageOriginHeight);
+                imageCtx.translate(0, this.originHeight);
                 imageCtx.scale(1, -1);
                 break;
             case 5:
@@ -709,21 +710,21 @@
             case 6:
                 // 90° rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(0, -this.imageOriginHeight);
+                imageCtx.translate(0, -this.originHeight);
                 break;
             case 7:
                 // horizontal flip + 90 rotate right
                 imageCtx.rotate(0.5 * Math.PI);
-                imageCtx.translate(this.imageOriginWidth, -this.imageOriginHeight);
+                imageCtx.translate(this.originWidth, -this.originHeight);
                 imageCtx.scale(-1, 1);
                 break;
             case 8:
                 // 90° rotate left
                 imageCtx.rotate(-0.5 * Math.PI);
-                imageCtx.translate(-this.imageOriginWidth, 0);
+                imageCtx.translate(-this.originWidth, 0);
                 break;
         }
-        imageCtx.drawImage(this.$cropContent, 0, 0, this.imageOriginWidth, this.imageOriginWidth);
+        imageCtx.drawImage(this.$cropContent, 0, 0, this.originWidth, this.originWidth);
 
         return $imageCanvas;
     }
