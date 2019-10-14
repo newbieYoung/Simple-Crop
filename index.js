@@ -194,7 +194,6 @@
         this.cropCoverContext = this.$cropCover.getContext('2d');
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
-        this.$cropContent = document.querySelector('#' + this.id + ' .crop-content');
 
         this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
         this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
@@ -228,7 +227,6 @@
         }
 
         html += '<div class="crop-mask">'
-        html += '<img class="crop-content">';
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
 
@@ -328,10 +326,12 @@
     SimpleCrop.prototype.init = function () {
         //初始位置垂直水平居中
         this._initTransform = 'translate3d(-50%,-50%,0)';
+        this.$cropCover.classList.add('crop-content');
         this.$cropContent.style.position = 'absolute';
         this.$cropContent.style.left = '50%';
         this.$cropContent.style.top = '50%';
         this.$cropContent.style[transformProperty] = this._initTransform;
+        this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
 
         var width = this.imageOriginWidth / 2;
         var height = this.imageOriginHeight / 2;
@@ -385,22 +385,26 @@
 
     //显示
     SimpleCrop.prototype.show = function (image) {
+        var self = this;
         if (Object.prototype.toString.call(image) === '[object String]') { //字符串
-            this.src = image;
-            this.$cropContent.src = this.src;
-            this.load();
-            this.uploadCallback();
+            self.src = image;
+            self.$cropContent = new Image();
+            self.$cropContent.src = self.src;
+            self.load();
+            self.uploadCallback();
         } else if (Object.prototype.toString.call(image) === '[object File]') { //文件
-            var self = this;
             self.fileToSrc(image, function (src) {
                 self.src = src;
+                self.$cropContent = new Image();
                 self.$cropContent.src = self.src;
                 self.load();
                 self.uploadCallback();
             });
         }
-
-        this.$target.style.display = 'block';
+        if (self.$cropContent) {
+            self.$cropMask.removeChild(self.$cropContent);
+        }
+        self.$target.style.display = 'block';
     };
 
     //隐藏
