@@ -789,7 +789,7 @@
         };
 
         //带有方向角度的图片绘制到 canvas 之前需要进行坐标转换
-        //var $coorCanvas = this.transformCoordinates();
+        var $coorCanvas = this.transformCoordinates();
 
         //绘制图片
         var imageRect = {
@@ -812,7 +812,7 @@
         var imageCtx = $imageCanvas.getContext('2d');
         imageCtx._setTransformOrigin(center.x, center.y); //中心点
         imageCtx._rotate(this.rotateAngle);
-        imageCtx.drawImage(self.$cropContent, imageInitRect.left, imageInitRect.top, imageInitRect.width, imageInitRect.height);
+        imageCtx.drawImage($coorCanvas, imageInitRect.left, imageInitRect.top, imageInitRect.width, imageInitRect.height);
 
         //计算裁剪位置并截图
         var _cropRect = {
