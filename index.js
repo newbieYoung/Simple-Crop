@@ -363,11 +363,23 @@
         }
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : this.initScale;
 
-        this.scaleTimes = this.initScale;
+        //重置动态操作变量
+        this.reset();
+    }
+
+    //重置
+    SimpleCrop.prototype.reset = function () {
+        this.startControl();
+        this._rotateScale = 1;
+        this._baseAngle = 0;
+        this.rotateAngle = 0;
         this._contentCurMoveX = -this.positionOffset.left;
         this._contentCurMoveY = -this.positionOffset.top;
-
+        this.$lineation.setAttribute('moveX', this._baseMoveX);
+        this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+        this.scaleTimes = this.initScale;
         this.transform();
+        this.endControl();
     }
 
     //加载图片
@@ -464,17 +476,7 @@
         if (self.funcBtns.includes('reset')) {
             self.$cropReset = document.querySelector('#' + self.id + ' .crop-reset');
             self.$cropReset.addEventListener('click', function () {
-                self.startControl();
-                self._rotateScale = 1;
-                self._baseAngle = 0;
-                self.rotateAngle = 0;
-                self._contentCurMoveX = -self.positionOffset.left;
-                self._contentCurMoveY = -self.positionOffset.top;
-                self.$lineation.setAttribute('moveX', self._baseMoveX);
-                self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
-                self.scaleTimes = self.initScale;
-                self.transform();
-                self.endControl();
+                self.reset();
             })
         }
 
