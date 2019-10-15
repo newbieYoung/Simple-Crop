@@ -377,8 +377,10 @@
         this.rotateAngle = 0;
         this._contentCurMoveX = -this.positionOffset.left;
         this._contentCurMoveY = -this.positionOffset.top;
-        this.$lineation.setAttribute('moveX', this._baseMoveX);
-        this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+        if (this.$lineation) {
+            this.$lineation.setAttribute('moveX', this._baseMoveX);
+            this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+        }
         this.scaleTimes = this.initScale;
         this.transform();
         this.endControl();
