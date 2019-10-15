@@ -147,9 +147,9 @@
         this.coverDraw = params.coverDraw != null ? params.coverDraw : this.defaultCoverDraw;
         this.borderDraw = params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
         this.noBoldCorner = params.noBoldCorner != null ? params.noBoldCorner : false; //裁剪框边角是否不加粗
-        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.5)'; //遮罩框背景颜色
+        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)'; //遮罩框背景颜色
         this.$container = params.$container != null ? params.$container : document.body; //组件容器
-        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : true;
+        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false; //滑动缩放控制条
         this.positionOffset = params.positionOffset != null ? params.positionOffset : {
             top: 0,
             left: 0
@@ -163,7 +163,7 @@
          * gapAngle 间隔度数
          * lineationItemWidth 单个刻度盘宽度，单位像素
          */
-        this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : false;
+        this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //滑动旋转控制条
         this.startAngle = params.startAngle != null ? params.startAngle : -90;
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
         this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
@@ -178,12 +178,14 @@
         this.controller = params.controller != null ? params.controller : ['touch'];
 
         /**
-         * 默认功能按钮为重新上传、裁剪
+         * 默认功能按钮为取消、裁剪、90度旋转、重置
          * upload 重新上传
          * crop 裁减
          * close 取消
+         * around 90度旋转
+         * reset 重置
          */
-        this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'upload', 'crop'];
+        this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
 
         this.construct();
 

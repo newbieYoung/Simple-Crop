@@ -30,16 +30,11 @@
                 width: 1000,
                 height: 600
             },
-            borderWidth: 1,
             cropSizePercent: 0.9,
             positionOffset: {
                 left: offsetLeft,
                 top: offsetTop
             },
-            coverColor: 'rgba(0,0,0,.3)',
-            funcBtns: ['close', 'crop', 'around', 'reset'],
-            scaleSlider: false,
-            rotateSlider: true,
             cropCallback: function () {
                 this.$resultCanvas.style.marginRight = '10px';
                 this.$resultCanvas.style.width = '50%';
