@@ -9,6 +9,7 @@
     "prefix-umd": "^1.0.0"
   },
   "devDependencies": {
+    "eslint": "^6.5.1",
     "gulp": "^3.9.1",
     "gulp-base64": "^0.1.3",
     "vconsole": "^3.3.4"

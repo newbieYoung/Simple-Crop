@@ -119,7 +119,9 @@
                 }
             })
             window.addEventListener('test', null, options)
-        } catch (err) {}
+        } catch (err) {
+            //nothing
+        }
 
         this.id = 'crop-' + new Date().getTime();
         this.title = params.title;
@@ -555,12 +557,12 @@
             //滑动按钮鼠标松开
             self.$scaleContainer.addEventListener('mouseup', self.endControl.bind(self));
             //最小缩放按钮点击
-            self.$scaleOneTimes.addEventListener('click', function (ev) {
+            self.$scaleOneTimes.addEventListener('click', function () {
                 self.scaleMove(0);
                 self.endControl();
             });
             //最大缩放按钮点击
-            self.$scaleTwoTimes.addEventListener('click', function (ev) {
+            self.$scaleTwoTimes.addEventListener('click', function () {
                 self.scaleMove(self.scaleWidth);
                 self.endControl();
             });
@@ -847,8 +849,8 @@
     //操作结束
     SimpleCrop.prototype.endControl = function () {
         if (this._isControl) {
-            this._isControl = false;
             var self = this;
+            this._isControl = false;
             this._downPoint = [];
             this.scaleDownX = 0;
 
@@ -875,7 +877,6 @@
                     var no = 0;
                     var tr = this._initTransform + transform + coverTrAr[no];
                     this.$cropContent.style[transformProperty] = tr;
-                    var self = this;
                     this.$cropContent.addEventListener(transitionEndEvent, function () {
                         no++;
                         if (no < coverTr.length) {
@@ -1163,7 +1164,6 @@
                     iv.x += pcv.rproj.x * rOver;
                     iv.y += pcv.rproj.y * rOver;
                 }
-                var ivLen = this.vecLen(iv);
                 outDetails.push({
                     x: pt.x,
                     y: pt.y,
