@@ -760,7 +760,7 @@
             x: points2[0].x,
             y: points2[0].y
         };
-        for (var i = 0; i < points2.length; i++) {
+        for (var i = 0; i < points2.length; i++) { //最大y、最小x
             if (points2[i].x < origin.x) {
                 origin.x = points2[i].x;
             }
@@ -809,7 +809,7 @@
             width: 0,
             height: 0
         };
-        for (var i = 0; i < points2.length; i++) {
+        for (var i = 0; i < points2.length; i++) { //最大x、最大y
             if (points2[i].x > imageRect.width) {
                 imageRect.width = points2[i].x;
             }
