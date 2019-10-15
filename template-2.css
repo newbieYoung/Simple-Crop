@@ -1,75 +1,81 @@
 @font-face {
     font-family: DINCondensed-Bold;
-    src: url(./font/DIN_Condensed_Bold.woff.ttf);
+    src: url(./font/DIN_Condensed_Bold.ttf);
 }
-.crop-whole-cover{
+
+.crop-whole-cover {
     position: fixed;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    background-color:#5c5c5c;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #5c5c5c;
 }
-.crop-component{
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
-    margin:auto;
+
+.crop-component {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    margin: auto;
 }
-.crop-component .crop-mask{
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
+
+.crop-component .crop-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 }
-.crop-component .crop-cover{
+
+.crop-component .crop-cover {
     position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* 旋转 */
-.crop-component .crop-rotate{
-    width:92%;
-    height:66px;
-    position:absolute;
-    bottom:68px;
-    left:0;
-    right:0;
-    margin:auto;
-    overflow:hidden;
-    -webkit-mask-image: linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.64) 50%, rgba(255,255,255,0.00) 100%);
-    mask-image: linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.64) 50%, rgba(255,255,255,0.00) 100%);
+.crop-component .crop-rotate {
+    width: 92%;
+    height: 66px;
+    position: absolute;
+    bottom: 68px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
+    mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
 }
-.crop-component .crop-rotate .current{
-    margin:auto;
-    width:0;
-    height:0;
+
+.crop-component .crop-rotate .current {
+    margin: auto;
+    width: 0;
+    height: 0;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-bottom: 9px solid #D8D8D8;
-    border-radius:1px;
+    border-radius: 1px;
 }
-.crop-component .crop-rotate .lineation{
-    height:50px;
-    display:flex;
+
+.crop-component .crop-rotate .lineation {
+    height: 50px;
+    display: flex;
     justify-content: flex-start;
     align-items: center;
-    font-size:0;
-    margin:0;
-    padding:0 0 8px 0;
+    font-size: 0;
+    margin: 0;
+    padding: 0 0 8px 0;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -77,96 +83,103 @@
     -ms-user-select: none;
     user-select: none;
 }
-.crop-component .crop-rotate .lineation li{
-    flex:1;
-    height:100%;
-    display:inline-block;
+
+.crop-component .crop-rotate .lineation li {
+    flex: 1;
+    height: 100%;
+    display: inline-block;
 }
-.crop-component .crop-rotate .lineation .number{
-    width:100%;
-    height:32px;
-    font-size:16px;
+
+.crop-component .crop-rotate .lineation .number {
+    width: 100%;
+    height: 32px;
+    font-size: 16px;
     line-height: 36px;
     text-align: center;
     font-family: DINCondensed-Bold;
-    overflow:hidden;
-    color:#fff;
+    overflow: hidden;
+    color: #fff;
 }
-.crop-component .crop-rotate .lineation .bg{
-    width:100%;
-    height:18px;
-    background-image:url(./img/lineation-bg.png);
-    background-size:contain;
+
+.crop-component .crop-rotate .lineation .bg {
+    width: 100%;
+    height: 18px;
+    background-image: url(./img/lineation-bg.png);
+    background-size: contain;
     background-repeat: no-repeat;
 }
 
 /* 功能按钮 */
-.crop-component .crop-btns{
-    position:absolute;
-    bottom:16px;
-    width:100%;
-    height:24px;
-    display:flex;
+.crop-component .crop-btns {
+    position: absolute;
+    bottom: 16px;
+    width: 100%;
+    height: 24px;
+    display: flex;
     justify-content: flex-start;
     align-items: center;
 }
-.crop-component .crop-btns button{
-    flex:1;
-    background-color:transparent;
-    border:none;
-    padding:0;
-    display:inline-block;
-    margin:auto;
+
+.crop-component .crop-btns button {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    display: inline-block;
+    margin: auto;
     position: relative;
 }
-.crop-component .crop-btns button:after{
+
+.crop-component .crop-btns button:after {
     position: absolute;
-    top:0;
-    bottom:0;
-    margin:auto;
-    content:'';
-    display:inline-block;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    content: '';
+    display: inline-block;
 }
-.crop-component .crop-close:after{
-    left:16px;
-    width:18px;
-    height:18px;
-    background-image:url(./img/crop-close-white.png);
-    background-size:100% 100%;
+
+.crop-component .crop-close:after {
+    left: 16px;
+    width: 18px;
+    height: 18px;
+    background-image: url(./img/crop-close-white.png);
+    background-size: 100% 100%;
 }
-.crop-component .crop-btn:after{
-    right:16px;
-    width:21px;
-    height:15px;
-    background-image:url(./img/crop-btn.png);
-    background-size:100% 100%;
+
+.crop-component .crop-btn:after {
+    right: 16px;
+    width: 21px;
+    height: 15px;
+    background-image: url(./img/crop-btn.png);
+    background-size: 100% 100%;
 }
-.crop-component .crop-reset:after{
-    left:0;
-    right:-20%;
-    width:22px;
-    height:19px;
-    background-image:url(./img/crop-reset.png);
-    background-size:100% 100%;
+
+.crop-component .crop-reset:after {
+    left: 0;
+    right: -20%;
+    width: 22px;
+    height: 19px;
+    background-image: url(./img/crop-reset.png);
+    background-size: 100% 100%;
 }
-.crop-component .crop-around:after{
-    right:0;
-    left:-20%;
-    width:18px;
-    height:22px;
-    background-image:url(./img/crop-rotate.png);
-    background-size:100% 100%;
+
+.crop-component .crop-around:after {
+    right: 0;
+    left: -20%;
+    width: 18px;
+    height: 22px;
+    background-image: url(./img/crop-rotate.png);
+    background-size: 100% 100%;
 }
 
 /* iphoneX */
-@media only screen
-and (device-width : 375px)
-and (device-height : 812px)
-and (-webkit-device-pixel-ratio : 3) {
-    .crop-component .crop-btns{
+@media only screen and (device-width : 375px) and (device-height : 812px) and (-webkit-device-pixel-ratio : 3) {
+    .crop-component .crop-btns {
         bottom: 43px;
     }
-    .crop-component .crop-rotate{
+
+    .crop-component .crop-rotate {
         bottom: 95px;
     }
 }
