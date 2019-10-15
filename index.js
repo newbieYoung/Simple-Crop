@@ -817,18 +817,19 @@
                 imageRect.height = points2[i].y;
             }
         }
+
         var $imageCanvas = document.createElement('canvas');
-        $imageCanvas.width = imageRect.width;
-        $imageCanvas.height = imageRect.height;
+        $imageCanvas.width = $coorCanvas.width;
+        $imageCanvas.height = $coorCanvas.height;
         var imageCtx = $imageCanvas.getContext('2d');
-        imageCtx._setTransformOrigin(center.x, center.y); //中心点
+        imageCtx._setTransformOrigin(center.x - imageInitRect.left, center.y - imageInitRect.top); //中心点
         imageCtx._rotate(this.rotateAngle);
-        imageCtx.drawImage($coorCanvas, imageInitRect.left, imageInitRect.top, imageInitRect.width, imageInitRect.height);
+        imageCtx.drawImage($coorCanvas, 0, 0, $coorCanvas.width, $coorCanvas.height);
 
         //计算裁剪位置并截图
         var _cropRect = {
-            left: points1[0].x,
-            top: points1[0].y,
+            left: points1[0].x - imageInitRect.left,
+            top: points1[0].y - imageInitRect.top,
             width: points1[1].x - points1[0].x,
             height: points1[3].y - points1[0].y
         };
