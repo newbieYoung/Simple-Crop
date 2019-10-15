@@ -10,7 +10,8 @@
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-base64": "^0.1.3"
+    "gulp-base64": "^0.1.3",
+    "vconsole": "^3.3.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

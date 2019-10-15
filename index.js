@@ -429,6 +429,7 @@
             self.$cropBtn.addEventListener('click', function () {
                 self.getCropImage();
                 self.cropCallback();
+                self.hide();
             });
         }
 
