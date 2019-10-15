@@ -392,7 +392,7 @@
     //显示
     SimpleCrop.prototype.show = function (image) {
         var self = this;
-        if (self.$cropContent) {
+        if (self.$cropContent && image != null) {
             self.$cropMask.removeChild(self.$cropContent);
         }
         if (Object.prototype.toString.call(image) === '[object String]') { //字符串
