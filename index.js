@@ -157,24 +157,25 @@
 
         /**
          * 旋转刻度盘
+         * 移动端优先，旋转刻度盘默认为移动端参数值
          * startAngle 起始度数
          * endAngle 结束度数
          * gapAngle 间隔度数
          * lineationItemWidth 单个刻度盘宽度，单位像素
          */
         this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : false;
-        this.startAngle = -90;
-        this.endAngle = 90;
-        this.gapAngle = 10;
-        this.lineationItemWidth = 40.5;
+        this.startAngle = params.startAngle != null ? params.startAngle : -90;
+        this.endAngle = params.endAngle != null ? params.endAngle : 90;
+        this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
+        this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
 
         /**
          * 操控方式
-         * 默认只支持鼠标操控
+         * 移动端优先，默认操作方式为手指触摸
          * mouse 鼠标
          * touch 手指
          */
-        this.controller = params.controller != null ? params.controller : ['mouse'];
+        this.controller = params.controller != null ? params.controller : ['touch'];
 
         /**
          * 默认功能按钮为重新上传、裁剪
