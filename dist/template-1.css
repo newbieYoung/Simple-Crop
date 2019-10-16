@@ -1,35 +1,36 @@
-.crop-component{
-    width:800px;
-    height:839px;
+.crop-component {
+    width: 800px;
+    height: 839px;
     background: #FFFFFF;
-    -webkit-box-shadow: 0 4px 16px 0 rgba(0,0,0,0.22);
-    box-shadow: 0 4px 16px 0 rgba(0,0,0,0.22);
+    -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
     border-radius: 4px;
-    font-size:0;
+    font-size: 0;
     position: fixed;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    margin:auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
 }
-.crop-whole-cover{
+
+.crop-whole-cover {
     position: fixed;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    background-color:rgba(0,0,0,.6)
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .6)
 }
 
 /* 标题 */
-.crop-component .crop-title{
-    margin:0;
-    padding:0;
-    display:inline-block;
-    width:100%;
+.crop-component .crop-title {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    width: 100%;
     line-height: 50px;
-    height:50px;
+    height: 50px;
     text-align: center;
     font-size: 16px;
     color: #222222;
@@ -37,155 +38,173 @@
 }
 
 /* 画布 */
-.crop-component .crop-mask{
-    width:100%;
-    height:600px;
-    background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYEBAQFBAYFBQYJBgUGCQsIBgYICwwKCgsKCgwQDAwMDAwMEAwODxAPDgwTExQUExMcGxsbHB8fHx8fHx8fHx8BBwcHDQwNGBAQGBoVERUaHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fH//AABEIABgAGAMBEQACEQEDEQH/xABaAAEBAQAAAAAAAAAAAAAAAAAEAAgQAAEACQUAAAAAAAAAAAAAAAAFERVDY4KiweESEzRRkQEBAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A1SAJJO5rACAa0odWALmw9uZerzoCZsSnIAgGo15LcBoH/9k=);
-    background-repeat:repeat;
+.crop-component .crop-mask {
+    width: 100%;
+    height: 600px;
+    background-image: url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYEBAQFBAYFBQYJBgUGCQsIBgYICwwKCgsKCgwQDAwMDAwMEAwODxAPDgwTExQUExMcGxsbHB8fHx8fHx8fHx8BBwcHDQwNGBAQGBoVERUaHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fH//AABEIABgAGAMBEQACEQEDEQH/xABaAAEBAQAAAAAAAAAAAAAAAAAEAAgQAAEACQUAAAAAAAAAAAAAAAAFERVDY4KiweESEzRRkQEBAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A1SAJJO5rACAa0odWALmw9uZerzoCZsSnIAgGo15LcBoH/9k=);
+    background-repeat: repeat;
     position: relative;
-    cursor:move;
+    cursor: move;
     overflow: hidden;
 }
-.crop-component .crop-cover{
+
+.crop-component .crop-cover {
     position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
-    cursor:move;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    cursor: move;
 }
 
 /* 缩放 */
-.crop-component .crop-scale{
-    font-size:0;
-    width:100%;
-    height:80px;
-    border-bottom:1px solid #CCC;
-    display:-webkit-box;
-    display:-ms-flexbox;
-    display:flex;
-    /* 主轴对齐方式 */
-    -webkit-box-pack:center;
-    -ms-flex-pack:center;
-    justify-content:center;
-    /* 交叉轴对齐方式 */
-    -webkit-box-align:center;
-    -ms-flex-align:center;
-    align-items:center;
-}
-.crop-component .crop-scale .one-times-icon{
-    display:inline-block;
-    width:16px;
-    height:13px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAQAAAAKsiavAAAAXklEQVR42mNg28r6Hzdk28rA+p8BD2D9T6wCtq1sWwkp2EKcFfIMaxiOM0ThUqDM8IjhPxg2YlOAkAbBWQzMqApQpUFwAwMnQgGmNAgeYYEqwC4Ngaz/8Ur/ZyAUFwBk/nILZQYsUQAAAABJRU5ErkJggg==);
-    background-size:100% 100%;
-    cursor:pointer;
-}
-.crop-component .crop-scale .two-times-icon{
-    display:inline-block;
-    width:22px;
-    height:17px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAQAAABzuJQIAAAAe0lEQVR42r3OMRJAQBAEwKF29xECoZ/6Ed+Qk0uk94BRlMJx3JXATtoztbBWmRZroETiKX/AVquzOhGrU6r7upyjhKT9XKADMaCK4wI9uGY8eBgf1OMh7NMTv+M73fkVh+nGffxMVy4n/E4JZjuOUkxCWKOUpRVZFVo7A34dsBPvGarIAAAAAElFTkSuQmCC);
-    background-size:100% 100%;
-    cursor:pointer;
-}
-.crop-component .crop-scale .scale-container{
-    position: relative;
-    width:280px;
-    height:30px;
-    cursor:pointer;
-    margin-left:15px;
-    margin-right:15px;
-}
-.crop-component .crop-scale .scale-num{
-    display:inline-block;
-    width:280px;
-    height:3px;
-    background-color:#D8D8D8;
-    border-radius: 1px;
-    position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    margin:auto;
-}
-.crop-component .crop-scale .scale-value{
-    display:inline-block;
-    height:100%;
-    background-color: #222;
-    border-radius: 1px;
-}
-.crop-component .crop-scale .scale-btn{
-    position: absolute;
-    top:-7px;
-    display:inline-block;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    width:17px;
-    height:17px;
-    border-radius:17px;
-    background-color: #FFF;
-    border: 1px solid #F2F2F2;
-    -webkit-box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
-    box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
-}
-
-/* 功能按钮 */
-.crop-component .crop-btns{
-    width:100%;
-    height:109px;
-    font-size:0;
+.crop-component .crop-scale {
+    font-size: 0;
+    width: 100%;
+    height: 80px;
+    border-bottom: 1px solid #CCC;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     /* 主轴对齐方式 */
-    -webkit-box-pack:center;
-    -ms-flex-pack:center;
-    justify-content:center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     /* 交叉轴对齐方式 */
-    -webkit-box-align:center;
-    -ms-flex-align:center;
-    align-items:center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
 }
+
+.crop-component .crop-scale .one-times-icon {
+    display: inline-block;
+    width: 16px;
+    height: 13px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAQAAAAKsiavAAAAXklEQVR42mNg28r6Hzdk28rA+p8BD2D9T6wCtq1sWwkp2EKcFfIMaxiOM0ThUqDM8IjhPxg2YlOAkAbBWQzMqApQpUFwAwMnQgGmNAgeYYEqwC4Ngaz/8Ur/ZyAUFwBk/nILZQYsUQAAAABJRU5ErkJggg==);
+    background-size: 100% 100%;
+    cursor: pointer;
+}
+
+.crop-component .crop-scale .two-times-icon {
+    display: inline-block;
+    width: 22px;
+    height: 17px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAQAAABzuJQIAAAAe0lEQVR42r3OMRJAQBAEwKF29xECoZ/6Ed+Qk0uk94BRlMJx3JXATtoztbBWmRZroETiKX/AVquzOhGrU6r7upyjhKT9XKADMaCK4wI9uGY8eBgf1OMh7NMTv+M73fkVh+nGffxMVy4n/E4JZjuOUkxCWKOUpRVZFVo7A34dsBPvGarIAAAAAElFTkSuQmCC);
+    background-size: 100% 100%;
+    cursor: pointer;
+}
+
+.crop-component .crop-scale .max-scale {
+    font-size: 16px;
+    color: #000;
+    margin-left: 5px;
+}
+
+.crop-component .crop-scale .scale-container {
+    position: relative;
+    width: 280px;
+    height: 30px;
+    cursor: pointer;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.crop-component .crop-scale .scale-num {
+    display: inline-block;
+    width: 280px;
+    height: 3px;
+    background-color: #D8D8D8;
+    border-radius: 1px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.crop-component .crop-scale .scale-value {
+    display: inline-block;
+    height: 100%;
+    background-color: #222;
+    border-radius: 1px;
+}
+
+.crop-component .crop-scale .scale-btn {
+    position: absolute;
+    top: -7px;
+    display: inline-block;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 17px;
+    height: 17px;
+    border-radius: 17px;
+    background-color: #FFF;
+    border: 1px solid #F2F2F2;
+    -webkit-box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.20);
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.20);
+}
+
+/* 功能按钮 */
+.crop-component .crop-btns {
+    width: 100%;
+    height: 109px;
+    font-size: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    /* 主轴对齐方式 */
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    /* 交叉轴对齐方式 */
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
 .crop-component .crop-btns .crop-btn,
-.crop-component .crop-btns .upload-btn{
-    width:180px;
-    height:48px;
+.crop-component .crop-btns .upload-btn {
+    width: 180px;
+    height: 48px;
     border: 1px solid #222222;
     border-radius: 48px;
-    cursor:pointer;
+    cursor: pointer;
     position: relative;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
-.crop-component .crop-btns .upload-btn-container{
-    width:180px;
-    height:48px;
+
+.crop-component .crop-btns .upload-btn-container {
+    width: 180px;
+    height: 48px;
     position: relative;
 }
-.crop-component .crop-btns .upload-btn{
-    background-color:#fff;
-    position:relative;
+
+.crop-component .crop-btns .upload-btn {
+    background-color: #fff;
+    position: relative;
 }
-.crop-component .crop-btns .upload-btn:after{
-    content:'重新上传';
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
+
+.crop-component .crop-btns .upload-btn:after {
+    content: '重新上传';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     font-size: 18px;
     color: #222;
     text-align: center;
     line-height: 48px;
 
 }
-.crop-component .crop-btns .upload-btn-container input{
+
+.crop-component .crop-btns .upload-btn-container input {
     position: absolute;
     top: 0;
     left: 0;
@@ -196,35 +215,38 @@
     opacity: 0;
     cursor: pointer;
 }
-.crop-component .crop-btns .crop-btn{
-    position:relative;
-    background-color:#000;
-    margin-left:27px;
+
+.crop-component .crop-btns .crop-btn {
+    position: relative;
+    background-color: #000;
+    margin-left: 27px;
 }
-.crop-component .crop-btns .crop-btn:after{
+
+.crop-component .crop-btns .crop-btn:after {
     text-align: center;
     color: #FFF;
     line-height: 48px;
     font-size: 18px;
-    content:'确定裁剪';
-    position:absolute;
-    display:inline-block;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
-}
-.crop-component .crop-btns .crop-close{
-    display:inline-block;
-    width:14px;
-    height:14px;
+    content: '确定裁剪';
     position: absolute;
-    right:32px;
-    top:18px;
-    background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAgklEQVR42m3QsRFAQBCF4VeAlFyiCE2oQC9iHew7IxAIrovrQaYEHQgwZxh3ezb9Nvh3AbC2GZJhZUqwlpPLmMdkGtm5wmZcNHuSUzoAYx7zQ/2zGbKikIc2oYCPH/IztDdtuvzL2H4OezN0uYpXrOMDZpXGT4VncTAl1/tRiFkc5wuPN4DZROZKrAAAAABJRU5ErkJggg==);
-    background-size:100% 100%;
-    cursor:pointer;
-    border:none;
+    display: inline-block;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.crop-component .crop-btns .crop-close {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    right: 32px;
+    top: 18px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAgklEQVR42m3QsRFAQBCF4VeAlFyiCE2oQC9iHew7IxAIrovrQaYEHQgwZxh3ezb9Nvh3AbC2GZJhZUqwlpPLmMdkGtm5wmZcNHuSUzoAYx7zQ/2zGbKikIc2oYCPH/IztDdtuvzL2H4OezN0uYpXrOMDZpXGT4VncTAl1/tRiFkc5wuPN4DZROZKrAAAAABJRU5ErkJggg==);
+    background-size: 100% 100%;
+    cursor: pointer;
+    border: none;
 }

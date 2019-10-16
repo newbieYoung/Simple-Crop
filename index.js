@@ -247,6 +247,7 @@
             html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
             html += '</div>';
             html += '<div class="two-times-icon"></div>';
+            html += '<div class="max-scale"></div>'
             html += '</div>';
         }
 
@@ -366,7 +367,9 @@
         } else {
             this.initScale = this.size.height / this.originHeight;
         }
-        this.maxScale = this.initScale < this.maxScale ? this.maxScale : this.initScale;
+        this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
+        this.$maxScale = document.querySelector('#' + this.id + ' .max-scale');
+        this.$maxScale.innerText = '(x' + this.maxScale + ')';
 
         //重置动态操作变量
         this.reset();
@@ -380,9 +383,15 @@
         this.rotateAngle = 0;
         this._contentCurMoveX = -this.positionOffset.left;
         this._contentCurMoveY = -this.positionOffset.top;
-        if (this.$lineation) {
+        if (this.rotateSlider) {
             this.$lineation.setAttribute('moveX', this._baseMoveX);
             this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+        }
+        if (this.scaleSlider) {
+            this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
+            this.$scaleValue.style.width = '0px';
+            this.$scaleBtn.setAttribute('moveX', 0);
+            this.scaleCurLeft = this.scaleInitLeft;
         }
         this.scaleTimes = this.initScale;
         this.transform();

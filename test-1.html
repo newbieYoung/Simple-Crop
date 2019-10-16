@@ -21,13 +21,16 @@
                     width: 800,
                     height: 900
                 },
+                maxScale: 2,
                 controller: ['mouse'],
                 borderWidth: 2,
                 funcBtns: ['close', 'crop', 'upload'],
                 borderColor: '#0BFF00',
                 coverColor: 'rgba(0,0,0,.5)',
                 scaleSlider: true,
-                rotateSlider: false,
+                startAngle: 0,
+                endAngle: 360,
+                gapAngle: 10,
                 cropCallback: function () {
                     this.$resultCanvas.style.marginRight = '10px';
                     this.$resultCanvas.style.width = '50%';
