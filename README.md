@@ -6,7 +6,7 @@
 
 - `Croppie`：[https://github.com/foliotek/croppie](https://github.com/foliotek/croppie)
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-2.jpg">
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-2.jpg">
  
 只支持旋转固定角度。
 
@@ -29,13 +29,13 @@ npm install simple-crop
 
 ### 移动端示例
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-0.jpg">
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-0.jpg">
 
 > 左侧是 IOS 系统自带的图片裁剪功能，右侧为组件的示例一；
 
 可以扫描二维码体验：
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-1.png">
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-1.png">
 
 或者访问以下链接：
 
@@ -111,7 +111,7 @@ simpleCrop.show('./img/test3.jpg')
 
 如图：
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWebArticles/master/images/simple-crop-11.jpg">
+<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-11.jpg">
 
 请访问以下链接[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
 
