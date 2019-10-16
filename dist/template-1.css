@@ -1,17 +1,11 @@
 .crop-component {
     width: 800px;
-    height: 839px;
     background: #FFFFFF;
     -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
     border-radius: 4px;
     font-size: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+    position: relative;
 }
 
 .crop-whole-cover {
@@ -20,7 +14,10 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, .6)
+    background-color: rgba(0, 0, 0, .6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 标题 */
@@ -59,11 +56,77 @@
     cursor: move;
 }
 
+/* 旋转 */
+.crop-component .crop-rotate {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    top: 584px;
+    width: 92%;
+    height: 66px;
+    margin: auto;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
+    mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
+}
+
+.crop-component .crop-rotate .current {
+    margin: auto;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 9px solid #D8D8D8;
+    border-radius: 1px;
+}
+
+.crop-component .crop-rotate .lineation {
+    height: 50px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 0;
+    margin: 0;
+    padding: 0 0 8px 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.crop-component .crop-rotate .lineation li {
+    flex: 1;
+    height: 100%;
+    display: inline-block;
+}
+
+.crop-component .crop-rotate .lineation .number {
+    width: 100%;
+    height: 32px;
+    font-size: 16px;
+    line-height: 36px;
+    text-align: center;
+    font-family: DINCondensed-Bold;
+    overflow: hidden;
+    color: #fff;
+}
+
+.crop-component .crop-rotate .lineation .bg {
+    width: 100%;
+    height: 18px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFEAAAAkCAQAAABbaR7PAAAA3ElEQVR42u2YMQ6DMAxFfSOuVRjKWSBsyRT3nq9zFxvJpEQoGbEUvTzs6CsiFy4mdnYm6Xexoyhbz4iViqJ9IypKHRYvsDgQ+0dkZjHrK2sM0d5BhMUmEA4Os54pDuLHnmgK2SFINmJyEXPQYrEO6Us6YzGKmKMWPcTi/ujmFpN9BtdibW/xH72Y2/Ziub8XU/jSiVtMLS2qn3Tut1jbW7xiXB5gsfQ/0eGru/uJfgRi+6s7nHRGXhx5ceTFkRdHXnxUXtyoKHtbizOz89zxNqonHpLtHURYeP1++QJbckm6SmQBuQAAAABJRU5ErkJggg==);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
 /* 缩放 */
 .crop-component .crop-scale {
     font-size: 0;
     width: 100%;
-    height: 80px;
+    height: 60px;
     border-bottom: 1px solid #CCC;
     display: -webkit-box;
     display: -ms-flexbox;
