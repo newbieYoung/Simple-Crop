@@ -295,6 +295,7 @@
         this.$target.innerHTML = html;
         this.$target.style.zIndex = this.zIndex;
         this.$container.appendChild(this.$target);
+        this.targetDisplay = window.getComputedStyle(this.$target).getPropertyValue('display');
     };
 
     //默认绘制裁剪框
@@ -440,7 +441,7 @@
                 self.uploadCallback();
             });
         }
-        self.$target.style.display = 'block';
+        self.$target.style.display = self.targetDisplay;
     };
 
     //隐藏
