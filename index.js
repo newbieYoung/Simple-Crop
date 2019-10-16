@@ -662,13 +662,25 @@
             //复杂手势事件
             var lastScale = 1;
             new finger(self.$container, {
-                multipointStart: function () {
+                multipointStart: function (evt) {
                     self._multiPoint = true; //多点触摸开始
+                    var touches = evt.touches;
+                    var center = {
+                        clientX: (touches[0].clientX + touches[1].clientX) / 2,
+                        clientY: (touches[0].clientY + touches[1].clientY) / 2
+                    }
+                    self.fingerCenter = { //双指操作触摸点中心
+                        x: center.clientX - self.maskViewSize.width / 2,
+                        y: self.maskViewSize.height / 2 - center.clientY
+                    }
                 },
                 pinch: function (evt) { //缩放
                     if (self._multiPoint) {
                         var scale = evt.zoom;
                         self.scaleTimes = self.scaleTimes / lastScale * scale;
+                        var translate = self.getFingerScaleTranslate(scale / lastScale);
+                        self._contentCurMoveX -= translate.translateX;
+                        self._contentCurMoveY += translate.translateY;
                         lastScale = scale;
                         self.transform(false, true);
                     }
@@ -698,6 +710,24 @@
             self.$cropMask.addEventListener('mouseleave', self.endControl.bind(self));
         }
     };
+
+    //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
+    SimpleCrop.prototype.getFingerScaleTranslate = function (scale) {
+        var fingerPoints = []; //以双指中心缩放的新坐标
+        var center = this.getPointsCenter(this.contentPoints); //中心点不变
+        for (var i = 0; i < this.contentPoints.length; i++) {
+            var point = this.contentPoints[i];
+            fingerPoints.push({
+                x: point.x * scale - this.fingerCenter.x * (scale - 1),
+                y: point.y * scale - this.fingerCenter.y * (scale - 1)
+            })
+        }
+        var newCenter = this.getPointsCenter(fingerPoints);
+        return {
+            translateX: center.x - newCenter.x,
+            translateY: center.y - newCenter.y
+        }
+    }
 
     //处理方向角坐标系
     SimpleCrop.prototype.transformCoordinates = function () {
