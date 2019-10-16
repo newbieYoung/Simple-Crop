@@ -70,6 +70,8 @@
      * @param positionOffset 裁剪框屏幕偏移
      * @param $container 容器
      * @param scaleSlider 是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）
+     * @param borderWidth 裁剪区域边框屏幕宽度
+     * @param borderColor 裁剪框边框颜色
      * ------------------------------------
      * 浏览器属性
      * @param isSupportTouch 是否支持 touch 事件
@@ -98,13 +100,11 @@
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
-     * @param borderColor 裁剪框边框颜色
      * @param debug 调试模式
      *
      * ------------------------------------
      *
      * 为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸
-     * borderWidth 裁剪区域边框屏幕宽度
      * maskViewSize 容器的屏幕尺寸
      * cropRect 截图区域的屏幕尺寸
      * cropPoints 裁剪区域顶点坐标
@@ -155,6 +155,8 @@
         };
         this.$container = params.$container != null ? params.$container : document.body; //容器
         this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false; //缩放滑动控制条
+        this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
+        this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
 
         //操作属性
         this._multiPoint = false; //是否开始多点触控
@@ -168,6 +170,8 @@
          * 另一种是基于整角旋转的基础上正负45度旋转。
          */
         this._baseAngle = 0;
+        this.scaleTimes = 1; //缩放倍数
+        this.rotateAngle = 0; //旋转角度
 
         //样式属性
         this.id = 'crop-' + new Date().getTime();
@@ -179,6 +183,9 @@
         //自定义函数属性
         this.coverDraw = params.coverDraw != null ? params.coverDraw : this.defaultCoverDraw;
         this.borderDraw = params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
+        this.cropCallback = params.cropCallback || function () {};
+        this.closeCallback = params.closeCallback || function () {};
+        this.uploadCallback = params.uploadCallback || function () {};
 
         //旋转刻度盘
         this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
@@ -199,6 +206,7 @@
 
         this.construct();
 
+        //相关元素
         this.$cropMask = document.querySelector('#' + this.id + ' .crop-mask');
         var maskStyle = window.getComputedStyle(this.$cropMask);
         this.maskViewSize = {
@@ -206,17 +214,10 @@
             height: parseInt(maskStyle.getPropertyValue('height'))
         }
         this.times = (this.size.width / this.maskViewSize.width > this.size.height / this.maskViewSize.height) ? this.size.width / this.maskViewSize.width / this.cropSizePercent : this.size.height / this.maskViewSize.height / this.cropSizePercent;
-
-        this.scaleTimes = 1; //缩放倍数
-        this.rotateAngle = 0; //旋转角度
-
         this.$cropCover = document.querySelector('#' + this.id + ' .crop-cover');
         this.cropCoverContext = this.$cropCover.getContext('2d');
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
-
-        this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
-        this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
 
         //裁剪框位置相关
         this.cropRect = {
@@ -226,10 +227,6 @@
         this.cropRect.left = (this.maskViewSize.width - this.cropRect.width) / 2 - this.positionOffset.left;
         this.cropRect.top = (this.maskViewSize.height - this.cropRect.height) / 2 - this.positionOffset.top;
         this.cropPoints = this.rectToPoints(this.cropRect);
-
-        this.cropCallback = params.cropCallback || function () {};
-        this.closeCallback = params.closeCallback || function () {};
-        this.uploadCallback = params.uploadCallback || function () {};
 
         this.borderDraw();
         this.coverDraw();
@@ -706,7 +703,6 @@
             capture: false
         } : false;
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) { //移动
-            console.log('move');
             var points = self.getControlPoints(ev);
             self.move([points[0].clientX, points[0].clientY]);
             ev.preventDefault();
@@ -956,7 +952,6 @@
         this.$scaleBtn.setAttribute('moveX', curMoveX);
         this.scaleCurLeft = this.scaleInitLeft + curMoveX;
         this.scaleTimes = this.initScale + curMoveX * 1.0 / this.scaleWidth * (this.maxScale - this.initScale);
-        console.log(this.scaleTimes + ' ' + this._rotateScale);
         this.transform(false, true);
     };
 
