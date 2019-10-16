@@ -127,11 +127,11 @@
         this.title = params.title;
         this.src = params.src;
         this.size = params.size;
-        this.maxScale = params.maxScale ? params.maxScale : 1;
+        this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
         this._multiPoint = false; //是否开始多点触控
-        this._rotateScale = 1; //旋转缩放
-        this._baseMoveX = 0; //刻度位置初始化偏移量
+        this._rotateScale = 1; //旋转缩放倍数
+        this._baseMoveX = 0; //滑动旋转刻度盘位置初始化偏移量
         this._downPoint = []; //操作点坐标
         this._isControl = false; //是否正在操作
         /**
@@ -520,7 +520,6 @@
             self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
             self.scaleCurLeft = self.scaleInitLeft;
             self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
-
 
             //滑动按钮鼠标按下
             self.$scaleBtn.addEventListener('mousedown', function (ev) {
