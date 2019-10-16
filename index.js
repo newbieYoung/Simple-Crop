@@ -70,8 +70,7 @@
      * @param positionOffset 裁剪框屏幕偏移
      * @param $container 容器
      * @param scaleSlider 是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）
-     * @param borderWidth 裁剪区域边框屏幕宽度
-     * @param borderColor 裁剪框边框颜色
+     * @param funcBtns 功能按钮数组
      * ------------------------------------
      * 浏览器属性
      * @param isSupportTouch 是否支持 touch 事件
@@ -82,10 +81,15 @@
      * @param noBoldCorner 裁剪框边角是否不加粗
      * @param coverColor 遮罩框背景颜色
      * @param cropSizePercent 裁剪区域占画布比例
+     * @param borderWidth 裁剪区域边框屏幕宽度
+     * @param borderColor 裁剪框边框颜色
      * ------------------------------------
      * 自定义函数
      * @param coverDraw 裁剪框绘制辅助线
      * @param borderDraw 裁剪框边框绘制函数
+     * @param cropCallback 确定裁剪回调函数
+     * @param uploadCallback 重新上传回调函数
+     * @param closeCallback 关闭回调函数
      * ------------------------------------
      * 旋转刻度盘
      * @param rotateSlider 是否开启旋转刻度盘（默认开启）
@@ -94,36 +98,25 @@
      * @param gapAngle 间隔角度
      * @param lineationItemWidth 单个刻度盘宽度，单位像素
      * ------------------------------------
+     * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
+     * @param maskViewSize 容器的屏幕尺寸
+     * @param cropRect 截图区域的屏幕尺寸
+     * @param cropPoints 裁剪区域顶点坐标
+     * @param contentPoints 图片显示区域矩形顶点坐标
+     * @param _contentCurMoveX 图片 X 轴方向上的总位移
+     * @param _contentCurMoveY 图片 Y 轴方向上的总位移
+     * @param _orientation 图片元数据方向角
+     * @param initContentPoints 图片显示区域矩形初始顶点坐标
+     * ------------------------------------
+     * 原始信息
+     * @param originImage 原始裁剪图片
+     * @param originWidth 裁剪图片原始宽度（考虑方向角）
+     * @param originHeight 裁剪图片原始高度（考虑方向角）
+     * ------------------------------------
+     * 其它
      * @param times 实际尺寸/显示尺寸
      * @param initScale 初始缩放倍数
-     * @param funcBtns 功能按钮数组
-     * @param cropCallback 确定裁剪回调函数
-     * @param uploadCallback 重新上传回调函数
-     * @param closeCallback 关闭回调函数
-     * @param debug 调试模式
-     *
-     * ------------------------------------
-     *
-     * 为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸
-     * maskViewSize 容器的屏幕尺寸
-     * cropRect 截图区域的屏幕尺寸
-     * cropPoints 裁剪区域顶点坐标
-     * contentPoints 图片显示区域矩形顶点坐标
-     * _contentCurMoveX 图片 X 轴方向上的总位移
-     * _contentCurMoveY 图片 Y 轴方向上的总位移
-     * _orientation 图片元数据方向角
-     * initContentPoints 图片显示区域矩形初始顶点坐标
-     * 
-     * ------------------------------------
-     * 
-     * 原始信息
-     * originImage 原始裁剪图片
-     * originWidth 裁剪图片原始宽度（考虑方向角）
-     * originHeight 裁剪图片原始高度（考虑方向角）
-     *
-     * ------------------------------------
-     *
-     * $resultCanvas 裁切结果
+     * @param $resultCanvas 裁切结果
      */
     function SimpleCrop(params) {
         var self = this;
