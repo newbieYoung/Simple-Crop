@@ -191,6 +191,10 @@ var simpleCrop = new SimpleCrop({
 		<td>endAngle</td>
 		<td>旋转刻度盘结束角度</td>
 	</tr>
+	<tr>
+		<td>coverDraw</td>
+		<td>裁剪框辅助线绘制函数</td>
+	</tr>
 </table>
 
 ### 其它

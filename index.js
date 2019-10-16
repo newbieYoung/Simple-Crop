@@ -85,7 +85,7 @@
      * @param borderColor 裁剪框边框颜色
      * ------------------------------------
      * 自定义函数
-     * @param coverDraw 裁剪框绘制辅助线
+     * @param coverDraw 裁剪框辅助线绘制函数
      * @param borderDraw 裁剪框边框绘制函数
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
