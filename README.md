@@ -18,8 +18,8 @@
 
 - 1、裁剪图片支持任意角度旋转；
 - 2、移动端缩放以双指中心为基准点；
-- 2、支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
-- 3、操作体验媲美原生客户端。
+- 3、支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
+- 4、操作体验媲美原生客户端。
 
 ### 安装
 
@@ -132,14 +132,12 @@ var simpleCrop = new SimpleCrop({
     height: 900
   },
   maxScale: 2,
-  controller: ['mouse'],
   borderWidth: 2,
   funcBtns: ['close', 'crop', 'upload'],
   borderColor: '#0BFF00',
   coverColor: 'rgba(0,0,0,.5)',
-  scaleSlider: true,
-  startAngle: 0,
-  endAngle: 360,
+  startAngle: -180,
+  endAngle: 180,
   gapAngle: 10,
   cropCallback: function() {
     this.$resultCanvas.style.marginRight = '10px'
@@ -147,7 +145,7 @@ var simpleCrop = new SimpleCrop({
     document.body.appendChild(this.$resultCanvas)
   },
   coverDraw: function() {
-    //
+    //...
   }
 })
 ```
@@ -164,6 +162,34 @@ var simpleCrop = new SimpleCrop({
 	<tr>
 		<td>coverDraw</td>
 		<td>辅助线绘制函数</td>
+	</tr>
+	<tr>
+		<td>maxScale</td>
+		<td>最大缩放倍数，如果内容图片的最大缩放倍数，依然不能完全填满裁剪框，则最大缩放倍数为 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
+	</tr>
+	<tr>
+		<td>borderWidth</td>
+		<td>裁剪框边框宽度</td>
+	</tr>
+	<tr>
+		<td>funcBtns</td>
+		<td>默认功能按钮，目前支持 upload 重新上传、crop 裁剪图片、close 取消、around 90度旋转、reset 重置</td>
+	</tr>
+	<tr>
+		<td>borderColor</td>
+		<td>裁剪框边框颜色</td>
+	</tr>
+	<tr>
+		<td>coverColor</td>
+		<td>遮罩框背景颜色</td>
+	</tr>
+	<tr>
+		<td>startAngle</td>
+		<td>旋转刻度盘开始角度</td>
+	</tr>
+	<tr>
+		<td>endAngle</td>
+		<td>旋转刻度盘结束角度</td>
 	</tr>
 </table>
 

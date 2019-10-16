@@ -81,7 +81,7 @@
      * @param noBoldCorner 裁剪框边角是否不加粗
      * @param coverColor 遮罩框背景颜色
      * @param cropSizePercent 裁剪区域占画布比例
-     * @param borderWidth 裁剪区域边框屏幕宽度
+     * @param borderWidth 裁剪框边框宽度
      * @param borderColor 裁剪框边框颜色
      * ------------------------------------
      * 自定义函数
@@ -190,7 +190,7 @@
         /**
          * 默认功能按钮为取消、裁剪、90度旋转、重置
          * upload 重新上传
-         * crop 裁减
+         * crop 裁剪
          * close 取消
          * around 90度旋转
          * reset 重置
