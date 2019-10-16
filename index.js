@@ -368,8 +368,10 @@
             this.initScale = this.size.height / this.originHeight;
         }
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
-        this.$maxScale = document.querySelector('#' + this.id + ' .max-scale');
-        this.$maxScale.innerText = '(x' + this.maxScale + ')';
+        if (this.scaleSlider) {
+            this.$maxScale = document.querySelector('#' + this.id + ' .max-scale');
+            this.$maxScale.innerText = '(x' + this.maxScale + ')';
+        }
 
         //重置动态操作变量
         this.reset();
