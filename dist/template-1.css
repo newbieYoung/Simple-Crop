@@ -148,6 +148,7 @@
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAQAAAAKsiavAAAAXklEQVR42mNg28r6Hzdk28rA+p8BD2D9T6wCtq1sWwkp2EKcFfIMaxiOM0ThUqDM8IjhPxg2YlOAkAbBWQzMqApQpUFwAwMnQgGmNAgeYYEqwC4Ngaz/8Ur/ZyAUFwBk/nILZQYsUQAAAABJRU5ErkJggg==);
     background-size: 100% 100%;
     cursor: pointer;
+    margin-right: 5px;
 }
 
 .crop-component .crop-scale .two-times-icon {

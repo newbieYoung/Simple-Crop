@@ -60,22 +60,44 @@
     }
 
     /**
+     * ------------------------------------
+     * 配置
      * @param title 组件标题
      * @param src   初始图片路径
-     * @param times 实际尺寸/显示尺寸
+     * @param maxScale 最大缩放倍数
+     * @param size 截图实际宽高
+     * @param debug 是否开启调试模式，开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程
+     * @param positionOffset 裁剪框屏幕偏移
+     * @param $container 容器
+     * @param scaleSlider 是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）
+     * ------------------------------------
+     * 浏览器属性
+     * @param isSupportTouch 是否支持 touch 事件
+     * @param passiveSupported 事件是否支持 passive
+     * ------------------------------------
+     * 样式
      * @param zIndex 样式层级
-     * @param initScale 初始缩放倍数
-     * @param maxScale 初始缩放倍数
-     * @param controller 操控方式
+     * @param noBoldCorner 裁剪框边角是否不加粗
+     * @param coverColor 遮罩框背景颜色
+     * @param cropSizePercent 裁剪区域占画布比例
+     * ------------------------------------
+     * 自定义函数
      * @param coverDraw 裁剪框绘制辅助线
-     * @param scaleSlider 缩放滑动组件
-     * @param rotateSlider 旋转滑动组件
+     * @param borderDraw 裁剪框边框绘制函数
+     * ------------------------------------
+     * 旋转刻度盘
+     * @param rotateSlider 是否开启旋转刻度盘（默认开启）
+     * @param startAngle 开始角度
+     * @param endAngle 结束角度
+     * @param gapAngle 间隔角度
+     * @param lineationItemWidth 单个刻度盘宽度，单位像素
+     * ------------------------------------
+     * @param times 实际尺寸/显示尺寸
+     * @param initScale 初始缩放倍数
      * @param funcBtns 功能按钮数组
      * @param cropCallback 确定裁剪回调函数
      * @param uploadCallback 重新上传回调函数
      * @param closeCallback 关闭回调函数
-     * @param size 截图实际宽高
-     * @param cropSizePercent 裁剪区域占画布比例
      * @param borderColor 裁剪框边框颜色
      * @param debug 调试模式
      *
@@ -83,7 +105,6 @@
      *
      * 为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸
      * borderWidth 裁剪区域边框屏幕宽度
-     * positionOffset 裁剪区域屏幕
      * maskViewSize 容器的屏幕尺寸
      * cropRect 截图区域的屏幕尺寸
      * cropPoints 裁剪区域顶点坐标
@@ -107,11 +128,9 @@
     function SimpleCrop(params) {
         var self = this;
 
-        //初始化 canvas transform
-        self.initCanvasTransform();
-
-        //判断是否支持passive
-        self.passiveSupported = false;
+        //浏览器属性
+        self.initCanvasTransform(); //初始化 canvas transform
+        self.passiveSupported = false; //判断是否支持 passive
         try {
             var options = Object.defineProperty({}, 'passive', {
                 get: function () {
@@ -122,13 +141,22 @@
         } catch (err) {
             //nothing
         }
+        this.isSupportTouch = 'ontouchend' in document ? true : false; //判断是否支持 touch 事件
 
-        this.id = 'crop-' + new Date().getTime();
+        //配置
         this.title = params.title;
         this.src = params.src;
         this.size = params.size;
         this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
+        this.debug = params.debug != null ? params.debug : false;
+        this.positionOffset = params.positionOffset != null ? params.positionOffset : {
+            top: 0,
+            left: 0
+        };
+        this.$container = params.$container != null ? params.$container : document.body; //容器
+        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false; //缩放滑动控制条
 
+        //操作属性
         this._multiPoint = false; //是否开始多点触控
         this._rotateScale = 1; //旋转缩放倍数
         this._baseMoveX = 0; //滑动旋转刻度盘位置初始化偏移量
@@ -141,41 +169,23 @@
          */
         this._baseAngle = 0;
 
-        this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
+        //样式属性
+        this.id = 'crop-' + new Date().getTime();
         this.zIndex = params.zIndex != null ? params.zIndex : 9999;
-        this.debug = params.debug != null ? params.debug : false;
+        this.noBoldCorner = params.noBoldCorner != null ? params.noBoldCorner : false;
+        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
+        this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
+
+        //自定义函数属性
         this.coverDraw = params.coverDraw != null ? params.coverDraw : this.defaultCoverDraw;
         this.borderDraw = params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
-        this.noBoldCorner = params.noBoldCorner != null ? params.noBoldCorner : false; //裁剪框边角是否不加粗
-        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)'; //遮罩框背景颜色
-        this.$container = params.$container != null ? params.$container : document.body; //组件容器
-        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false; //滑动缩放控制条
-        this.positionOffset = params.positionOffset != null ? params.positionOffset : {
-            top: 0,
-            left: 0
-        };
 
-        /**
-         * 旋转刻度盘
-         * 移动端优先，旋转刻度盘默认为移动端参数值
-         * startAngle 起始度数
-         * endAngle 结束度数
-         * gapAngle 间隔度数
-         * lineationItemWidth 单个刻度盘宽度，单位像素
-         */
-        this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //滑动旋转控制条
+        //旋转刻度盘
+        this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
         this.startAngle = params.startAngle != null ? params.startAngle : -90;
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
         this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
         this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
-
-        /**
-         * 操控方式
-         * 移动端优先，默认操作方式为手指触摸
-         * mouse 鼠标
-         * touch 手指
-         */
-        this.controller = params.controller != null ? params.controller : ['touch'];
 
         /**
          * 默认功能按钮为取消、裁剪、90度旋转、重置
@@ -227,6 +237,37 @@
         this.show(this.src);
     }
 
+    //获取操作点
+    SimpleCrop.prototype.getControlPoints = function (e) {
+        if (e.touches) {
+            return e.touches;
+        } else {
+            return [{
+                clientX: e.clientX,
+                clientY: e.clientY
+            }]
+        }
+    }
+
+    //获取操作事件名称
+    SimpleCrop.prototype.getControlEvents = function () {
+        if (this.isSupportTouch) {
+            return {
+                start: 'touchstart',
+                move: 'touchmove',
+                end: 'touchend',
+                cancel: 'touchcancel'
+            }
+        } else {
+            return {
+                start: 'mousedown',
+                move: 'mousemove',
+                end: 'mouseup',
+                cancel: 'mouseleave'
+            }
+        }
+    }
+
     //html结构
     SimpleCrop.prototype.construct = function () {
         var html = '';
@@ -240,7 +281,9 @@
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
 
-        if (this.scaleSlider) {
+        //支持触摸事件则采用双指缩放操作方式，否则采用缩放滑动控制条的操作方式
+        if (this.scaleSlider || !this.isSupportTouch) {
+            this.scaleSlider = true;
             html += '<div class="crop-scale">';
             html += '<div class="one-times-icon"></div>';
             html += '<div class="scale-container">';
@@ -453,6 +496,7 @@
     SimpleCrop.prototype.bindEvent = function () {
         //获取事件相关dom元素
         var self = this;
+        var controlEvents = this.getControlEvents();
 
         //裁剪
         if (self.funcBtns.includes('crop')) {
@@ -522,13 +566,11 @@
             self.scaleCurLeft = self.scaleInitLeft;
             self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
 
-            //滑动按钮鼠标按下
-            self.$scaleBtn.addEventListener('mousedown', function (ev) {
-                self.scaleDownX = ev.clientX;
+            self.$scaleBtn.addEventListener(controlEvents.start, function (ev) { //开始
+                self.scaleDownX = self.getControlPoints(ev)[0].clientX;
             });
-            //滑动按钮鼠标滑动
-            self.$scaleContainer.addEventListener('mousemove', function (ev) {
-                var pointX = ev.clientX;
+            self.$scaleContainer.addEventListener(controlEvents.move, function (ev) { //移动
+                var pointX = self.getControlPoints(ev)[0].clientX;
                 if (self.scaleDownX > 0) {
                     var moveX = pointX - self.scaleDownX;
                     var newCurLeft = self.scaleCurLeft + moveX;
@@ -542,9 +584,6 @@
                         self.scaleMove(curMoveX);
                     }
                 }
-            });
-            //缩放条点击
-            self.$scaleBtn.addEventListener('click', function (ev) { //滑动按钮点击
                 ev.stopPropagation();
             });
             self.$scaleContainer.addEventListener('click', function (ev) {
@@ -553,7 +592,7 @@
                     self.scaleDownX = rect.left + rect.width * 1.0 / 2;
                 }
                 if (self.scaleDownX > 0) {
-                    var pointX = ev.clientX;
+                    var pointX = self.getControlPoints(ev)[0].clientX;
                     var moveX = pointX - self.scaleDownX;
                     var newCurLeft = self.scaleCurLeft + moveX;
                     if (newCurLeft >= self.scaleInitLeft && newCurLeft <= (self.scaleWidth + self.scaleInitLeft)) {
@@ -568,99 +607,17 @@
                     }
                 }
             });
-            //滑动按钮超出范围
-            self.$scaleContainer.addEventListener('mouseleave', self.endControl.bind(self));
-            //滑动按钮鼠标松开
-            self.$scaleContainer.addEventListener('mouseup', self.endControl.bind(self));
-            //最小缩放按钮点击
-            self.$scaleOneTimes.addEventListener('click', function () {
+            self.$scaleContainer.addEventListener(controlEvents.cancel, self.endControl.bind(self)); //结束
+            self.$scaleContainer.addEventListener(controlEvents.end, self.endControl.bind(self));
+            self.$scaleOneTimes.addEventListener('click', function () { //极小
                 self.scaleMove(0);
                 self.endControl();
             });
-            //最大缩放按钮点击
-            self.$scaleTwoTimes.addEventListener('click', function () {
+            self.$scaleTwoTimes.addEventListener('click', function () { //极大
                 self.scaleMove(self.scaleWidth);
                 self.endControl();
             });
-        }
-
-        if (self.rotateSlider) {
-            self.$cropRotate = document.querySelector('#' + self.id + ' .crop-rotate');
-            self.$lineation = document.querySelector('#' + self.id + ' .lineation');
-            self.$rotateCurrent = document.querySelector('#' + self.id + ' .current');
-
-            //初始化刻度位置
-            var lineationStyle = window.getComputedStyle(self.$lineation);
-            var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
-            var rotateStyle = window.getComputedStyle(self.$cropRotate);
-            var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
-            self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
-            self.$lineation.setAttribute('moveX', self._baseMoveX);
-            self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
-
-            //刻度触摸开始
-            self.$cropRotate.addEventListener('touchstart', function (e) {
-                var touch = e.touches[0];
-                self.startControl([touch.clientX, touch.clientY]);
-            });
-            //刻度触摸移动
-            self.$cropRotate.addEventListener('touchmove', function (e) {
-                var touch = e.touches[0];
-                var point = [touch.clientX, touch.clientY];
-                var moveX = point[0] - self._downPoint[0];
-                var lastMoveX = self.$lineation.getAttribute('moveX');
-                if (!lastMoveX) {
-                    lastMoveX = 0;
-                } else {
-                    lastMoveX = parseFloat(lastMoveX);
-                }
-                var curMoveX = lastMoveX + moveX;
-                var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
-
-                if (angle <= 45 && angle >= -45) {
-                    self.$lineation.setAttribute('moveX', curMoveX);
-                    self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
-                    self.rotateAngle = self._baseAngle + angle;
-                    self.transform(true);
-                    self._downPoint = point;
-                }
-                e.stopPropagation(); //阻止事件冒泡
-                e.preventDefault();
-            });
-            //刻度触摸结束
-            self.$cropRotate.addEventListener('touchend', self.endControl.bind(self));
-            //刻度触摸取消
-            self.$cropRotate.addEventListener('touchcancel', self.endControl.bind(self));
-        }
-
-        //画布相关事件
-
-        /**
-         * 触摸事件
-         */
-        if (self.controller.includes('touch')) {
-
-            //裁剪区域触摸开始
-            self.$container.addEventListener('touchstart', function (e) {
-                var touch = e.touches[0];
-                self.startControl([touch.clientX, touch.clientY]);
-            });
-            var options = self.passiveSupported ? {
-                passive: false,
-                capture: false
-            } : false;
-            //裁剪区域触摸移动
-            self.$container.addEventListener('touchmove', function (e) {
-                var touch = e.touches[0];
-                self.move([touch.clientX, touch.clientY]);
-                e.preventDefault();
-            }, options);
-            //裁剪区域触摸结束
-            self.$container.addEventListener('touchend', self.endControl.bind(self));
-            //裁剪区域触摸取消
-            self.$container.addEventListener('touchcancel', self.endControl.bind(self));
-
-            //复杂手势事件
+        } else if (self.isSupportTouch) { // 双指缩放
             var lastScale = 1;
             new finger(self.$container, {
                 multipointStart: function (evt) {
@@ -693,23 +650,69 @@
             });
         }
 
-        /**
-         * 鼠标事件
-         */
-        if (self.controller.includes('mouse')) {
-            //裁剪区域鼠标按下
-            self.$cropMask.addEventListener('mousedown', function (ev) {
-                self.startControl([ev.clientX, ev.clientY]);
+        if (self.rotateSlider) {
+            self.$cropRotate = document.querySelector('#' + self.id + ' .crop-rotate');
+            self.$lineation = document.querySelector('#' + self.id + ' .lineation');
+            self.$rotateCurrent = document.querySelector('#' + self.id + ' .current');
+
+            //初始化刻度位置
+            var lineationStyle = window.getComputedStyle(self.$lineation);
+            var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
+            var rotateStyle = window.getComputedStyle(self.$cropRotate);
+            var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
+            self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
+            self.$lineation.setAttribute('moveX', self._baseMoveX);
+            self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
+
+            self.$cropRotate.addEventListener(controlEvents.start, function (e) { //开始
+                var touch = self.getControlPoints(e)[0];
+                self.startControl([touch.clientX, touch.clientY]);
             });
-            //裁剪区域鼠标移动
-            self.$cropMask.addEventListener('mousemove', function (ev) {
-                self.move([ev.clientX, ev.clientY]);
+            self.$cropRotate.addEventListener(controlEvents.move, function (e) { //移动
+                var touch = self.getControlPoints(e)[0];
+                var point = [touch.clientX, touch.clientY];
+                var moveX = point[0] - self._downPoint[0];
+                var lastMoveX = self.$lineation.getAttribute('moveX');
+                if (!lastMoveX) {
+                    lastMoveX = 0;
+                } else {
+                    lastMoveX = parseFloat(lastMoveX);
+                }
+                var curMoveX = lastMoveX + moveX;
+                var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
+
+                if (angle <= 45 && angle >= -45) {
+                    self.$lineation.setAttribute('moveX', curMoveX);
+                    self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
+                    self.rotateAngle = self._baseAngle + angle;
+                    self.transform(true);
+                    self._downPoint = point;
+                }
+                e.stopPropagation(); //阻止事件冒泡
+                e.preventDefault();
             });
-            //裁剪区域鼠标松开
-            self.$cropMask.addEventListener('mouseup', self.endControl.bind(self));
-            //裁剪区域超出范围
-            self.$cropMask.addEventListener('mouseleave', self.endControl.bind(self));
+            self.$cropRotate.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
+            self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
         }
+
+        //内容图片移动
+        var $imageListenerEle = self.isSupportTouch ? self.$container : self.$cropMask;
+        $imageListenerEle.addEventListener(controlEvents.start, function (ev) { //开始
+            var points = self.getControlPoints(ev);
+            self.startControl([points[0].clientX, points[0].clientY]);
+        });
+        var options = self.passiveSupported ? {
+            passive: false,
+            capture: false
+        } : false;
+        $imageListenerEle.addEventListener(controlEvents.move, function (ev) { //移动
+            console.log('move');
+            var points = self.getControlPoints(ev);
+            self.move([points[0].clientX, points[0].clientY]);
+            ev.preventDefault();
+        }, options);
+        $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
+        $imageListenerEle.addEventListener(controlEvents.cancel, self.endControl.bind(self));
     };
 
     //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
@@ -953,6 +956,7 @@
         this.$scaleBtn.setAttribute('moveX', curMoveX);
         this.scaleCurLeft = this.scaleInitLeft + curMoveX;
         this.scaleTimes = this.initScale + curMoveX * 1.0 / this.scaleWidth * (this.maxScale - this.initScale);
+        console.log(this.scaleTimes + ' ' + this._rotateScale);
         this.transform(false, true);
     };
 

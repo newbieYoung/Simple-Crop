@@ -148,6 +148,7 @@
     background-image: url(./img/one-times-icon.png);
     background-size: 100% 100%;
     cursor: pointer;
+    margin-right: 5px;
 }
 
 .crop-component .crop-scale .two-times-icon {
