@@ -989,7 +989,7 @@
                 x: rotateCenter.x - this.cropCenter.x,
                 y: rotateCenter.y - this.cropCenter.y
             }
-            if (this.vecLen(centerVec) < 1 && this.scaleTimes == this.initScale) {
+            if ((this.vecLen(centerVec) < 1 && this.scaleTimes == this.initScale) || coverScale > 1) {
                 this._rotateScale = this._rotateScale * coverScale;
                 scaleNum = scaleNum * coverScale;
             } else if (coverScale <= 1 && this._rotateScale > 1) {
@@ -1011,6 +1011,8 @@
                     this._rotateScale = this._rotateScale * coverScale;
                     scaleNum = scaleNum * coverScale;
                 }
+            } else {
+                this._rotateScale = 1;
             }
         }
 
