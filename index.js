@@ -650,7 +650,7 @@
                 var curMoveX = lastMoveX + moveX;
                 var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
 
-                if (angle <= 45 && angle >= -45) {
+                if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
                     self.$lineation.setAttribute('moveX', curMoveX);
                     self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
                     self.rotateAngle = self._baseAngle + angle;
