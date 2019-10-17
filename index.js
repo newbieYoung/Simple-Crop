@@ -560,8 +560,8 @@
                 self.scaleDownX = self.getControlPoints(ev)[0].clientX;
             });
             self.$scaleContainer.addEventListener(controlEvents.move, function (ev) { //移动
-                var pointX = self.getControlPoints(ev)[0].clientX;
                 if (self.scaleDownX > 0) {
+                    var pointX = self.getControlPoints(ev)[0].clientX;
                     var moveX = pointX - self.scaleDownX;
                     var newCurLeft = self.scaleCurLeft + moveX;
                     if (newCurLeft >= self.scaleInitLeft && newCurLeft <= (self.scaleWidth + self.scaleInitLeft)) {
@@ -592,7 +592,6 @@
                         }
                         var curMoveX = lastMoveX + moveX;
                         self.scaleMove(curMoveX);
-                        self.scaleDownX = 0; //鼠标移动缩放只能由鼠标在缩放按钮上按下触发
                         self.endControl();
                     }
                 }
@@ -697,7 +696,7 @@
         } : false;
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) { //移动
             var points = self.getControlPoints(ev);
-            self.move([points[0].clientX, points[0].clientY]);
+            self.contentMove([points[0].clientX, points[0].clientY]);
             ev.preventDefault();
         }, options);
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
@@ -948,8 +947,8 @@
         this.transform(false, true);
     };
 
-    //移动
-    SimpleCrop.prototype.move = function (point) {
+    //内容图片移动
+    SimpleCrop.prototype.contentMove = function (point) {
         if (this._downPoint.length != 0 && !this._multiPoint) {
             var moveX = point[0] - this._downPoint[0];
             var moveY = point[1] - this._downPoint[1];
