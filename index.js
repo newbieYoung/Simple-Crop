@@ -994,7 +994,7 @@
                 if (coverScale > 1) {
                     this._rotateScale = this._rotateScale * coverScale;
                     scaleNum = scaleNum * coverScale;
-                } else if (percent > 0 && changedX < 0) { //回归
+                } else if (percent > 0) {
                     if (coverScale < (1 - percent)) { //不能突变
                         coverScale = 1 - percent;
                     }
