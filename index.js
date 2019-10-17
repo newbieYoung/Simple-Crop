@@ -989,28 +989,12 @@
                 x: rotateCenter.x - this.cropCenter.x,
                 y: rotateCenter.y - this.cropCenter.y
             }
-            var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-            if (this.vecLen(centerVec) < 1) { //中心点接近在一起
-                if (coverScale > 1) {
-                    this._rotateScale = this._rotateScale * coverScale;
-                    scaleNum = scaleNum * coverScale;
-                } else if (percent > 0 && changedX < 0) { //回归
-                    if (coverScale < (1 - percent)) { //不能突变
-                        coverScale = 1 - percent;
-                    }
-                    if (this._rotateScale * coverScale > 1) {
-                        this._rotateScale = this._rotateScale * coverScale;
-                    } else { //不能影响 scaleTimes
-                        this._rotateScale = 1;
-                        coverScale = 1;
-                    }
-                    scaleNum = scaleNum * coverScale;
-                }
-            } else {
-                if (coverScale > 1) {
-                    this._rotateScale = this._rotateScale * coverScale;
-                    scaleNum = scaleNum * coverScale;
-                } else if (percent > 0) {
+            if ((this.vecLen(centerVec) < 1 && this.scaleTimes == this.initScale) || coverScale > 1) {
+                this._rotateScale = this._rotateScale * coverScale;
+                scaleNum = scaleNum * coverScale;
+            } else if (coverScale <= 1 && this._rotateScale > 1) {
+                if (totalMoveX != 0 && changedX != 0 && coverScale != 1) {
+                    var percent = Math.abs(changedX) / Math.abs(totalMoveX);
                     var translate = {
                         translateX: (this.cropCenter.x - rotateCenter.x) * percent,
                         translateY: (this.cropCenter.y - rotateCenter.y) * percent
@@ -1024,14 +1008,11 @@
                     }
                     var newCoverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
                     coverScale = newCoverScale / coverScale;
-                    if (this._rotateScale * coverScale > 1) {
-                        this._rotateScale = this._rotateScale * coverScale;
-                    } else { //不能影响 scaleTimes
-                        this._rotateScale = 1;
-                        coverScale = 1;
-                    }
+                    this._rotateScale = this._rotateScale * coverScale;
                     scaleNum = scaleNum * coverScale;
                 }
+            } else {
+                this._rotateScale = 1;
             }
         }
 
