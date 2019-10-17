@@ -557,8 +557,8 @@
             self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
 
             self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
-                self.startControl();
                 self.scaleDownX = self.getControlPoints(ev)[0].clientX;
+                self.startControl();
             });
             self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
                 self.scaleMove(ev);
