@@ -581,7 +581,7 @@
             });
             self.$scaleOneTimes.addEventListener('click', function () { //极小
                 self.startControl();
-                self._rotateScale = 1;
+                self._rotateScale = 1; //缩放滑动控制条点击初始缩放倍数时需要重置旋转缩放倍数，否则交互有点奇怪
                 self.scaleMoveAt(0);
                 self.endControl();
             });
@@ -994,7 +994,7 @@
             if (coverScale > 1) {
                 this._rotateScale = this._rotateScale * coverScale;
                 scaleNum = scaleNum * coverScale;
-            } else if (this.vecLen(centerVec) < 1 && percent > 0) { //中心点接近重合
+            } else if (this.vecLen(centerVec) < 1 && percent > 0) { //中心点接近重合时，旋转支持自适应缩小
                 if (coverScale < (1 - percent)) { //不能突变
                     coverScale = 1 - percent;
                 }
