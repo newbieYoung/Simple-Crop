@@ -979,32 +979,23 @@
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            var changedX = this.$lineation.getAttribute('changedx');
-            var curMoveX = this.$lineation.getAttribute('movex');
+            var changedX = parseFloat(this.$lineation.getAttribute('changedx'));
+            var curMoveX = parseFloat(this.$lineation.getAttribute('movex'));
             var totalMoveX = curMoveX - changedX - this._baseMoveX;
-            //if (coverScale > 1) { //自动放大
-            this._rotateScale = this._rotateScale * coverScale;
-            console.log(this._rotateScale);
+            if (totalMoveX > 0 && coverScale < 1) {
+                var percent = Math.abs(changedX) / Math.abs(totalMoveX);
+                if (coverScale < (1 - percent)) {
+                    coverScale = 1 - percent;
+                }
+            }
+            if (this._rotateScale <= 1) {
+                this.scaleTimes = this.scaleTimes * coverScale / (1 / this._rotateScale);
+                this._rotateScale = 1;
+            } else {
+                this._rotateScale = this._rotateScale * coverScale;
+            }
+            console.log(this._rotateScale + ' ' + this.scaleTimes);
             scaleNum = scaleNum * coverScale;
-            console.log(coverScale);
-            // } else if (this._rotateScale > 1 && changedX != 0 && totalMoveX != 0) { //自动缩小
-            //     var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-            //     //中心点移动
-            //     var cropCenter = this.getPointsCenter(this.cropPoints);
-            //     var rotateCenter = this.getPointsCenter(rotatePoints);
-            //     var translate = {
-            //         translateX: (cropCenter.x - rotateCenter.x) * percent,
-            //         translateY: (cropCenter.y - rotateCenter.y) * percent
-            //     }
-            //     this._contentCurMoveX += translate.translateX;
-            //     this._contentCurMoveY -= translate.translateY;
-            //     for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
-            //         var itemP = rotatePoints[i];
-            //         itemP.x -= translate.translateX;
-            //         itemP.y -= translate.translateY;
-            //     }
-            //     //计算安全缩小倍数
-            // }
         }
 
         //操作变换
