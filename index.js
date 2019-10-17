@@ -420,13 +420,13 @@
         this._contentCurMoveX = -this.positionOffset.left;
         this._contentCurMoveY = -this.positionOffset.top;
         if (this.rotateSlider) {
-            this.$lineation.setAttribute('moveX', this._baseMoveX);
+            this.$lineation.setAttribute('movex', this._baseMoveX);
             this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
         }
         if (this.scaleSlider) {
             this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
             this.$scaleValue.style.width = '0px';
-            this.$scaleBtn.setAttribute('moveX', 0);
+            this.$scaleBtn.setAttribute('movex', 0);
             this.scaleCurLeft = this.scaleInitLeft;
         }
         this.scaleTimes = this.initScale;
@@ -518,7 +518,7 @@
                 self.startControl();
                 self.rotateAngle = self._baseAngle - 90;
                 self._baseAngle = self.rotateAngle;
-                self.$lineation.setAttribute('moveX', self._baseMoveX);
+                self.$lineation.setAttribute('movex', self._baseMoveX);
                 self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
                 self.transform();
                 self.endControl();
@@ -630,7 +630,7 @@
             var rotateStyle = window.getComputedStyle(self.$cropRotate);
             var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
             self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
-            self.$lineation.setAttribute('moveX', self._baseMoveX);
+            self.$lineation.setAttribute('movex', self._baseMoveX);
             self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
 
             self.$cropRotate.addEventListener(controlEvents.start, function (e) {
@@ -641,7 +641,7 @@
                 var touch = self.getControlPoints(e)[0];
                 var point = [touch.clientX, touch.clientY];
                 var moveX = point[0] - self._downPoint[0];
-                var lastMoveX = self.$lineation.getAttribute('moveX');
+                var lastMoveX = self.$lineation.getAttribute('movex');
                 if (!lastMoveX) {
                     lastMoveX = 0;
                 } else {
@@ -651,7 +651,8 @@
                 var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
 
                 if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
-                    self.$lineation.setAttribute('moveX', curMoveX);
+                    self.$lineation.setAttribute('movex', curMoveX);
+                    self.$lineation.setAttribute('changedx', moveX);
                     self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
                     self.rotateAngle = self._baseAngle + angle;
                     self.transform(true);
@@ -923,7 +924,7 @@
             var moveX = pointX - this.scaleDownX;
             var newCurLeft = this.scaleCurLeft + moveX;
             if (newCurLeft >= this.scaleInitLeft && newCurLeft <= (this.scaleWidth + this.scaleInitLeft)) {
-                var lastMoveX = parseFloat(this.$scaleBtn.getAttribute('moveX'));
+                var lastMoveX = parseFloat(this.$scaleBtn.getAttribute('movex'));
                 if (!lastMoveX) {
                     lastMoveX = 0;
                 }
@@ -938,7 +939,7 @@
     SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
         this.$scaleBtn.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
         this.$scaleValue.style.width = curMoveX + 'px';
-        this.$scaleBtn.setAttribute('moveX', curMoveX);
+        this.$scaleBtn.setAttribute('movex', curMoveX);
         this.scaleCurLeft = this.scaleInitLeft + curMoveX;
         this.scaleTimes = this.initScale + curMoveX * 1.0 / this.scaleWidth * (this.maxScale - this.initScale);
         this.transform(false, true);
@@ -976,8 +977,16 @@
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            this._rotateScale = this._rotateScale * coverScale;
-            scaleNum = scaleNum * coverScale;
+            console.log(coverScale);
+            if (coverScale > 1) { //自动放大
+                this._rotateScale = this._rotateScale * coverScale;
+                scaleNum = scaleNum * coverScale;
+            } else if (this._rotateScale > 1) { //自动缩小
+                console.log('-----');
+                console.log(coverScale);
+                console.log(this.$lineation.getAttribute('movex'));
+                console.log(this.$lineation.getAttribute('changedx'));
+            }
         }
 
         //操作变换
