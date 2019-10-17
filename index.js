@@ -518,8 +518,10 @@
                 self.startControl();
                 self.rotateAngle = self._baseAngle - 90;
                 self._baseAngle = self.rotateAngle;
-                self.$lineation.setAttribute('movex', self._baseMoveX);
-                self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
+                if (self.rotateSlider) {
+                    self.$lineation.setAttribute('movex', self._baseMoveX);
+                    self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
+                }
                 self.transform();
                 self.endControl();
             })
@@ -977,15 +979,30 @@
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            console.log(coverScale);
+            var changedX = this.$lineation.getAttribute('changedx');
+            var curMoveX = this.$lineation.getAttribute('movex');
+            var totalMoveX = curMoveX - changedX - this._baseMoveX;
             if (coverScale > 1) { //自动放大
                 this._rotateScale = this._rotateScale * coverScale;
                 scaleNum = scaleNum * coverScale;
-            } else if (this._rotateScale > 1) { //自动缩小
-                console.log('-----');
-                console.log(coverScale);
-                console.log(this.$lineation.getAttribute('movex'));
-                console.log(this.$lineation.getAttribute('changedx'));
+            } else if (this._rotateScale > 1 && changedX != 0 && totalMoveX != 0) { //自动缩小
+                var percent = Math.abs(changedX) / Math.abs(totalMoveX);
+                //中心点移动
+                var cropCenter = this.getPointsCenter(this.cropPoints);
+                var rotateCenter = this.getPointsCenter(rotatePoints);
+                var translate = {
+                    translateX: (cropCenter.x - rotateCenter.x) * percent,
+                    translateY: (cropCenter.y - rotateCenter.y) * percent
+                }
+                console.log(translate);
+                this._contentCurMoveX += translate.translateX;
+                this._contentCurMoveY -= translate.translateY;
+                // for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
+                //     var itemP = rotatePoints[i];
+                //     itemP.x -= translate.translateX;
+                //     itemP.y -= translate.translateY;
+                // }
+                //计算安全缩小倍数
             }
         }
 
@@ -997,6 +1014,11 @@
         this.$cropContent.style[transformProperty] = this._initTransform + transform;
         this.contentPoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
     };
+
+    //计算一个大矩形刚好包含另一个矩形的缩小倍数
+    SimpleCrop.prototype.getSafeCoverScale = function (bigger, inner) {
+
+    }
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
     SimpleCrop.prototype.getCoverRectScale = function (outer, inner) {
