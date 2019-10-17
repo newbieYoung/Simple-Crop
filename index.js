@@ -102,6 +102,7 @@
      * @param maskViewSize 容器的屏幕尺寸
      * @param cropRect 截图区域的屏幕尺寸
      * @param cropPoints 裁剪区域顶点坐标
+     * @param cropCenter 裁剪区域中心点坐标
      * @param contentPoints 图片显示区域矩形顶点坐标
      * @param _contentCurMoveX 图片 X 轴方向上的总位移
      * @param _contentCurMoveY 图片 Y 轴方向上的总位移
@@ -220,6 +221,7 @@
         this.cropRect.left = (this.maskViewSize.width - this.cropRect.width) / 2 - this.positionOffset.left;
         this.cropRect.top = (this.maskViewSize.height - this.cropRect.height) / 2 - this.positionOffset.top;
         this.cropPoints = this.rectToPoints(this.cropRect);
+        this.cropCenter = this.getPointsCenter(this.cropPoints);
 
         this.borderDraw();
         this.coverDraw();
@@ -982,20 +984,34 @@
             var changedX = parseFloat(this.$lineation.getAttribute('changedx'));
             var curMoveX = parseFloat(this.$lineation.getAttribute('movex'));
             var totalMoveX = curMoveX - changedX - this._baseMoveX;
-            if (totalMoveX > 0 && coverScale < 1) {
-                var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-                if (coverScale < (1 - percent)) {
-                    coverScale = 1 - percent;
+            var rotateCenter = this.getPointsCenter(rotatePoints);
+            var centerVec = {
+                x: rotateCenter.x - this.cropCenter.x,
+                y: rotateCenter.y - this.cropCenter.y
+            }
+            if (this.vecLen(centerVec) < 1 && this.scaleTimes == this.initScale) {
+                this._rotateScale = this._rotateScale * coverScale;
+                scaleNum = scaleNum * coverScale;
+            } else if (coverScale <= 1 && this._rotateScale > 1) {
+                if (totalMoveX != 0 && changedX != 0 && coverScale != 1) {
+                    var percent = Math.abs(changedX) / Math.abs(totalMoveX);
+                    var translate = {
+                        translateX: (this.cropCenter.x - rotateCenter.x) * percent,
+                        translateY: (this.cropCenter.y - rotateCenter.y) * percent
+                    }
+                    this._contentCurMoveX += translate.translateX;
+                    this._contentCurMoveY -= translate.translateY;
+                    for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
+                        var itemP = rotatePoints[i];
+                        itemP.x += translate.translateX;
+                        itemP.y += translate.translateY;
+                    }
+                    var newCoverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
+                    coverScale = newCoverScale / coverScale;
+                    this._rotateScale = this._rotateScale * coverScale;
+                    scaleNum = scaleNum * coverScale;
                 }
             }
-            if (this._rotateScale <= 1) {
-                this.scaleTimes = this.scaleTimes * coverScale / (1 / this._rotateScale);
-                this._rotateScale = 1;
-            } else {
-                this._rotateScale = this._rotateScale * coverScale;
-            }
-            console.log(this._rotateScale + ' ' + this.scaleTimes);
-            scaleNum = scaleNum * coverScale;
         }
 
         //操作变换
