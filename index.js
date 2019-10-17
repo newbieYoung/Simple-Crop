@@ -982,28 +982,29 @@
             var changedX = this.$lineation.getAttribute('changedx');
             var curMoveX = this.$lineation.getAttribute('movex');
             var totalMoveX = curMoveX - changedX - this._baseMoveX;
-            if (coverScale > 1) { //自动放大
-                this._rotateScale = this._rotateScale * coverScale;
-                scaleNum = scaleNum * coverScale;
-            } else if (this._rotateScale > 1 && changedX != 0 && totalMoveX != 0) { //自动缩小
-                var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-                //中心点移动
-                var cropCenter = this.getPointsCenter(this.cropPoints);
-                var rotateCenter = this.getPointsCenter(rotatePoints);
-                var translate = {
-                    translateX: (cropCenter.x - rotateCenter.x) * percent,
-                    translateY: (cropCenter.y - rotateCenter.y) * percent
-                }
-                console.log(translate);
-                this._contentCurMoveX += translate.translateX;
-                this._contentCurMoveY -= translate.translateY;
-                // for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
-                //     var itemP = rotatePoints[i];
-                //     itemP.x -= translate.translateX;
-                //     itemP.y -= translate.translateY;
-                // }
-                //计算安全缩小倍数
-            }
+            //if (coverScale > 1) { //自动放大
+            this._rotateScale = this._rotateScale * coverScale;
+            console.log(this._rotateScale);
+            scaleNum = scaleNum * coverScale;
+            console.log(coverScale);
+            // } else if (this._rotateScale > 1 && changedX != 0 && totalMoveX != 0) { //自动缩小
+            //     var percent = Math.abs(changedX) / Math.abs(totalMoveX);
+            //     //中心点移动
+            //     var cropCenter = this.getPointsCenter(this.cropPoints);
+            //     var rotateCenter = this.getPointsCenter(rotatePoints);
+            //     var translate = {
+            //         translateX: (cropCenter.x - rotateCenter.x) * percent,
+            //         translateY: (cropCenter.y - rotateCenter.y) * percent
+            //     }
+            //     this._contentCurMoveX += translate.translateX;
+            //     this._contentCurMoveY -= translate.translateY;
+            //     for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
+            //         var itemP = rotatePoints[i];
+            //         itemP.x -= translate.translateX;
+            //         itemP.y -= translate.translateY;
+            //     }
+            //     //计算安全缩小倍数
+            // }
         }
 
         //操作变换
@@ -1015,32 +1016,15 @@
         this.contentPoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
     };
 
-    //计算一个大矩形刚好包含另一个矩形的缩小倍数
-    SimpleCrop.prototype.getSafeCoverScale = function (bigger, inner) {
-
-    }
-
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
     SimpleCrop.prototype.getCoverRectScale = function (outer, inner) {
-        var scale = 1;
-        var outPoints = [];
-        //找出inner中超出outer的点坐标
+        var scale = 0;
         for (var i = 0; i < inner.length; i++) {
-            var point = inner[i];
-            if (!this.isPointInRectCheckByLen(point, outer)) {
-                outPoints.push(point);
+            var num = this.getCoverPointScale(inner[i], outer);
+            if (num > scale) {
+                scale = num;
             }
         }
-
-        if (outPoints.length > 0) {
-            for (var i = 0; i < outPoints.length; i++) {
-                var num = this.getCoverPointScale(outPoints[i], outer);
-                if (num > scale) {
-                    scale = num;
-                }
-            }
-        }
-
         return scale;
     };
 
@@ -1065,17 +1049,11 @@
         var width = this.vecLen(pcv.right) / 2;
 
         //根据投影距离计算缩放倍数
-        var scale1 = 1;
-        if (uLen > height) {
-            scale1 = scale1 + (uLen - height) / height; //只要是正常矩形那么 height 和 width 不可能为0
+        if (uLen / height > rLen / width) {
+            return 1 + (uLen - height) / height;
+        } else {
+            return 1 + (rLen - width) / width;
         }
-        var scale2 = 1;
-        if (rLen > width) {
-            scale2 = scale2 + (rLen - width) / width;
-        }
-        var scale = scale2 > scale1 ? scale2 : scale1;
-
-        return scale;
     };
 
     //计算图片内容刚好包含裁剪框的transform变换
