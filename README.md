@@ -78,8 +78,6 @@ var simpleCrop = new SimpleCrop({
 simpleCrop.show('./img/test3.jpg')
 ```
 
-因为需要用到多指触摸操作，目前使用[AlloyFinger](https://github.com/AlloyTeam/AlloyFinger)
-
 <table style="word-break: normal;">
 	<tr>
 		<td>参数</td>
@@ -117,8 +115,8 @@ simpleCrop.show('./img/test3.jpg')
 
 首先引入 PC 端样式；
 
-```
-<link rel="stylesheet" href="./dist/template-1.css">
+```html
+<link rel="stylesheet" href="./dist/template-1.css" />
 ```
 
 然后配置如下参数初始化；
@@ -196,6 +194,12 @@ var simpleCrop = new SimpleCrop({
 		<td>裁剪框辅助线绘制函数</td>
 	</tr>
 </table>
+
+### 依赖的第三方库
+
+- AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) 处理移动端触摸操作；
+- Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) 获取图片元数据；
+- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) 处理 css 属性前缀。
 
 ### 其它
 
