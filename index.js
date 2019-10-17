@@ -556,54 +556,33 @@
             self.scaleCurLeft = self.scaleInitLeft;
             self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
 
-            self.$scaleBtn.addEventListener(controlEvents.start, function (ev) { //开始
+            self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
+                self.startControl();
                 self.scaleDownX = self.getControlPoints(ev)[0].clientX;
             });
-            self.$scaleContainer.addEventListener(controlEvents.move, function (ev) { //移动
-                if (self.scaleDownX > 0) {
-                    var pointX = self.getControlPoints(ev)[0].clientX;
-                    var moveX = pointX - self.scaleDownX;
-                    var newCurLeft = self.scaleCurLeft + moveX;
-                    if (newCurLeft >= self.scaleInitLeft && newCurLeft <= (self.scaleWidth + self.scaleInitLeft)) {
-                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                        if (!lastMoveX) {
-                            lastMoveX = 0;
-                        }
-                        var curMoveX = lastMoveX + moveX;
-                        self.scaleDownX = pointX;
-                        self.scaleMove(curMoveX);
-                    }
-                }
+            self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
+                self.scaleMove(ev);
                 ev.stopPropagation();
             });
+            self.$scaleContainer.addEventListener(controlEvents.cancel, self.endControl.bind(self)); //结束
+            self.$scaleContainer.addEventListener(controlEvents.end, self.endControl.bind(self));
             self.$scaleContainer.addEventListener('click', function (ev) {
+                self.startControl();
                 var rect = self.$scaleBtn.getBoundingClientRect();
                 if (self.scaleDownX <= 0) {
                     self.scaleDownX = rect.left + rect.width * 1.0 / 2;
                 }
-                if (self.scaleDownX > 0) {
-                    var pointX = self.getControlPoints(ev)[0].clientX;
-                    var moveX = pointX - self.scaleDownX;
-                    var newCurLeft = self.scaleCurLeft + moveX;
-                    if (newCurLeft >= self.scaleInitLeft && newCurLeft <= (self.scaleWidth + self.scaleInitLeft)) {
-                        var lastMoveX = parseFloat(self.$scaleBtn.getAttribute('moveX'));
-                        if (!lastMoveX) {
-                            lastMoveX = 0;
-                        }
-                        var curMoveX = lastMoveX + moveX;
-                        self.scaleMove(curMoveX);
-                        self.endControl();
-                    }
-                }
+                self.scaleMove(ev);
+                self.endControl();
             });
-            self.$scaleContainer.addEventListener(controlEvents.cancel, self.endControl.bind(self)); //结束
-            self.$scaleContainer.addEventListener(controlEvents.end, self.endControl.bind(self));
             self.$scaleOneTimes.addEventListener('click', function () { //极小
-                self.scaleMove(0);
+                self.startControl();
+                self.scaleMoveAt(0);
                 self.endControl();
             });
             self.$scaleTwoTimes.addEventListener('click', function () { //极大
-                self.scaleMove(self.scaleWidth);
+                self.startControl();
+                self.scaleMoveAt(self.scaleWidth);
                 self.endControl();
             });
         } else if (self.isSupportTouch) { // 双指缩放
@@ -639,6 +618,7 @@
             });
         }
 
+        //滑动旋转
         if (self.rotateSlider) {
             self.$cropRotate = document.querySelector('#' + self.id + ' .crop-rotate');
             self.$lineation = document.querySelector('#' + self.id + ' .lineation');
@@ -653,11 +633,11 @@
             self.$lineation.setAttribute('moveX', self._baseMoveX);
             self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
 
-            self.$cropRotate.addEventListener(controlEvents.start, function (e) { //开始
+            self.$cropRotate.addEventListener(controlEvents.start, function (e) {
                 var touch = self.getControlPoints(e)[0];
                 self.startControl([touch.clientX, touch.clientY]);
             });
-            self.$cropRotate.addEventListener(controlEvents.move, function (e) { //移动
+            self.$cropRotate.addEventListener(controlEvents.move, function (e) {
                 var touch = self.getControlPoints(e)[0];
                 var point = [touch.clientX, touch.clientY];
                 var moveX = point[0] - self._downPoint[0];
@@ -684,9 +664,9 @@
             self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
         }
 
-        //内容图片移动
+        //移动
         var $imageListenerEle = self.isSupportTouch ? self.$container : self.$cropMask;
-        $imageListenerEle.addEventListener(controlEvents.start, function (ev) { //开始
+        $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
             var points = self.getControlPoints(ev);
             self.startControl([points[0].clientX, points[0].clientY]);
         });
@@ -694,7 +674,7 @@
             passive: false,
             capture: false
         } : false;
-        $imageListenerEle.addEventListener(controlEvents.move, function (ev) { //移动
+        $imageListenerEle.addEventListener(controlEvents.move, function (ev) {
             var points = self.getControlPoints(ev);
             self.contentMove([points[0].clientX, points[0].clientY]);
             ev.preventDefault();
@@ -936,9 +916,26 @@
         }
     };
 
-    //滑动按钮移动
-    SimpleCrop.prototype.scaleMove = function (curMoveX) {
-        this.startControl();
+    //缩放滑动控制条按钮移动
+    SimpleCrop.prototype.scaleMove = function (ev) {
+        if (this.scaleDownX > 0) {
+            var pointX = this.getControlPoints(ev)[0].clientX;
+            var moveX = pointX - this.scaleDownX;
+            var newCurLeft = this.scaleCurLeft + moveX;
+            if (newCurLeft >= this.scaleInitLeft && newCurLeft <= (this.scaleWidth + this.scaleInitLeft)) {
+                var lastMoveX = parseFloat(this.$scaleBtn.getAttribute('moveX'));
+                if (!lastMoveX) {
+                    lastMoveX = 0;
+                }
+                var curMoveX = lastMoveX + moveX;
+                this.scaleDownX = pointX;
+                this.scaleMoveAt(curMoveX);
+            }
+        }
+    }
+
+    //滑缩放滑动控制条按钮移动到某个位置
+    SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
         this.$scaleBtn.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
         this.$scaleValue.style.width = curMoveX + 'px';
         this.$scaleBtn.setAttribute('moveX', curMoveX);
