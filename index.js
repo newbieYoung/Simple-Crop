@@ -581,6 +581,7 @@
             });
             self.$scaleOneTimes.addEventListener('click', function () { //极小
                 self.startControl();
+                self._rotateScale = 1;
                 self.scaleMoveAt(0);
                 self.endControl();
             });
@@ -990,48 +991,20 @@
                 y: rotateCenter.y - this.cropCenter.y
             }
             var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-            if (this.vecLen(centerVec) < 1) { //中心点接近在一起
-                if (coverScale > 1) {
-                    this._rotateScale = this._rotateScale * coverScale;
-                    scaleNum = scaleNum * coverScale;
-                } else if (percent > 0) {
-                    if (coverScale < (1 - percent)) { //不能突变
-                        coverScale = 1 - percent;
-                    }
-                    if (this._rotateScale * coverScale > 1) {
-                        this._rotateScale = this._rotateScale * coverScale;
-                    } else { //不能影响 scaleTimes
-                        this._rotateScale = 1;
-                        coverScale = 1;
-                    }
-                    scaleNum = scaleNum * coverScale;
+            if (coverScale > 1) {
+                this._rotateScale = this._rotateScale * coverScale;
+                scaleNum = scaleNum * coverScale;
+            } else if (this.vecLen(centerVec) < 1 && percent > 0) { //中心点接近重合
+                if (coverScale < (1 - percent)) { //不能突变
+                    coverScale = 1 - percent;
                 }
-            } else {
-                if (coverScale > 1) {
+                if (this._rotateScale * coverScale > 1) {
                     this._rotateScale = this._rotateScale * coverScale;
-                    scaleNum = scaleNum * coverScale;
-                } else if (percent > 0) {
-                    var translate = {
-                        translateX: (this.cropCenter.x - rotateCenter.x) * percent,
-                        translateY: (this.cropCenter.y - rotateCenter.y) * percent
-                    }
-                    this._contentCurMoveX += translate.translateX;
-                    this._contentCurMoveY -= translate.translateY;
-                    for (var i = 0; i < rotatePoints.length; i++) { //位移之后的新坐标
-                        var itemP = rotatePoints[i];
-                        itemP.x += translate.translateX;
-                        itemP.y += translate.translateY;
-                    }
-                    var newCoverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-                    coverScale = newCoverScale / coverScale;
-                    if (this._rotateScale * coverScale > 1) {
-                        this._rotateScale = this._rotateScale * coverScale;
-                    } else { //不能影响 scaleTimes
-                        this._rotateScale = 1;
-                        coverScale = 1;
-                    }
-                    scaleNum = scaleNum * coverScale;
+                } else { //不能影响 scaleTimes
+                    this._rotateScale = 1;
+                    coverScale = 1;
                 }
+                scaleNum = scaleNum * coverScale;
             }
         }
 
