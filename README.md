@@ -111,7 +111,9 @@ simpleCrop.show('./img/test3.jpg')
 
 <img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-11.jpg">
 
-请访问以下链接[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
+链接如下：
+
+[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
 
 首先引入 PC 端样式；
 
