@@ -205,4 +205,4 @@ var simpleCrop = new SimpleCrop({
 
 ### 其它
 
-相关原理以及实现请查看[SimpleCrop 媲美原生体验的 Web 图片裁剪组件](https://newbieweb.lione.me/2019/05/16/simple-crop/)
+相关原理以及实现请查看 `SimpleCrop 媲美原生体验的 Web 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
