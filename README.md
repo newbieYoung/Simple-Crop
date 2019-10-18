@@ -198,8 +198,10 @@ var simpleCrop = new SimpleCrop({
 ### 依赖的第三方库
 
 - AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) 处理移动端触摸操作；
+
 - Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) 获取图片元数据；
-- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) 处理 css 属性前缀。
+
+- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) 处理 css 属性前缀。
 
 ### 其它
 
