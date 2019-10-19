@@ -1,7 +1,7 @@
 {
   "name": "simple-crop",
   "version": "3.1.3",
-  "description": "",
+  "description": "媲美原生体验 Web 图片裁剪组件。",
   "main": "index.js",
   "dependencies": {
     "alloyfinger": "^0.1.15",
