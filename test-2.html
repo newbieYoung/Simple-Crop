@@ -21,9 +21,6 @@
     <script src="./lib/exif.js"></script>
     <script src="./index.js"></script>
     <script>
-        var offsetTop = document.documentElement.clientHeight * 0.04;
-        var offsetLeft = document.documentElement.clientWidth * 0.02;
-
         var simpleCrop = new SimpleCrop({
             src: './img/test2.jpg',
             size: {
@@ -31,10 +28,6 @@
                 height: 600
             },
             cropSizePercent: 0.9,
-            positionOffset: {
-                left: offsetLeft,
-                top: offsetTop
-            },
             cropCallback: function () {
                 this.$resultCanvas.style.marginRight = '10px';
                 this.$resultCanvas.style.width = '50%';

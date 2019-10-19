@@ -50,26 +50,19 @@ npm install simple-crop
 然后配置如下参数初始化；
 
 ```javascript
-var offsetTop = document.documentElement.clientHeight * 0.04
-var offsetLeft = document.documentElement.clientWidth * 0.02
-
 var simpleCrop = new SimpleCrop({
-  src: './img/test3.jpg',
-  size: {
-    width: 1000,
-    height: 600
-  },
-  cropSizePercent: 0.9,
-  positionOffset: {
-    left: offsetLeft,
-    top: offsetTop
-  },
-  cropCallback: function() {
-    this.$resultCanvas.style.marginRight = '10px'
-    this.$resultCanvas.style.width = '50%'
-    document.body.appendChild(this.$resultCanvas)
-  }
-})
+	src: './img/test2.jpg',
+	size: {
+		width: 1000,
+		height: 600
+	},
+	cropSizePercent: 0.9,
+	cropCallback: function () {
+		this.$resultCanvas.style.marginRight = '10px';
+		this.$resultCanvas.style.width = '50%';
+		document.body.appendChild(this.$resultCanvas);
+	}
+});
 ```
 
 当需要重新换张图片裁剪时，调用`show`方法即可，其参数可以是`图片路径`或者`图片文件`；
@@ -94,10 +87,6 @@ simpleCrop.show('./img/test3.jpg')
 	<tr>
 		<td>cropSizePercent</td>
 		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
-	</tr>
-	<tr>
-		<td>positionOffset</td>
-		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
 	</tr>
 	<tr>
 		<td>cropCallback</td>
@@ -130,7 +119,11 @@ var simpleCrop = new SimpleCrop({
   size: {
     width: 800,
     height: 900
-  },
+	},
+	positionOffset:{
+		left: 0,
+		top: 50
+	},
   maxScale: 2,
   borderWidth: 2,
   funcBtns: ['close', 'crop', 'upload'],
@@ -160,8 +153,8 @@ var simpleCrop = new SimpleCrop({
 		<td>标题</td>
 	</tr>
 	<tr>
-		<td>coverDraw</td>
-		<td>辅助线绘制函数</td>
+		<td>positionOffset</td>
+		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
 	</tr>
 	<tr>
 		<td>maxScale</td>
