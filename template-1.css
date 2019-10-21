@@ -1,5 +1,5 @@
 .crop-component {
-    width: 800px;
+    width: 700px;
     background: #FFFFFF;
     -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
@@ -26,8 +26,8 @@
     padding: 0;
     display: inline-block;
     width: 100%;
-    line-height: 50px;
-    height: 50px;
+    line-height: 40px;
+    height: 40px;
     text-align: center;
     font-size: 16px;
     color: #222222;
@@ -37,7 +37,7 @@
 /* 画布 */
 .crop-component .crop-mask {
     width: 100%;
-    height: 600px;
+    height: 500px;
     background-image: url(./img/mosaic-bk.jpg);
     background-repeat: repeat;
     position: relative;
@@ -62,7 +62,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    top: 584px;
+    top: 474px;
     width: 92%;
     height: 66px;
     margin: auto;
@@ -126,7 +126,7 @@
 .crop-component .crop-scale {
     font-size: 0;
     width: 100%;
-    height: 60px;
+    height: 50px;
     border-bottom: 1px solid #CCC;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -214,7 +214,7 @@
 /* 功能按钮 */
 .crop-component .crop-btns {
     width: 100%;
-    height: 109px;
+    height: 90px;
     font-size: 0;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -231,8 +231,8 @@
 
 .crop-component .crop-btns .crop-btn,
 .crop-component .crop-btns .upload-btn {
-    width: 180px;
-    height: 48px;
+    width: 160px;
+    height: 40px;
     border: 1px solid #222222;
     border-radius: 48px;
     cursor: pointer;
@@ -242,8 +242,6 @@
 }
 
 .crop-component .crop-btns .upload-btn-container {
-    width: 180px;
-    height: 48px;
     position: relative;
 }
 
@@ -264,7 +262,7 @@
     font-size: 18px;
     color: #222;
     text-align: center;
-    line-height: 48px;
+    line-height: 40px;
 
 }
 
@@ -283,13 +281,13 @@
 .crop-component .crop-btns .crop-btn {
     position: relative;
     background-color: #000;
-    margin-left: 27px;
+    margin-left: 36px;
 }
 
 .crop-component .crop-btns .crop-btn:after {
     text-align: center;
     color: #FFF;
-    line-height: 48px;
+    line-height: 40px;
     font-size: 18px;
     content: '确定裁剪';
     position: absolute;
