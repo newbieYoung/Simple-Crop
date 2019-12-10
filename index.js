@@ -552,8 +552,6 @@
             self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
                 self.scaleDownX = self.getControlPoints(ev)[0].clientX;
                 self.startControl();
-                ev.stopPropagation();
-                ev.preventDefault();
             });
             self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
                 self.scaleMove(ev);
@@ -632,8 +630,6 @@
             self.$cropRotate.addEventListener(controlEvents.start, function (e) {
                 var touch = self.getControlPoints(e)[0];
                 self.startControl([touch.clientX, touch.clientY]);
-                e.stopPropagation();
-                e.preventDefault();
             });
             self.$cropRotate.addEventListener(controlEvents.move, function (e) {
                 var touch = self.getControlPoints(e)[0];
@@ -657,6 +653,7 @@
                     self._downPoint = point;
                 }
                 e.stopPropagation(); //阻止事件冒泡
+                e.preventDefault();
             });
             self.$cropRotate.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
             self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
@@ -667,13 +664,11 @@
         $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
             var points = self.getControlPoints(ev);
             self.startControl([points[0].clientX, points[0].clientY]);
-            ev.preventDefault();
-            ev.stopPropagation();
         });
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) {
             var points = self.getControlPoints(ev);
             self.contentMove([points[0].clientX, points[0].clientY]);
-            ev.stopPropagation();
+            ev.preventDefault();
         });
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         $imageListenerEle.addEventListener(controlEvents.cancel, self.endControl.bind(self));
