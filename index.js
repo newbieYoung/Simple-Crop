@@ -75,7 +75,6 @@
      * ------------------------------------
      * 浏览器属性
      * @param isSupportTouch 是否支持 touch 事件
-     * @param passiveSupported 事件是否支持 passive
      * ------------------------------------
      * 样式
      * @param zIndex 样式层级
@@ -125,17 +124,6 @@
 
         //浏览器属性
         self.initCanvasTransform(); //初始化 canvas transform
-        self.passiveSupported = false; //判断是否支持 passive
-        try {
-            var options = Object.defineProperty({}, 'passive', {
-                get: function () {
-                    self.passiveSupported = true
-                }
-            })
-            window.addEventListener('test', null, options)
-        } catch (err) {
-            //nothing
-        }
         this.isSupportTouch = 'ontouchend' in document ? true : false; //判断是否支持 touch 事件
 
         //配置
@@ -677,15 +665,11 @@
             var points = self.getControlPoints(ev);
             self.startControl([points[0].clientX, points[0].clientY]);
         });
-        var options = self.passiveSupported ? {
-            passive: false,
-            capture: false
-        } : false;
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) {
             var points = self.getControlPoints(ev);
             self.contentMove([points[0].clientX, points[0].clientY]);
             ev.preventDefault();
-        }, options);
+        });
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         $imageListenerEle.addEventListener(controlEvents.cancel, self.endControl.bind(self));
     };
