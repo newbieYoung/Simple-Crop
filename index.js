@@ -129,7 +129,7 @@
         try {
             var options = Object.defineProperty({}, 'passive', {
                 get: function () {
-                    self.passiveSupported = true
+                    self.passiveSupported = true;
                 }
             })
             window.addEventListener('test', null, options)
@@ -677,7 +677,7 @@
             var points = self.getControlPoints(ev);
             self.startControl([points[0].clientX, points[0].clientY]);
         });
-        var options = self.passiveSupported ? {
+        var options = self.passiveSupported ? { // 如果浏览器支持 passive event listener 为了保证截图操作时页面不滚动需要设置为 false
             passive: false,
             capture: false
         } : false;
