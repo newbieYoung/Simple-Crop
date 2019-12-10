@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -771,7 +772,7 @@
             });
         }
         var points2 = [];
-        for (var i = 0; i < this.contentPoints.length; i++) {
+        for (i = 0; i < this.contentPoints.length; i++) {
             points2.push({
                 x: this.contentPoints[i].x,
                 y: this.contentPoints[i].y
@@ -783,7 +784,7 @@
             x: points2[0].x,
             y: points2[0].y
         };
-        for (var i = 0; i < points2.length; i++) { //最大y、最小x
+        for (i = 0; i < points2.length; i++) { //最大y、最小x
             if (points2[i].x < origin.x) {
                 origin.x = points2[i].x;
             }
@@ -794,11 +795,11 @@
 
         //转换坐标系
         var scaleNum = this.scaleTimes / this.times * this._rotateScale; //把坐标系乘以缩放倍数，转换为实际坐标系
-        for (var i = 0; i < points2.length; i++) {
+        for (i = 0; i < points2.length; i++) {
             points2[i].x = Math.abs(points2[i].x - origin.x) / scaleNum;
             points2[i].y = Math.abs(points2[i].y - origin.y) / scaleNum;
         }
-        for (var i = 0; i < points1.length; i++) {
+        for (i = 0; i < points1.length; i++) {
             points1[i].x = Math.abs(points1[i].x - origin.x) / scaleNum;
             points1[i].y = Math.abs(points1[i].y - origin.y) / scaleNum;
         }
@@ -832,7 +833,7 @@
             width: 0,
             height: 0
         };
-        for (var i = 0; i < points2.length; i++) { //最大x、最大y
+        for (i = 0; i < points2.length; i++) { //最大x、最大y
             if (points2[i].x > imageRect.width) {
                 imageRect.width = points2[i].x;
             }
@@ -1141,7 +1142,7 @@
                 var maxFarPcv = maxFarOut.pcv;
 
                 //计算X轴位移
-                var uAng = this.vecAngle(maxFarPcv.up, maxFarPcv.uproj);
+                uAng = this.vecAngle(maxFarPcv.up, maxFarPcv.uproj);
                 var uLen = this.vecLen(maxFarPcv.uproj);
                 var moveY = 0;
 
@@ -1171,7 +1172,7 @@
 
                 //计算位移后的新坐标
                 if (moveX != 0 || moveY != 0) {
-                    for (var i = 0; i < scalePoints.length; i++) {
+                    for (i = 0; i < scalePoints.length; i++) {
                         scalePoints[i].x = scalePoints[i].x + maxFarOut.iv.x,
                             scalePoints[i].y = scalePoints[i].y + maxFarOut.iv.y;
                     }
@@ -1443,14 +1444,14 @@
         //计算模最小向量
         var sIndex = 0;
         var sLen = 0;
-        for (var i = 0; i < vecs.length; i++) {
+        for (i = 0; i < vecs.length; i++) {
             var len = this.vecLen(vecs[i]);
             if (len == 0 || len < sLen) {
                 sIndex = i;
                 sLen = len;
             }
         }
-        var len = vecs.length;
+        len = vecs.length;
         var sVec = vecs.splice(sIndex, 1)[0];
         var tVec = sVec;
         var eVec;
@@ -1470,7 +1471,7 @@
         angles.push(this.getMinAngle(eVec, [sVec]).angle);
 
         var sum = 0;
-        for (var i = 0; i < angles.length; i++) {
+        for (i = 0; i < angles.length; i++) {
             sum += angles[i];
         }
 
