@@ -27,8 +27,22 @@ class Test2 extends React.Component {
     document.body.appendChild(canvas);
   }
 
+  //设置裁剪图片
+  setCropImg() {
+    let cropParams = this.state.cropParams;
+    cropParams.src = "https://newbieyoung.github.io/Simple-Crop/img/test1.jpg";
+    this.setState({
+      cropParams: cropParams
+    });
+  }
+
   render() {
-    return <SimpleCrop {...this.state.cropParams} />;
+    return (
+      <div>
+        <button onClick={this.setCropImg.bind(this)}>设置裁剪图片</button>
+        <SimpleCrop {...this.state.cropParams} />
+      </div>
+    );
   }
 }
 
