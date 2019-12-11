@@ -8,5 +8,11 @@ export class SimpleCrop extends React.Component {
     super(props);
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.instance = new Core(this.props);
+  }
+
+  render() {
+    return <div />;
+  }
 }
