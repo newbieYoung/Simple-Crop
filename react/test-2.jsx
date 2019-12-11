@@ -14,10 +14,19 @@ class Test2 extends React.Component {
           width: 1000,
           height: 600
         },
-        cropSizePercent: 0.9
+        cropSizePercent: 0.9,
+        cropCallback: this.cropCallback.bind(this)
       }
     };
   }
+
+  //图片裁剪回调函数
+  cropCallback(canvas) {
+    canvas.style.marginRight = "10px";
+    canvas.style.width = "50%";
+    document.body.appendChild(canvas);
+  }
+
   render() {
     return <SimpleCrop {...this.state.cropParams} />;
   }
