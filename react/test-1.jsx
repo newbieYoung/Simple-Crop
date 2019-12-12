@@ -46,7 +46,7 @@ class Test1 extends React.Component {
     this.cropCoverContext.lineWidth = 2;
 
     this.cropCoverContext.beginPath();
-    var rect1 = {
+    let rect1 = {
       left: this.cropRect.left * window.devicePixelRatio,
       top:
         (this.cropRect.top + this.cropRect.height * 0.125) *
@@ -67,7 +67,7 @@ class Test1 extends React.Component {
     this.cropCoverContext.stroke();
 
     this.cropCoverContext.beginPath();
-    var rect2 = {
+    let rect2 = {
       left:
         (this.cropRect.left + this.cropRect.width * 0.2) *
         window.devicePixelRatio,
