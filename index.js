@@ -490,7 +490,7 @@
             this.setImage(image);
         }
         this.visible = true;
-        this.$target.style.display = self.targetDisplay;
+        this.$target.style.display = this.targetDisplay;
     };
 
     //隐藏

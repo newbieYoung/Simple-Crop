@@ -22,7 +22,7 @@ export class SimpleCrop extends React.Component {
 
   //组件属性更新是否需要重新构建组件
   shouldRebuild(prevProps) {
-    //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw
+    //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw、visible
     let build = false;
     if (
       prevProps.maxScale != this.props.maxScale ||
@@ -81,11 +81,16 @@ export class SimpleCrop extends React.Component {
       this.instance = new Core(this.props);
     } else {
       if (this.instance) {
+        if (this.props.visible) {
+          this.instance.show();
+        } else {
+          this.instance.hide();
+        }
         if (prevProps.title != this.props.title) {
           this.instance.$title.innerText = this.props.title;
         }
         if (prevProps.src != this.props.src) {
-          this.instance.show(this.props.src);
+          this.instance.setImage(this.props.src);
         }
         this.instance.debug = this.props.debug;
         if (prevProps.zIndex != this.props.zIndex) {

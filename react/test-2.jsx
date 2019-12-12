@@ -9,6 +9,7 @@ class Test2 extends React.Component {
 
     this.state = {
       cropParams: {
+        visible: true, //是否显示
         src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg",
         size: {
           width: 1000,
@@ -27,10 +28,11 @@ class Test2 extends React.Component {
     document.body.appendChild(canvas);
   }
 
-  //设置裁剪图片
+  //设置裁剪图片并显示
   setCropImg() {
     let cropParams = this.state.cropParams;
     cropParams.src = "https://newbieyoung.github.io/Simple-Crop/img/test1.jpg";
+    cropParams.visible = true;
     this.setState({
       cropParams: cropParams
     });
