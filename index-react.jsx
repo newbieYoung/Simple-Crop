@@ -80,6 +80,7 @@ export class SimpleCrop extends React.Component {
           this.instance.hide();
         }
         if (prevProps.title != this.props.title) {
+          this.instance.title = this.props.title;
           this.instance.$title.innerText = this.props.title;
         }
         if (prevProps.src != this.props.src) {
@@ -87,6 +88,7 @@ export class SimpleCrop extends React.Component {
         }
         this.instance.debug = this.props.debug;
         if (prevProps.zIndex != this.props.zIndex) {
+          this.instance.zIndex = this.props.zIndex;
           this.instance.$target.style.zIndex = this.props.zIndex;
         }
         if (prevProps.borderDraw != this.props.borderDraw) {
