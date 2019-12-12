@@ -27,17 +27,16 @@ class Test1 extends React.Component {
         coverColor: "rgba(0,0,0,.5)",
         startAngle: -360,
         endAngle: 360,
-        cropCallback: this.cropCallback,
-        coverDraw: this.coverDraw
+        cropCallback: this.cropCallback
       }
     };
   }
 
   //图片裁剪回调函数
-  cropCallback(canvas) {
-    canvas.style.marginRight = "10px";
-    canvas.style.width = "50%";
-    document.body.appendChild(canvas);
+  cropCallback() {
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
   }
 
   //自定义辅助线
@@ -92,9 +91,19 @@ class Test1 extends React.Component {
     this.cropCoverContext.stroke();
   }
 
+  //绘制辅助线
+  drawCover() {
+    let cropParams = this.state.cropParams;
+    cropParams.coverDraw = this.coverDraw;
+    this.setState({
+      cropParams: cropParams
+    });
+  }
+
   render() {
     return (
       <div>
+        <button onClick={this.drawCover.bind(this)}>绘制辅助线</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>
     );
