@@ -176,8 +176,8 @@
         this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
 
         //自定义函数属性
-        this.coverDraw = params.coverDraw != null ? params.coverDraw : this.defaultCoverDraw;
-        this.borderDraw = params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
+        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : this.defaultCoverDraw;
+        this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
         this.cropCallback = params.cropCallback || function () {};
         this.closeCallback = params.closeCallback || function () {};
         this.uploadCallback = params.uploadCallback || function () {};
@@ -331,6 +331,9 @@
         this.$target.innerHTML = html;
         this.$target.style.zIndex = this.zIndex;
         this.$container.appendChild(this.$target);
+        if (this.title) {
+            this.$title = document.querySelector('#' + this.id + ' .crop-title');
+        }
         this.targetDisplay = window.getComputedStyle(this.$target).getPropertyValue('display');
     };
 
