@@ -22,10 +22,10 @@ class Test2 extends React.Component {
   }
 
   //图片裁剪回调函数
-  cropCallback(canvas) {
-    canvas.style.marginRight = "10px";
-    canvas.style.width = "50%";
-    document.body.appendChild(canvas);
+  cropCallback() {
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
   }
 
   //设置裁剪图片并显示

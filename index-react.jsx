@@ -6,13 +6,6 @@ export class SimpleCrop extends React.Component {
 
   constructor(props) {
     super(props);
-
-    //传入裁剪结果到裁剪回调函数中
-    let self = this;
-    let cropCallback = this.props.cropCallback;
-    this.props.cropCallback = function() {
-      cropCallback(self.instance.$resultCanvas);
-    };
   }
 
   //初次渲染
@@ -22,7 +15,7 @@ export class SimpleCrop extends React.Component {
 
   //组件属性更新是否需要重新构建组件
   shouldRebuild(prevProps) {
-    //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw、visible
+    //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw、visible、cropCallback、uploadCallback、closeCallback
     let build = false;
     if (
       prevProps.maxScale != this.props.maxScale ||
@@ -97,7 +90,7 @@ export class SimpleCrop extends React.Component {
           this.instance.$target.style.zIndex = this.props.zIndex;
         }
         if (prevProps.borderDraw != this.props.borderDraw) {
-          this.instance.borderDraw = this.props.borderDraw.bind(this);
+          this.instance.borderDraw = this.props.borderDraw.bind(this.instance);
         }
         if (
           prevProps.noBoldCorner != this.props.noBoldCorner ||
@@ -108,9 +101,24 @@ export class SimpleCrop extends React.Component {
           this.instance.borderDraw();
         }
         if (prevProps.coverDraw != this.props.coverDraw) {
-          this.instance.coverDraw = this.props.coverDraw.bind(this);
+          this.instance.coverDraw = this.props.coverDraw.bind(this.instance);
           this.instance.borderDraw();
           this.instance.coverDraw();
+        }
+        if (prevProps.cropCallback != this.props.cropCallback) {
+          this.instance.cropCallback = this.props.cropCallback.bind(
+            this.instance
+          );
+        }
+        if (prevProps.uploadCallback != this.props.uploadCallback) {
+          this.instance.uploadCallback = this.props.uploadCallback.bind(
+            this.instance
+          );
+        }
+        if (prevProps.closeCallback != this.props.closeCallback) {
+          this.instance.closeCallback = this.props.closeCallback.bind(
+            this.instance
+          );
         }
       }
     }
