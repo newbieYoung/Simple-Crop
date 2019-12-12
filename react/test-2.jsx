@@ -16,7 +16,7 @@ class Test2 extends React.Component {
           height: 600
         },
         cropSizePercent: 0.9,
-        cropCallback: this.cropCallback.bind(this)
+        cropCallback: this.cropCallback
       }
     };
   }
