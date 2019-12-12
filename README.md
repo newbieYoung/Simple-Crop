@@ -1,56 +1,88 @@
 # SimpleCrop
 
-一个在`功能`和`交互`上复刻移动设备原生图片裁剪功能的 Web 图片裁剪组件。
+目前`全网唯一`支持裁剪图片任意角度旋转、交互体验`媲美原生客户端`的 Web 图片裁剪组件。
 
-之所以会做这个项目主要是因为已知的图片裁剪组件并不能完全满足自己的要求，比如：
+## 特性及优势
 
-- `Croppie`：[https://github.com/foliotek/croppie](https://github.com/foliotek/croppie)
-
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-2.jpg">
- 
-只支持旋转固定角度。
-
-- `AlloyCrop`：[https://github.com/AlloyTeam/AlloyCrop](https://github.com/AlloyTeam/AlloyCrop)
-
-完全不支持旋转。
-
-因此和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
+和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
 
 - 裁剪图片支持任意角度旋转；
-- 移动端缩放以双指中心为基准点；
 - 支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
+- 移动端缩放以双指中心为基准点；
+- 基于自定义样式、自适应事件监听等，支持移动设备和 PC；
+- 支持 script 标签、React、Vue、AngularJS 等多种开发模式（Vue、AngularJS 待实现）；
 - 操作体验媲美原生客户端。
 
-### 安装
+## 安装
 
 ```
 npm install simple-crop
 ```
 
+## 示例
+
 ### 移动端示例
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-0.jpg">
+<img src="https://newbieyoung.github.io/images/simple-crop-0.jpg">
 
-> 左侧是 IOS 系统自带的图片裁剪功能，右侧为组件的示例一；
+> 左侧是 IOS 系统相册中原生的图片裁剪功能，右侧为 SimpleCrop 移动端示例。
 
 可以扫描二维码体验：
 
-<img src="https://raw.githubusercontent.com/newbieYoung/NewbieWeb_Resource/master/images/simple-crop-1.png">
+<img src="https://newbieyoung.github.io/images/simple-crop-1.png">
 
 或者访问以下链接：
 
 [https://newbieyoung.github.io/Simple-Crop/test-2.html](https://newbieyoung.github.io/Simple-Crop/test-2.html)
 
-首先引入移动端样式；
+### PC 示例
+
+<img src="https://newbieyoung.github.io/images/simple-crop-11.jpg">
+
+链接如下：
+
+[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
+
+### 用法
+
+#### 1、引入样式
+
+目前提供了两种默认样式 `./dist/template-2.css` 适用移动设备，`./dist/template-1.css` 适用 PC。
+
+- link 标签
 
 ```html
-<link rel="stylesheet" href="./dist/template-2.css" />
+<link rel="stylesheet" href="./dist/template-1.css" />
 ```
 
-然后配置如下参数初始化；
+- React
 
 ```javascript
-var simpleCrop = new SimpleCrop({
+import "./dist/template-1.css";
+```
+
+#### 2、引入组件代码
+
+SimpleCrop 期望实现全框架支持，但是目前仅支持 script 标签和 React 两种，对应代码如下：
+
+- script 标签
+
+```html
+<script src="./index.js"></script>
+```
+
+- React
+
+```javascript
+import { SimpleCrop } from "./index-react.jsx";
+```
+
+#### 3、初始化
+
+移动端参数配置示例：
+
+```javascript
+new SimpleCrop({
   src: "./img/test2.jpg",
   size: {
     width: 1000,
@@ -64,6 +96,66 @@ var simpleCrop = new SimpleCrop({
   }
 });
 ```
+
+PC 参数配置示例：
+
+```javascript
+new SimpleCrop({
+  title: "上传图片过大，请裁剪",
+  src: "./img/test1.jpg",
+  size: {
+    width: 800,
+    height: 900
+  },
+  positionOffset: {
+    left: 0,
+    top: 50
+  },
+  maxScale: 2,
+  borderWidth: 2,
+  funcBtns: ["close", "crop", "upload"],
+  borderColor: "#0BFF00",
+  coverColor: "rgba(0,0,0,.5)",
+  startAngle: -180,
+  endAngle: 180,
+  gapAngle: 10,
+  cropCallback: function() {
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
+  },
+  coverDraw: function() {
+    //...
+  }
+});
+```
+
+参数说明：
+
+<table style="word-break: normal;">
+	<tr>
+		<td>参数</td>
+		<td>说明</td>
+	</tr>
+	<tr>
+		<td>src</td>
+		<td>素材图片地址</td>
+	</tr>
+	<tr>
+		<td>size</td>
+		<td>裁剪图片尺寸</td>
+	</tr>
+	<tr>
+		<td>cropSizePercent</td>
+		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
+	</tr>
+	<tr>
+		<td>cropCallback</td>
+		<td>图片裁剪回调函数，在函数中通过<b>this.$resultCanvas</b>来获取裁剪结果</td>
+	</tr>
+</table>
+
+---
 
 当需要重新换张图片裁剪时，调用`setImage`方法即可，其参数可以是`图片路径`或者`图片文件`；
 
