@@ -25,11 +25,7 @@ export class SimpleCrop extends React.Component {
     //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw
     let build = false;
     if (
-      prevProps.size.width != this.props.size.width ||
-      prevProps.size.height != this.props.size.height ||
       prevProps.maxScale != this.props.maxScale ||
-      prevProps.positionOffset.top != this.props.positionOffset.top ||
-      prevProps.positionOffset.left != this.props.positionOffset.left ||
       prevProps.scaleSlider != this.props.scaleSlider ||
       prevProps.cropSizePercent != this.props.cropSizePercent ||
       prevProps.rotateSlider != this.props.rotateSlider ||
@@ -42,10 +38,34 @@ export class SimpleCrop extends React.Component {
       build = true;
     }
 
-    //功能按钮顺序也不能发生变化
-    for (let i = 0; i < this.props.funcBtns.length; i++) {
-      if (prevProps.funcBtns[i] != this.props.funcBtns[i]) {
+    if (this.props.size && prevProps.size) {
+      if (
+        prevProps.size.width != this.props.size.width ||
+        prevProps.size.height != this.props.size.height
+      ) {
         build = true;
+      }
+    } else if (this.props.size || prevProps.size) {
+      build = true;
+    }
+
+    if (this.props.positionOffset && prevProps.positionOffset) {
+      if (
+        prevProps.positionOffset.top != this.props.positionOffset.top ||
+        prevProps.positionOffset.left != this.props.positionOffset.left
+      ) {
+        build = true;
+      }
+    } else if (this.props.positionOffset || prevProps.positionOffset) {
+      build = true;
+    }
+
+    //功能按钮顺序也不能发生变化
+    if (this.props.funcBtns && prevProps.funcBtns) {
+      for (let i = 0; i < this.props.funcBtns.length; i++) {
+        if (prevProps.funcBtns[i] != this.props.funcBtns[i]) {
+          build = true;
+        }
       }
     }
 
