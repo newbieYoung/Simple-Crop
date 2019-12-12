@@ -180,9 +180,9 @@
         //自定义函数属性
         this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : this.defaultCoverDraw;
         this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
-        this.cropCallback = params.cropCallback || function () {};
-        this.closeCallback = params.closeCallback || function () {};
-        this.uploadCallback = params.uploadCallback || function () {};
+        this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
+        this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
+        this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
 
         //旋转刻度盘
         this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
