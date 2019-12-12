@@ -51,24 +51,24 @@ npm install simple-crop
 
 ```javascript
 var simpleCrop = new SimpleCrop({
-  src: './img/test2.jpg',
+  src: "./img/test2.jpg",
   size: {
     width: 1000,
     height: 600
   },
   cropSizePercent: 0.9,
   cropCallback: function() {
-    this.$resultCanvas.style.marginRight = '10px'
-    this.$resultCanvas.style.width = '50%'
-    document.body.appendChild(this.$resultCanvas)
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
   }
-})
+});
 ```
 
-当需要重新换张图片裁剪时，调用`show`方法即可，其参数可以是`图片路径`或者`图片文件`；
+当需要重新换张图片裁剪时，调用`setImage`方法即可，其参数可以是`图片路径`或者`图片文件`；
 
 ```javascript
-simpleCrop.show('./img/test1.jpg')
+simpleCrop.setImage("./img/test1.jpg");
 ```
 
 <table style="word-break: normal;">
@@ -114,8 +114,8 @@ simpleCrop.show('./img/test1.jpg')
 
 ```javascript
 var simpleCrop = new SimpleCrop({
-  title: '上传图片过大，请裁剪',
-  src: './img/test1.jpg',
+  title: "上传图片过大，请裁剪",
+  src: "./img/test1.jpg",
   size: {
     width: 800,
     height: 900
@@ -126,21 +126,21 @@ var simpleCrop = new SimpleCrop({
   },
   maxScale: 2,
   borderWidth: 2,
-  funcBtns: ['close', 'crop', 'upload'],
-  borderColor: '#0BFF00',
-  coverColor: 'rgba(0,0,0,.5)',
+  funcBtns: ["close", "crop", "upload"],
+  borderColor: "#0BFF00",
+  coverColor: "rgba(0,0,0,.5)",
   startAngle: -180,
   endAngle: 180,
   gapAngle: 10,
   cropCallback: function() {
-    this.$resultCanvas.style.marginRight = '10px'
-    this.$resultCanvas.style.width = '50%'
-    document.body.appendChild(this.$resultCanvas)
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
   },
   coverDraw: function() {
     //...
   }
-})
+});
 ```
 
 <table style="word-break: normal;">
