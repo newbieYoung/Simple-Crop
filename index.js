@@ -64,6 +64,7 @@
      * ------------------------------------
      * 配置
      * @param title 组件标题
+     * @param visible 是否显示
      * @param src   初始图片路径
      * @param maxScale 最大缩放倍数
      * @param size 截图实际宽高
@@ -171,6 +172,7 @@
         //样式属性
         this.id = 'crop-' + new Date().getTime();
         this.zIndex = params.zIndex != null ? params.zIndex : 9999;
+        this.visible = params.visible != null ? params.visible : true; //默认显示
         this.noBoldCorner = params.noBoldCorner != null ? params.noBoldCorner : false;
         this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
         this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
@@ -459,8 +461,8 @@
         }
     };
 
-    //显示
-    SimpleCrop.prototype.show = function (image) {
+    //设置裁剪图片
+    SimpleCrop.prototype.setImage = function (image) {
         var self = this;
         if (self.$cropContent && image != null) {
             self.$cropMask.removeChild(self.$cropContent);
@@ -480,11 +482,20 @@
                 self.uploadCallback();
             });
         }
-        self.$target.style.display = self.targetDisplay;
+    }
+
+    //显示
+    SimpleCrop.prototype.show = function (image) {
+        if (image) {
+            this.setImage(image);
+        }
+        this.visible = true;
+        this.$target.style.display = self.targetDisplay;
     };
 
     //隐藏
     SimpleCrop.prototype.hide = function () {
+        this.visible = false;
         this.$target.style.display = 'none';
     };
 
