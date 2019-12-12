@@ -63,15 +63,15 @@
     /**
      * ------------------------------------
      * 配置
-     * @param title 组件标题
+     * @param title 标题
      * @param visible 是否显示
      * @param src   初始图片路径
      * @param maxScale 最大缩放倍数
      * @param size 截图实际宽高
-     * @param debug 是否开启调试模式，开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程
+     * @param debug 是否开启调试模式
      * @param positionOffset 裁剪框屏幕偏移
      * @param $container 容器
-     * @param scaleSlider 是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）
+     * @param scaleSlider 是否开启缩放滑动控制条
      * @param funcBtns 功能按钮数组
      * ------------------------------------
      * 浏览器属性
@@ -79,7 +79,7 @@
      * @param passiveSupported 事件是否支持 passive
      * ------------------------------------
      * 样式
-     * @param zIndex 样式层级
+     * @param zIndex 组件层级
      * @param noBoldCorner 裁剪框边角是否不加粗
      * @param coverColor 遮罩框背景颜色
      * @param cropSizePercent 裁剪区域占画布比例
@@ -87,18 +87,18 @@
      * @param borderColor 裁剪框边框颜色
      * ------------------------------------
      * 自定义函数
-     * @param coverDraw 裁剪框辅助线绘制函数
-     * @param borderDraw 裁剪框边框绘制函数
-     * @param cropCallback 确定裁剪回调函数
-     * @param uploadCallback 重新上传回调函数
-     * @param closeCallback 关闭回调函数
+     * @param coverDraw 裁剪框自定义辅助线绘制函数
+     * @param borderDraw 裁剪框自定义边框绘制函数
+     * @param cropCallback 图片裁剪完成回调函数
+     * @param uploadCallback 重新上传裁剪图片回调函数
+     * @param closeCallback 关闭裁剪组件回调函数
      * ------------------------------------
      * 旋转刻度盘
-     * @param rotateSlider 是否开启旋转刻度盘（默认开启）
+     * @param rotateSlider 是否开启旋转刻度盘
      * @param startAngle 开始角度
      * @param endAngle 结束角度
      * @param gapAngle 间隔角度
-     * @param lineationItemWidth 单个刻度盘宽度，单位像素
+     * @param lineationItemWidth 单刻度盘宽度
      * ------------------------------------
      * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
      * @param maskViewSize 容器的屏幕尺寸
@@ -178,7 +178,7 @@
         this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
 
         //自定义函数属性
-        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : this.defaultCoverDraw;
+        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : function () {};
         this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
         this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
         this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
@@ -368,11 +368,6 @@
 
         //清空内容区域
         this.cropCoverContext.clearRect(borderRect.left + this.borderWidth, borderRect.top + this.borderWidth, borderRect.width - 2 * this.borderWidth, borderRect.height - 2 * this.borderWidth);
-    };
-
-    //默认绘制辅助线
-    SimpleCrop.prototype.defaultCoverDraw = function () {
-
     };
 
     //初始化
