@@ -41,7 +41,7 @@ class Test2 extends React.Component {
   render() {
     return (
       <div>
-        <button onClick={this.setCropImg.bind(this)}>设置裁剪图片</button>
+        <button onClick={this.setCropImg.bind(this)}>设置裁剪图片并显示</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>
     );
