@@ -1,7 +1,7 @@
 module.exports = {
   entry: {
-    'react-test-2': './react/test-2.jsx',
-    'react-test-1': './react/test-1.jsx',
+    'react-test-2': './examples/react/test-2.jsx',
+    'react-test-1': './examples/react/test-1.jsx',
   },
   module: {
     rules: [{

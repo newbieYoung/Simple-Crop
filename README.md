@@ -35,11 +35,11 @@ npm install simple-crop
 
 - script 标签
 
-[https://newbieyoung.github.io/Simple-Crop/test-2.html](https://newbieyoung.github.io/Simple-Crop/test-2.html)
+[https://newbieyoung.github.io/Simple-Crop/examples/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/test-2.html)
 
 - React
 
-[https://newbieyoung.github.io/Simple-Crop/react/test-2.html](https://newbieyoung.github.io/Simple-Crop/react/test-2.html)
+[https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html)
 
 ### PC 示例
 
@@ -47,11 +47,11 @@ npm install simple-crop
 
 - script 标签
 
-[https://newbieyoung.github.io/Simple-Crop/test-1.html](https://newbieyoung.github.io/Simple-Crop/test-1.html)
+[https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
 
 - React
 
-[https://newbieyoung.github.io/Simple-Crop/react/test-1.html](https://newbieyoung.github.io/Simple-Crop/react/test-1.html)
+[https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html)
 
 ## 用法
 
