@@ -23,13 +23,13 @@ npm install simple-crop
 
 ### 移动端示例
 
-<img src="https://newbieyoung.github.io/images/simple-crop-0.jpg">
+![移动端示例](https://newbieyoung.github.io/images/simple-crop-0.jpg)
 
 > 左侧是 IOS 系统相册中原生的图片裁剪功能，右侧为 SimpleCrop 移动端示例。
 
 可以扫描二维码体验：
 
-<img src="https://newbieyoung.github.io/images/simple-crop-1.png">
+![移动端示例二维码](https://newbieyoung.github.io/images/simple-crop-1.png)
 
 或者访问以下链接：
 
@@ -43,7 +43,7 @@ npm install simple-crop
 
 ### PC 示例
 
-<img src="https://newbieyoung.github.io/images/simple-crop-11.jpg">
+![PC 示例](https://newbieyoung.github.io/images/simple-crop-11.jpg)
 
 - script 标签
 
