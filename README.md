@@ -2,7 +2,7 @@
 
 `the only` web picture cropping component that supports cropping pictures at any angle and has an `interactive experience` comparable to native clients.
 
-[中文](https://newbieyoung.github.io/Simple-Crop/README-zh.md)
+[中文](README-zh.md)
 
 ## 特性及优势
 
