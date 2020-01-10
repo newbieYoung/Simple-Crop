@@ -2,6 +2,8 @@
 
 目前`全网唯一`支持裁剪图片任意角度旋转、交互体验`媲美原生客户端`的 Web 图片裁剪组件。
 
+[English](https://newbieyoung.github.io/Simple-Crop/README.md)
+
 ## 特性及优势
 
 和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
