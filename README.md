@@ -4,38 +4,38 @@
 
 [中文](README-zh.md)
 
-## 特性及优势
+## Features
 
-和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
+Compared with the currently popular Web image cropping components, its advantages are as follows:
 
-- 裁剪图片支持任意角度旋转；
-- 支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
-- 移动端缩放以双指中心为基准点；
-- 基于自定义样式、自适应事件监听等，支持移动设备和 PC；
-- 支持 script 标签、React、Vue、AngularJS 等多种开发模式（Vue、AngularJS 待实现）；
-- 操作体验媲美原生客户端。
+- Image supports rotation at any angle;
+- Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame;
+- Mobile terminal zoom is based on the center of two fingers;
+- Supports mobile and PC;
+- Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented);
+- Has an interactive experience comparable to native clients.
 
-## 安装
+## Install
 
 ```
 npm install simple-crop
 ```
 
-## 示例
+## Examples
 
-### 移动端示例
+### Mobile Example
 
-![移动端示例](https://newbieyoung.github.io/images/simple-crop-0.jpg)
+![Mobile Example](https://newbieyoung.github.io/images/simple-crop-0.jpg)
 
-> 左侧是 IOS 系统相册中原生的图片裁剪功能，右侧为 SimpleCrop 移动端示例。
+> On the left is the picture cropping example in the IOS system album, and on the right is the SimpleCrop mobile example.
 
-可以扫描二维码体验：
+Scan the QR code:
 
-![移动端示例二维码](https://newbieyoung.github.io/images/simple-crop-1.png)
+![QR code for mobile example](https://newbieyoung.github.io/images/simple-crop-1.png)
 
-或者访问以下链接：
+Visit the following links:
 
-- script 标签
+- script
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/test-2.html)
 
@@ -43,11 +43,11 @@ npm install simple-crop
 
 [https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html)
 
-### PC 示例
+### PC Example
 
-![PC 示例](https://newbieyoung.github.io/images/simple-crop-11.jpg)
+![PC Example](https://newbieyoung.github.io/images/simple-crop-11.jpg)
 
-- script 标签
+- script
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
 
@@ -55,13 +55,13 @@ npm install simple-crop
 
 [https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html)
 
-## 用法
+## Usage
 
-### 1、引入样式
+### 1. import css
 
-目前提供了两种默认样式 `./dist/template-2.css` 适用移动设备，`./dist/template-1.css` 适用 PC。
+Two default styles are currently provided; `./dist/template-2.css` for mobile devices, `./dist/template-1.css` for PC.
 
-- link 标签
+- link
 
 ```html
 <link rel="stylesheet" href="./dist/template-2.css" />
@@ -73,11 +73,11 @@ npm install simple-crop
 import "./dist/template-2.css";
 ```
 
-### 2、引入组件代码
+### 2. import component code
 
-SimpleCrop 期望实现全框架支持，但是目前仅支持 script 标签和 React 两种，对应代码如下：
+SimpleCrop expects to implement full framework support, but currently only supports script and React. The corresponding code is as follows:
 
-- script 标签
+- script
 
 ```html
 <script src="./index.js"></script>
