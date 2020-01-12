@@ -11,7 +11,7 @@ Compared with the currently popular Web image cropping components, its advantage
 - Image supports rotation at any angle;
 - Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame;
 - Mobile terminal zoom is based on the center of two fingers;
-- Supports mobile and PC;
+- Supports Mobile and PC;
 - Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented);
 - Has an interactive experience comparable to native clients.
 
@@ -89,9 +89,9 @@ SimpleCrop expects to implement full framework support, but currently only suppo
 import { SimpleCrop } from "./index-react.jsx";
 ```
 
-### 3、初始化
+### 3. initialization
 
-- 移动端初始化参数示例：
+- Mobile initialization parameters example:
 
 ```javascript
 new SimpleCrop({
@@ -109,11 +109,11 @@ new SimpleCrop({
 });
 ```
 
-- PC 初始化参数示例：
+- PC initialization parameters example:
 
 ```javascript
 new SimpleCrop({
-  title: "上传图片过大，请裁剪",
+  title: "Image is too large, please crop.",
   src: "./img/test1.jpg",
   size: {
     width: 800,
@@ -142,16 +142,16 @@ new SimpleCrop({
 });
 ```
 
-## 常用属性及方法说明
+## Properties And Methods
 
 <table style="word-break: normal;">
 	<tr>
-		<td>属性</td>
-		<td>说明</td>
+		<td>property</td>
+		<td>description</td>
 	</tr>
 	<tr>
 		<td>debug</td>
-		<td>是否开启调试模式（开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程）</td>
+		<td>Whether to enable debugging mode (开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程) </td>
 	</tr>
 	<tr>
 		<td>title</td>
