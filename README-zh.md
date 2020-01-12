@@ -142,6 +142,10 @@ new SimpleCrop({
 });
 ```
 
+## 开源许可协议
+
+[MIT](http://opensource.org/licenses/MIT) License.
+
 ## 常用属性及方法说明
 
 <table style="word-break: normal;">

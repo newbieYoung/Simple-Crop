@@ -57,11 +57,11 @@ Visit the following links:
 
 ## Usage
 
-### 1. import css
+### 1. import css style
 
-Two default styles are currently provided; `./dist/template-2.css` for mobile devices, `./dist/template-1.css` for PC.
+Two default styles are currently provided; `./dist/template-2.css` for Mobile, `./dist/template-1.css` for PC.
 
-- link
+- script
 
 ```html
 <link rel="stylesheet" href="./dist/template-2.css" />
@@ -141,6 +141,10 @@ new SimpleCrop({
   }
 });
 ```
+
+## License
+
+This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
 
 ## Properties And Methods
 
