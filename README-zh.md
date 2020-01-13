@@ -175,7 +175,7 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>是否开启缩放滑动控制条（移动端默认会启动双指滑动缩放方式）</td>
+		<td>是否开启缩放滑动控制条（PC建议开启，移动端默认会启动双指滑动缩放方式）</td>
 	</tr>
 	<tr>
 		<td>size</td>
@@ -211,7 +211,7 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>coverColor</td>
-		<td>遮罩框背景颜色</td>
+		<td>遮罩背景颜色</td>
 	</tr>
 	<tr>
 		<td>funcBtns</td>
@@ -231,11 +231,11 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>gapAngle</td>
-		<td>旋转刻度盘刻度间隔角度</td>
+		<td>旋转刻度盘间隔角度</td>
 	</tr>
 	<tr>
 		<td>lineationItemWidth</td>
-		<td>旋转刻度盘单刻度盘宽度（单位 px）</td>
+		<td>旋转刻度盘间隔宽度（单位 px）</td>
 	</tr>
 	<tr>
 		<td>borderDraw</td>
@@ -270,11 +270,11 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>show</td>
-		<td>显示</td>
+		<td>显示组件</td>
 	</tr>
 	<tr>
 		<td>hide</td>
-		<td>隐藏</td>
+		<td>隐藏组件</td>
 	</tr>
 </table>
 

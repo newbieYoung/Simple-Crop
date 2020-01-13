@@ -6,9 +6,9 @@
 
 ## Features
 
-Compared with the currently popular Web image cropping components, its advantages are as follows:
+Compared with the currently popular Web picture cropping components, its advantages are as follows:
 
-- Image supports rotation at any angle;
+- Picture supports rotation at any angle;
 - Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame;
 - Mobile terminal zoom is based on the center of two fingers;
 - Supports Mobile and PC;
@@ -113,7 +113,7 @@ new SimpleCrop({
 
 ```javascript
 new SimpleCrop({
-  title: "Image is too large, please crop.",
+  title: "Picture is too large, please crop.",
   src: "./img/test1.jpg",
   size: {
     width: 800,
@@ -155,7 +155,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>debug</td>
-		<td>Debug mode (Turn on debugging mode will show the automatic adsorption process of image.) </td>
+		<td>Debug mode (Turn on debugging mode will show the automatic adsorption process of picture.) </td>
 	</tr>
 	<tr>
 		<td>title</td>
@@ -163,7 +163,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>src</td>
-		<td>Image src</td>
+		<td>Picture src</td>
 	</tr>
 	<tr>
 		<td>visible</td>
@@ -175,112 +175,112 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>Whether to enable the scale slider（Recommended for PC, 移动端默认会启动双指操作方式）</td>
+		<td>Whether to enable the scale slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
 	</tr>
 	<tr>
 		<td>size</td>
-		<td>裁剪图片尺寸</td>
+		<td>Target size</td>
 	</tr>
 	<tr>
 		<td>zIndex</td>
-		<td>组件层级</td>
+		<td>Component's z-index css property</td>
 	</tr>
 	<tr>
 		<td>positionOffset</td>
-		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
+		<td>Crop frame offset, the crop frame defaults to the center of the canvas.</td>
 	</tr>
 	<tr>
 		<td>maxScale</td>
-		<td>最大缩放倍数，如果裁剪图片放大至设置的最大缩放倍数仍然不能完全填满裁剪框，则最大缩放倍数会强制等于 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
+		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop frame, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop frame ).</td>
 	</tr>
 	<tr>
 		<td>borderWidth</td>
-		<td>裁剪框边框宽度</td>
+		<td>Crop frame border width</td>
 	</tr>
 	<tr>
 		<td>borderColor</td>
-		<td>裁剪框边框颜色</td>
+		<td>Crop frame border color</td>
 	</tr>
 	<tr>
 		<td>noBoldCorner</td>
-		<td>裁剪框边角是否不加粗</td>
+		<td>Whether the corners of the crop frame are not bold.</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
+		<td>The proportion of the crop frame to the crop display area, 0.9 means 90%.</td>
 	</tr>
 	<tr>
 		<td>coverColor</td>
-		<td>遮罩框背景颜色</td>
+		<td>Cover background color</td>
 	</tr>
 	<tr>
 		<td>funcBtns</td>
-		<td>默认功能按钮（目前支持 upload 重新上传、crop 裁剪图片、close 取消、around 90度旋转、reset 重置）</td>
+		<td>Function buttons ( Currently supported: upload, crop, close, around, reset.)</td>
 	</tr>
 	<tr>
 		<td>rotateSlider</td>
-		<td>是否开启旋转刻度盘（默认开启）</td>
+		<td>Whether to turn the rotary dial ( On by default ).</td>
 	</tr>
 	<tr>
 		<td>startAngle</td>
-		<td>旋转刻度盘开始角度</td>
+		<td>Rotating dial start angle</td>
 	</tr>
 	<tr>
 		<td>endAngle</td>
-		<td>旋转刻度盘结束角度</td>
+		<td>Rotating dial end angle</td>
 	</tr>
 	<tr>
 		<td>gapAngle</td>
-		<td>旋转刻度盘刻度间隔角度</td>
+		<td>Rotating dial interval angle</td>
 	</tr>
 	<tr>
 		<td>lineationItemWidth</td>
-		<td>旋转刻度盘单刻度盘宽度（单位 px）</td>
+		<td>Rotating dial interval width ( Unit px )</td>
 	</tr>
 	<tr>
 		<td>borderDraw</td>
-		<td>裁剪框自定义边框绘制函数</td>
+		<td>Crop frame custom border drawing function</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
-		<td>裁剪框自定义辅助线绘制函数</td>
+		<td>Crop frame custom auxiliary line drawing function</td>
 	</tr>
 	<tr>
 		<td>uploadCallback</td>
-		<td>重新上传裁剪图片回调函数</td>
+		<td>Re-upload cropped picture callback function</td>
 	</tr>
 	<tr>
 		<td>closeCallback</td>
-		<td>关闭裁剪组件回调函数</td>
+		<td>Close cropping component callback function</td>
 	</tr>
 	<tr>
 		<td>cropCallback</td>
-		<td>图片裁剪完成回调函数（在函数中通过 this.$resultCanvas 来获取裁剪结果）</td>
+		<td>Picture cropping completion callback function ( Use `this.$resultCanvas` to get the crop result. )</td>
 	</tr>
 </table>
 
 <table style="word-break: normal;">
 	<tr>
-		<td>方法</td>
-		<td>说明</td>
+		<td>method</td>
+		<td>description</td>
 	</tr>
 	<tr>
 		<td>setImage</td>
-		<td>设置裁剪图片</td>
+		<td>Set crop picture</td>
 	</tr>
 	<tr>
 		<td>show</td>
-		<td>显示</td>
+		<td>Display component</td>
 	</tr>
 	<tr>
 		<td>hide</td>
-		<td>隐藏</td>
+		<td>Hidden component</td>
 	</tr>
 </table>
 
 ## 依赖的第三方库
 
-- AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) 处理移动端触摸操作；
+- AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) Handle mobile touch operations.
 
 - Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) 获取图片元数据；
 
