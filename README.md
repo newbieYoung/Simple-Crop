@@ -10,7 +10,7 @@ Compared with the currently popular Web picture cropping components, its advanta
 
 - Picture supports rotation at any angle.
 - Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame.
-- Mobile terminal zoom is based on the center of two fingers.
+- Touch scaling is based on the center of two fingers.
 - Supports mobile and PC.
 - Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented).
 - Has an interactive experience comparable to native clients.
@@ -45,7 +45,7 @@ Visit the following links:
 
 ### PC Example
 
-![PC Example](https://newbieyoung.github.io/images/simple-crop-11.jpg)
+![PC example](https://newbieyoung.github.io/images/simple-crop-11.jpg)
 
 - script
 
@@ -75,7 +75,7 @@ import "./dist/template-2.css";
 
 ### 2. import component code
 
-SimpleCrop expects to implement full framework support, but currently only supports script and React. The corresponding code is as follows:
+SimpleCrop expects to implement full framework support, but currently only supports script and React. The corresponding codes are as follows:
 
 - script
 
