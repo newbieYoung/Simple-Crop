@@ -150,8 +150,8 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 
 <table style="word-break: normal;">
 	<tr>
-		<td>property</td>
-		<td>description</td>
+		<td>Property</td>
+		<td>Description</td>
 	</tr>
 	<tr>
 		<td>debug</td>
@@ -261,8 +261,8 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 
 <table style="word-break: normal;">
 	<tr>
-		<td>method</td>
-		<td>description</td>
+		<td>Method</td>
+		<td>Description</td>
 	</tr>
 	<tr>
 		<td>setImage</td>
