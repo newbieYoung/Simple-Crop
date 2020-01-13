@@ -167,7 +167,7 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>visible</td>
-		<td>组件是否显示</td>
+		<td>是否显示组件</td>
 	</tr>
 	<tr>
 		<td>$container</td>
@@ -175,7 +175,7 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）</td>
+		<td>是否开启缩放滑动控制条（移动端默认会启动双指滑动缩放方式）</td>
 	</tr>
 	<tr>
 		<td>size</td>

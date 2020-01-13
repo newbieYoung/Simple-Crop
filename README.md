@@ -155,27 +155,27 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>debug</td>
-		<td>Whether to enable debugging mode (开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程) </td>
+		<td>Debug mode (Turn on debugging mode will show the automatic adsorption process of image.) </td>
 	</tr>
 	<tr>
 		<td>title</td>
-		<td>标题</td>
+		<td>Component title</td>
 	</tr>
 	<tr>
 		<td>src</td>
-		<td>素材图片地址</td>
+		<td>Image src</td>
 	</tr>
 	<tr>
 		<td>visible</td>
-		<td>组件是否显示</td>
+		<td>Whether to show component</td>
 	</tr>
 	<tr>
 		<td>$container</td>
-		<td>容器（如果不设置容器那么裁剪组件会默认添加到 body 元素中）</td>
+		<td>Component container (If no container is set, the component will be added to the body element by default.)</td>
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>是否开启缩放滑动控制条（非移动端建议开启，移动端默认会启动双指操作方式）</td>
+		<td>Whether to enable the scale slider（Recommended for PC, 移动端默认会启动双指操作方式）</td>
 	</tr>
 	<tr>
 		<td>size</td>
