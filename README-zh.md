@@ -278,7 +278,7 @@ new SimpleCrop({
 	</tr>
 </table>
 
-## 依赖的第三方库
+## 依赖
 
 - AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) 处理移动端触摸操作；
 

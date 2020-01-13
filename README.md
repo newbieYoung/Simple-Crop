@@ -8,14 +8,14 @@
 
 Compared with the currently popular Web picture cropping components, its advantages are as follows:
 
-- Picture supports rotation at any angle;
-- Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame;
-- Mobile terminal zoom is based on the center of two fingers;
-- Supports Mobile and PC;
-- Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented);
+- Picture supports rotation at any angle.
+- Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame.
+- Mobile terminal zoom is based on the center of two fingers.
+- Supports mobile and PC.
+- Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented).
 - Has an interactive experience comparable to native clients.
 
-## Install
+## Installation
 
 ```
 npm install simple-crop
@@ -25,7 +25,7 @@ npm install simple-crop
 
 ### Mobile Example
 
-![Mobile Example](https://newbieyoung.github.io/images/simple-crop-0.jpg)
+![Mobile example](https://newbieyoung.github.io/images/simple-crop-0.jpg)
 
 > On the left is the picture cropping example in the IOS system album, and on the right is the SimpleCrop mobile example.
 
@@ -59,7 +59,7 @@ Visit the following links:
 
 ### 1. import css style
 
-Two default styles are currently provided; `./dist/template-2.css` for Mobile, `./dist/template-1.css` for PC.
+Two default styles are currently provided; `./dist/template-2.css` for mobile, `./dist/template-1.css` for PC.
 
 - script
 
@@ -278,14 +278,14 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 </table>
 
-## 依赖的第三方库
+## Dependencies
 
 - AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) Handle mobile touch operations.
 
-- Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) 获取图片元数据；
+- Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) Get image metadata.
 
-- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) 处理 css 属性前缀。
+- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) Handling css prefixes.
 
-## 原理及实现
+## More
 
 `SimpleCrop 媲美原生体验的 Web 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
