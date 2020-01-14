@@ -59,7 +59,7 @@ Visit the following links:
 
 ### 1. import css style
 
-Two default styles are currently provided; `./dist/template-2.css` for mobile, `./dist/template-1.css` for PC.
+Two default styles are currently provided, `./dist/template-2.css` for mobile, `./dist/template-1.css` for PC.
 
 - script
 
@@ -146,7 +146,7 @@ new SimpleCrop({
 
 This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
 
-## Properties And Methods
+## Properties and Methods
 
 <table style="word-break: normal;">
 	<tr>
@@ -284,7 +284,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 
 - Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) Get image metadata.
 
-- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) Handling css prefixes.
+- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) Handle css prefixes.
 
 ## More
 
