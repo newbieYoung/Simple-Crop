@@ -1,6 +1,6 @@
 # SimpleCrop
 
-`the only` web picture cropping component that supports cropping pictures at any angle and has an `interactive experience` comparable to native clients.
+`The only` web picture cropping component that supports cropping pictures at any angle and has an `interactive experience` comparable to native clients.
 
 [中文](README-zh.md)
 
