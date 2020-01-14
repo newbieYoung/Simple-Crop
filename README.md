@@ -167,7 +167,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>visible</td>
-		<td>Whether to show component</td>
+		<td>Whether the component is visible</td>
 	</tr>
 	<tr>
 		<td>$container</td>

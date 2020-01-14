@@ -163,11 +163,11 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>src</td>
-		<td>素材图片地址</td>
+		<td>图片地址</td>
 	</tr>
 	<tr>
 		<td>visible</td>
-		<td>是否显示组件</td>
+		<td>组件是否可见</td>
 	</tr>
 	<tr>
 		<td>$container</td>
@@ -179,7 +179,7 @@ new SimpleCrop({
 	</tr>
 	<tr>
 		<td>size</td>
-		<td>裁剪图片尺寸</td>
+		<td>裁剪图片目标尺寸</td>
 	</tr>
 	<tr>
 		<td>zIndex</td>

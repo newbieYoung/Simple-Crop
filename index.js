@@ -64,10 +64,10 @@
      * ------------------------------------
      * 配置
      * @param title 标题
-     * @param visible 是否显示
-     * @param src   初始图片路径
+     * @param visible 组件是否可见
+     * @param src   图片地址
      * @param maxScale 最大缩放倍数
-     * @param size 截图实际宽高
+     * @param size 裁剪图片目标尺寸
      * @param debug 是否开启调试模式
      * @param positionOffset 裁剪框屏幕偏移
      * @param $container 容器
@@ -81,8 +81,8 @@
      * 样式
      * @param zIndex 组件层级
      * @param noBoldCorner 裁剪框边角是否不加粗
-     * @param coverColor 遮罩框背景颜色
-     * @param cropSizePercent 裁剪区域占画布比例
+     * @param coverColor 遮罩背景颜色
+     * @param cropSizePercent 裁剪框占裁剪显示区域的比例
      * @param borderWidth 裁剪框边框宽度
      * @param borderColor 裁剪框边框颜色
      * ------------------------------------
@@ -98,7 +98,7 @@
      * @param startAngle 开始角度
      * @param endAngle 结束角度
      * @param gapAngle 间隔角度
-     * @param lineationItemWidth 单刻度盘宽度
+     * @param lineationItemWidth 间隔宽度
      * ------------------------------------
      * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
      * @param maskViewSize 容器的屏幕尺寸
