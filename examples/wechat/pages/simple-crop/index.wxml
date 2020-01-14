@@ -1,0 +1,95 @@
+<view class="crop-whole-cover">
+  <view class="crop-component">
+    <view class="crop-mask">
+      <image></image>
+      <canvas class="crop-cover crop-content"></canvas>
+    </view>
+    <view class="crop-rotate">
+      <view class="lineation">
+        <view>
+          <view class="number">-90</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-80</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-70</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-60</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-50</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-40</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-30</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-20</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">-10</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">0</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">10</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">20</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">30</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">40</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">50</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">60</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">70</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">80</view>
+          <view class="bg"></view>
+        </view>
+        <view>
+          <view class="number">90</view>
+          <view class="bg"></view>
+        </view>
+      </view>
+      <view class="current"></view>
+    </view>
+    <view class="crop-btns">
+      <view class="crop-close"></view>
+      <view class="crop-around"></view>
+      <view class="crop-reset"></view>
+      <view class="crop-btn"></view>
+    </view>
+  </view>
+</view>

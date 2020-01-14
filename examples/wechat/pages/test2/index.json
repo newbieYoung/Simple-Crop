@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "simple-crop": "../simple-crop/index"
+  }
+}
