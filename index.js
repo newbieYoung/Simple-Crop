@@ -95,26 +95,26 @@
      * ------------------------------------
      * 旋转刻度盘
      * @param rotateSlider 是否开启旋转刻度盘
-     * @param startAngle 开始角度
-     * @param endAngle 结束角度
-     * @param gapAngle 间隔角度
-     * @param lineationItemWidth 间隔宽度
+     * @param startAngle 旋转刻度盘开始角度
+     * @param endAngle 旋转刻度盘结束角度
+     * @param gapAngle 旋转刻度盘间隔角度
+     * @param lineationItemWidth 旋转刻度盘间隔宽度
      * ------------------------------------
      * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
-     * @param maskViewSize 容器的屏幕尺寸
-     * @param cropRect 截图区域的屏幕尺寸
-     * @param cropPoints 裁剪区域顶点坐标
-     * @param cropCenter 裁剪区域中心点坐标
-     * @param contentPoints 图片显示区域矩形顶点坐标
+     * @param maskViewSize 容器屏幕尺寸
+     * @param cropRect 截图框屏幕尺寸
+     * @param cropPoints 裁剪框顶点坐标
+     * @param cropCenter 裁剪框中心点坐标
+     * @param contentPoints 图片顶点坐标
      * @param _contentCurMoveX 图片 X 轴方向上的总位移
      * @param _contentCurMoveY 图片 Y 轴方向上的总位移
      * @param _orientation 图片元数据方向角
-     * @param initContentPoints 图片显示区域矩形初始顶点坐标
+     * @param initContentPoints 图片初始顶点坐标
      * ------------------------------------
      * 原始信息
-     * @param originImage 原始裁剪图片
-     * @param originWidth 裁剪图片原始宽度（考虑方向角）
-     * @param originHeight 裁剪图片原始高度（考虑方向角）
+     * @param originImage 初始图片
+     * @param originWidth 初始图片宽度（考虑方向角）
+     * @param originHeight 初始图片高度（考虑方向角）
      * ------------------------------------
      * 其它
      * @param times 实际尺寸/显示尺寸
@@ -157,7 +157,7 @@
         //操作属性
         this._multiPoint = false; //是否开始多点触控
         this._rotateScale = 1; //旋转缩放倍数
-        this._baseMoveX = 0; //滑动旋转刻度盘位置初始化偏移量
+        this._baseMoveX = 0; //旋转刻度盘位置初始化偏移量
         this._downPoint = []; //操作点坐标
         this._isControl = false; //是否正在操作
         /**
