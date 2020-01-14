@@ -1,8 +1,8 @@
-<view class="crop-whole-cover">
+<view id="simple-crop" class="crop-whole-cover" style="z-index:{{zIndex}}">
   <view class="crop-component">
     <view class="crop-mask">
       <image></image>
-      <canvas class="crop-cover crop-content"></canvas>
+      <canvas canvas-id='simple-crop-crop-cover' class="crop-cover crop-content"></canvas>
     </view>
     <view class="crop-rotate">
       <view class="lineation">

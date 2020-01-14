@@ -4,6 +4,10 @@ const app = getApp()
 
 Page({
   data: {
+    size:{
+      width:1000,
+      height:600
+    }
   },
   onLoad: function () {
   },

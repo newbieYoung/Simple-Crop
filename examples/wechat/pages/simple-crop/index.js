@@ -1,10 +1,7 @@
-let _multiPoint = false;
-let _rotateScale = false;
-
+const S_ID = 'simple-crop';
 
 Component({
   properties: {
-    //微信小程序仅支持部分属性
     src: { // 图片地址
       type: String,
       value: ''
@@ -13,8 +10,8 @@ Component({
       type: Object,
       value: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     },
     maxScale: { // 最大缩放倍数
       type: Number,
@@ -25,11 +22,8 @@ Component({
       value: false
     },
     positionOffset: { // 裁剪框屏幕偏移
-      type: Object,
-      value: {
-        top: 0,
-        left: 0
-      }
+      type: String,
+      value: '{"top":0,"left":0}'
     },
     borderWidth: { // 裁剪框边框宽度
       type: Number,
@@ -79,10 +73,9 @@ Component({
       type: Number,
       value: 40.5
     },
-    
     funcBtns: { // 功能按钮数组
-      type: Array,
-      value: ['close', 'crop', 'around', 'reset']
+      type: String,
+      value: '["close", "crop", "around", "reset"]',
     },
   },
   
@@ -95,7 +88,6 @@ Component({
     _baseAngle: 0,
     scaleTimes: 1, // 缩放倍数
     rotateAngle: 0, // 旋转角度
-    maskViewSize: {}, // 容器屏幕尺寸
     cropRect: {}, // 截图框屏幕尺寸
     cropPoints: {}, // 裁剪框顶点坐标
     cropCenter: {}, // 裁剪框中心点坐标
@@ -107,18 +99,44 @@ Component({
     originImage: null, // 初始图片
     originWidth: 0, // 初始图片宽度（考虑方向角）
     originHeight: 0, // 初始图片高度（考虑方向角）
-    times: 0, // 实际尺寸/显示尺寸
     initScale: 0, // 初始缩放倍数
     $resultCanvas: null, // 裁剪结果
   },
 
+  options: {
+    query: null,
+    $cropMask: null,
+    $cropCover: null,
+    cropCoverContext: null,
+    maskViewSize: { // 容器屏幕尺寸
+      width:0,
+      height:0
+    },
+    times: 1, // 实际尺寸/显示尺寸
+  },
+
   lifetimes: { // 组件生命周期
     created: function () {
-      console.log('---');
-      console.log(this.data);
-      console.log(this.data.lineationItemWidth);
-      console.log(_multiPoint);
+      this.query = this.createSelectorQuery();
+      // 在 created 生命周期中查看 this.data 数据时为默认值
     },
+    attached: function(){
+      //相关元素
+      let self = this;
+      this.$cropMask = this.query.select('#' + S_ID +' .crop-mask');
+      this.$cropMask.boundingClientRect(function (rect) {
+        self.maskViewSize = {
+          width: rect.width,
+          height: rect.height,
+        }
+        let size = self.data.size;
+        let cropSizePercent = self.data.cropSizePercent;
+        self.times = (size.width / self.maskViewSize.width > size.height / self.maskViewSize.height) ? size.width / self.maskViewSize.width / cropSizePercent : size.height / self.maskViewSize.height / cropSizePercent;
+      }).exec()
+
+      this.$cropCover = this.query.select('#' + S_ID + '-crop-cover');
+      this.cropCoverContext = wx.createCanvasContext('#' + S_ID + '-crop-cover');
+    }
   },
 
   methods: {
