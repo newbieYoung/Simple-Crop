@@ -374,7 +374,7 @@
     SimpleCrop.prototype.init = function () {
         //初始位置垂直水平居中
         this._initTransform = 'translate3d(-50%,-50%,0)';
-        this.$cropCover.classList.add('crop-content');
+        this.$cropContent.classList.add('crop-content');
         this.$cropContent.style.position = 'absolute';
         this.$cropContent.style.left = '50%';
         this.$cropContent.style.top = '50%';
