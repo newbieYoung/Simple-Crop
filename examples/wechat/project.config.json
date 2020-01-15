@@ -18,6 +18,8 @@
 	"debugOptions": {
 		"hidedInDevtools": []
 	},
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {
 		"search": {
 			"current": -1,

@@ -1,4 +1,5 @@
-const S_ID = 'simple-crop';
+const S_ID = 'simple_crop';
+const SystemInfo = wx.getSystemInfoSync(); //  系统信息
 
 Component({
   properties: {
@@ -22,8 +23,11 @@ Component({
       value: false
     },
     positionOffset: { // 裁剪框屏幕偏移
-      type: String,
-      value: '{"top":0,"left":0}'
+      type: Object,
+      value: {
+        top: 0,
+        left: 0
+      }
     },
     borderWidth: { // 裁剪框边框宽度
       type: Number,
@@ -74,8 +78,8 @@ Component({
       value: 40.5
     },
     funcBtns: { // 功能按钮数组
-      type: String,
-      value: '["close", "crop", "around", "reset"]',
+      type: Array,
+      value: ["close", "crop", "around", "reset"],
     },
   },
   
@@ -113,29 +117,48 @@ Component({
       height:0
     },
     times: 1, // 实际尺寸/显示尺寸
+    cropRect:{
+      width:0,
+      height:0,
+      top:0,
+      left:0
+    },
   },
 
   lifetimes: { // 组件生命周期
     created: function () {
-      this.query = this.createSelectorQuery();
       // 在 created 生命周期中查看 this.data 数据时为默认值
     },
     attached: function(){
+      let size = this.data.size;
+      let cropSizePercent = this.data.cropSizePercent;
+      let positionOffset = this.data.positionOffset;
+
       //相关元素
       let self = this;
-      this.$cropMask = this.query.select('#' + S_ID +' .crop-mask');
+      this.$cropMask = this.createSelectorQuery().select('#' + S_ID +' .crop-mask');
       this.$cropMask.boundingClientRect(function (rect) {
         self.maskViewSize = {
           width: rect.width,
           height: rect.height,
         }
-        let size = self.data.size;
-        let cropSizePercent = self.data.cropSizePercent;
         self.times = (size.width / self.maskViewSize.width > size.height / self.maskViewSize.height) ? size.width / self.maskViewSize.width / cropSizePercent : size.height / self.maskViewSize.height / cropSizePercent;
+        self.cropRect = {
+          width: size.width / self.times,
+          height: size.height / self.times
+        };
+        self.cropRect.left = (self.maskViewSize.width - self.cropRect.width) / 2 - positionOffset.left;
+        self.cropRect.top = (self.maskViewSize.height - self.cropRect.height) / 2 - positionOffset.top;
       }).exec()
 
-      this.$cropCover = this.query.select('#' + S_ID + '-crop-cover');
-      this.cropCoverContext = wx.createCanvasContext('#' + S_ID + '-crop-cover');
+      this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
+      this.$cropCover.node()
+      .exec(function (res) {
+        self.$cropCover = res[0].node;
+        self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+        self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+        self.cropCoverContext = self.$cropCover.getContext('2d');
+      })
     }
   },
 

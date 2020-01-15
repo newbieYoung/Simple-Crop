@@ -1,3 +1,6 @@
 <!--index.wxml-->
-<simple-crop size="{{size}}"></simple-crop>
+<view>
+  <simple-crop></simple-crop>
+</view>
+
 
