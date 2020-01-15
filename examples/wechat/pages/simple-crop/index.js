@@ -81,6 +81,10 @@ Component({
       type: Array,
       value: ["close", "crop", "around", "reset"],
     },
+    borderDraw: { // 裁剪框自定义边框绘制函数
+      type: Function,
+      value: null
+    }
   },
   
   data: {
@@ -92,9 +96,6 @@ Component({
     _baseAngle: 0,
     scaleTimes: 1, // 缩放倍数
     rotateAngle: 0, // 旋转角度
-    cropRect: {}, // 截图框屏幕尺寸
-    cropPoints: {}, // 裁剪框顶点坐标
-    cropCenter: {}, // 裁剪框中心点坐标
     contentPoints: {}, // 图片顶点坐标
     _contentCurMoveX: 0, // 图片 X 轴方向上的总位移
     _contentCurMoveY: 0, // 图片 Y 轴方向上的总位移
@@ -108,6 +109,7 @@ Component({
   },
 
   options: {
+    borderDraw: null, // 裁剪框自定义边框绘制函数
     query: null,
     $cropMask: null,
     $cropCover: null,
@@ -123,6 +125,11 @@ Component({
       top:0,
       left:0
     },
+    cropPoints: [], // 裁剪框顶点坐标
+    cropCenter: { // 裁剪框中心点坐标
+      x:0,
+      y:0
+    },
   },
 
   lifetimes: { // 组件生命周期
@@ -130,13 +137,23 @@ Component({
       // 在 created 生命周期中查看 this.data 数据时为默认值
     },
     attached: function(){
+      this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
+
+      this.updateFrame();
+    }
+  },
+
+  methods: {
+    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新裁剪框
+    updateFrame: function(){
       let size = this.data.size;
       let cropSizePercent = this.data.cropSizePercent;
       let positionOffset = this.data.positionOffset;
 
-      //相关元素
+      let call_count = 0; // 回调计数器
+      
       let self = this;
-      this.$cropMask = this.createSelectorQuery().select('#' + S_ID +' .crop-mask');
+      this.$cropMask = this.createSelectorQuery().select('#' + S_ID + ' .crop-mask');
       this.$cropMask.boundingClientRect(function (rect) {
         self.maskViewSize = {
           width: rect.width,
@@ -149,19 +166,94 @@ Component({
         };
         self.cropRect.left = (self.maskViewSize.width - self.cropRect.width) / 2 - positionOffset.left;
         self.cropRect.top = (self.maskViewSize.height - self.cropRect.height) / 2 - positionOffset.top;
+        self.cropPoints = self.rectToPoints(self.cropRect);
+        self.cropCenter = self.getPointsCenter(self.cropPoints);
+
+        call_count++;
+        if(call_count>=2){
+          self.borderDraw();
+        }
       }).exec()
 
       this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
-      this.$cropCover.node()
-      .exec(function (res) {
+      this.$cropCover.node().exec(function (res) {
         self.$cropCover = res[0].node;
         self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
         self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
         self.cropCoverContext = self.$cropCover.getContext('2d');
-      })
-    }
-  },
 
-  methods: {
+        call_count++;
+        if (call_count >= 2) {
+          self.borderDraw();
+        }
+      })
+    },
+    //默认绘制裁剪框
+    defaultBorderDraw : function () {
+      let coverColor = this.data.coverColor;
+      let borderColor = this.data.borderColor;
+      let noBoldCorner = this.data.noBoldCorner;
+      let borderWidth = this.data.borderWidth;
+
+      this.cropCoverContext.clearRect(0, 0, this.$cropCover.width, this.$cropCover.height);
+      this.cropCoverContext.fillStyle = coverColor;
+      this.cropCoverContext.fillRect(0, 0, this.$cropCover.width, this.$cropCover.height);
+      this.cropCoverContext.fillStyle = borderColor;
+
+      //绘制边框（边框内嵌）
+      var borderRect = {
+        left: this.cropRect.left * SystemInfo.pixelRatio,
+        top: this.cropRect.top * SystemInfo.pixelRatio,
+        width: this.cropRect.width * SystemInfo.pixelRatio,
+        height: this.cropRect.height * SystemInfo.pixelRatio
+      }
+      this.cropCoverContext.fillRect(borderRect.left, borderRect.top, borderRect.width, borderRect.height);
+
+      if (!noBoldCorner) {
+        //边框四个角加粗
+        var percent = 0.05;
+        var cornerRectWidth = borderRect.width * percent;
+        var cornerRectHeight = borderRect.height * percent;
+        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //左上角
+        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //右上角
+        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top + borderRect.height - cornerRectHeight + borderWidth, cornerRectWidth, cornerRectHeight); //左下角
+        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + borderWidth, borderRect.top + borderRect.height - cornerRectHeight + borderWidth, cornerRectWidth, cornerRectHeight); //右下角
+      }
+
+      //清空内容区域
+      this.cropCoverContext.clearRect(borderRect.left + borderWidth, borderRect.top + borderWidth, borderRect.width - 2 * borderWidth, borderRect.height - 2 * borderWidth);
+    },
+
+    // 矩形位置形式转换为顶点坐标形式
+    rectToPoints : function (rect) {
+      var points = [];
+      points.push({
+        x: -(this.maskViewSize.width / 2 - rect.left),
+        y: this.maskViewSize.height / 2 - rect.top
+      });
+      points.push({
+        x: points[0].x + rect.width,
+        y: points[0].y
+      });
+      points.push({
+        x: points[1].x,
+        y: points[1].y - rect.height
+      });
+      points.push({
+        x: points[0].x,
+        y: points[2].y
+      });
+
+      return points;
+    },
+
+    //获得矩形点坐标中心
+    getPointsCenter : function (points) {
+      var center = {
+        x: (points[0].x + points[2].x) / 2,
+        y: (points[0].y + points[2].y) / 2,
+      }
+      return center;
+    },
   }
 })
