@@ -468,13 +468,14 @@
         if (self.$cropContent && image != null) {
             self.$cropMask.removeChild(self.$cropContent);
         }
-        if (Object.prototype.toString.call(image) === '[object String]') { //字符串
+        var type = Object.prototype.toString.call(image);
+        if (type === '[object String]') { //字符串
             self.src = image;
             self.$cropContent = new Image();
             self.$cropContent.src = self.src;
             self.load();
             self.uploadCallback();
-        } else if (Object.prototype.toString.call(image) === '[object File]') { //文件
+        } else if (type === '[object File]') { //文件
             self.fileToSrc(image, function (src) {
                 self.src = src;
                 self.$cropContent = new Image();
