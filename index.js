@@ -363,8 +363,8 @@
 
         if (this.boldCornerLen > 0) {
             //边框四个角加粗
-            var cornerRectWidth = this.boldCornerLen;
-            var cornerRectHeight = this.boldCornerLen;
+            var cornerRectWidth = this.boldCornerLen * window.devicePixelRatio;
+            var cornerRectHeight = this.boldCornerLen * window.devicePixelRatio;
             this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //左上角
             this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //右上角
             this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top + borderRect.height - cornerRectHeight + this.borderWidth, cornerRectWidth, cornerRectHeight); //左下角
