@@ -202,8 +202,8 @@ new SimpleCrop({
 		<td>裁剪框边框颜色</td>
 	</tr>
 	<tr>
-		<td>noBoldCorner</td>
-		<td>裁剪框边角是否不加粗</td>
+		<td>boldCornerLen</td>
+		<td>裁剪框边角加粗长度</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>

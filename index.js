@@ -80,7 +80,7 @@
      * ------------------------------------
      * 样式
      * @param zIndex 组件层级
-     * @param noBoldCorner 裁剪框边角是否不加粗
+     * @param boldCornerLen 裁剪框边角加粗长度
      * @param coverColor 遮罩背景颜色
      * @param cropSizePercent 裁剪框占裁剪显示区域的比例
      * @param borderWidth 裁剪框边框宽度
@@ -173,7 +173,7 @@
         this.id = 'crop-' + new Date().getTime();
         this.zIndex = params.zIndex != null ? params.zIndex : 9999;
         this.visible = params.visible != null ? params.visible : true; //默认显示
-        this.noBoldCorner = params.noBoldCorner != null ? params.noBoldCorner : false;
+        this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 12;
         this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
         this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
 
@@ -361,11 +361,10 @@
         }
         this.cropCoverContext.fillRect(borderRect.left, borderRect.top, borderRect.width, borderRect.height);
 
-        if (!this.noBoldCorner) {
+        if (this.boldCornerLen > 0) {
             //边框四个角加粗
-            var percent = 0.05;
-            var cornerRectWidth = borderRect.width * percent;
-            var cornerRectHeight = borderRect.height * percent;
+            var cornerRectWidth = this.boldCornerLen;
+            var cornerRectHeight = this.boldCornerLen;
             this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //左上角
             this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //右上角
             this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top + borderRect.height - cornerRectHeight + this.borderWidth, cornerRectWidth, cornerRectHeight); //左下角

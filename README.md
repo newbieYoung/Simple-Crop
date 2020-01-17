@@ -202,8 +202,8 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 		<td>Crop frame border color</td>
 	</tr>
 	<tr>
-		<td>noBoldCorner</td>
-		<td>Whether the corners of the crop frame are not bold.</td>
+		<td>boldCornerLen</td>
+		<td>The bold length of the crop frame corners.</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
