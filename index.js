@@ -210,12 +210,20 @@
             width: parseInt(maskStyle.getPropertyValue('width')),
             height: parseInt(maskStyle.getPropertyValue('height'))
         }
-        this.times = (this.size.width / this.maskViewSize.width > this.size.height / this.maskViewSize.height) ? this.size.width / this.maskViewSize.width / this.cropSizePercent : this.size.height / this.maskViewSize.height / this.cropSizePercent;
         this.$cropCover = document.querySelector('#' + this.id + ' .crop-cover');
         this.cropCoverContext = this.$cropCover.getContext('2d');
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
 
+        this.updateFrame();
+        this.bindEvent();
+        this.show(this.src);
+    }
+
+    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
+    SimpleCrop.prototype.updateFrame = function(){
+        this.times = (this.size.width / this.maskViewSize.width > this.size.height / this.maskViewSize.height) ? this.size.width / this.maskViewSize.width / this.cropSizePercent : this.size.height / this.maskViewSize.height / this.cropSizePercent;
+        
         //裁剪框位置相关
         this.cropRect = {
             width: this.size.width / this.times,
@@ -228,8 +236,6 @@
 
         this.borderDraw();
         this.coverDraw();
-        this.bindEvent();
-        this.show(this.src);
     }
 
     //获取操作点
