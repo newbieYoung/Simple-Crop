@@ -5,7 +5,7 @@ Component({
   properties: {
     src: { // 图片地址
       type: String,
-      value: ''
+      value: null
     },
     size: { // 裁剪图片目标尺寸
       type: Object,
@@ -45,9 +45,9 @@ Component({
       type: Boolean,
       value: true
     },
-    noBoldCorner: { // 裁剪框边角是否不加粗
-      type: Boolean,
-      value: false,
+    boldCornerLen: { // 裁剪框边角加粗长度
+      type: Number,
+      value: 12,
     },
     coverColor: { // 遮罩背景颜色
       type: String,
@@ -88,6 +88,8 @@ Component({
   },
   
   data: {
+    cropContentStyle: '', // 裁剪图片样式
+
     _multiPoint: false, // 是否开始多点触控
     _rotateScale: 1, // 旋转缩放倍数
     _baseMoveX: 0, // 旋转刻度盘位置初始化偏移量
@@ -110,7 +112,6 @@ Component({
 
   options: {
     borderDraw: null, // 裁剪框自定义边框绘制函数
-    query: null,
     $cropMask: null,
     $cropCover: null,
     cropCoverContext: null,
@@ -130,6 +131,8 @@ Component({
       x:0,
       y:0
     },
+    _initPosition: '', // 裁剪图片初始定位
+    _initTransform: '', // 裁剪图片初始位移
   },
 
   lifetimes: { // 组件生命周期
@@ -137,16 +140,26 @@ Component({
       // 在 created 生命周期中查看 this.data 数据时为默认值
     },
     attached: function(){
+      console.log('attached');
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
 
-      this.initMaskAndCover(this.updateFrame);
+      this.initComponent([this.updateFrame, this.setImage]);
+    }
+  },
+
+  //数据监听器
+  observers: {
+    'src': function (src) {
+      this.setImage(src);
     }
   },
 
   methods: {
-    //初始化 mask 和 cover 元素
-    initMaskAndCover: function(callback){
+    //初始化组件
+    initComponent: function(callbacks){
       let call_count = 0; // 回调计数器
+      this._initPosition = 'position:absolute; left:50%; top:50%;';
+      this._initTransform = 'transform:translate3d(-50%,-50%,0);';
 
       let self = this;
       this.$cropMask = this.createSelectorQuery().select('#' + S_ID + ' .crop-mask');
@@ -160,7 +173,9 @@ Component({
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-          callback.bind(self)();
+          for(let i=0;i<callbacks.length;i++){
+            callbacks[i].bind(self)(); 
+          }
         }
       }).exec();
 
@@ -173,9 +188,37 @@ Component({
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-          callback.bind(self)();
+          for (let i = 0; i < callbacks.length; i++) {
+            callbacks[i].bind(self)();
+          }
         }
       });
+
+      this.$cropContent = this.createSelectorQuery().select('#' + S_ID + ' .crop-content');
+    },
+
+    //设置裁剪图片
+    setImage: function(image){
+      if(image != null && image != ''){
+        let type = Object.prototype.toString.call(image);
+        let style = this._initPosition + this._initTransform;
+        if (type === '[object String]') { // 字符串
+          this.setData({
+            cropContentStyle: style
+          });
+
+          
+          let self = this;
+          wx.getImageInfo({
+            src: image,
+            success(res) {
+              console.log(image);
+              console.log(res);
+              self.cropCoverContext.drawImage(res, 0, 0, 150, 100)
+            }
+          })
+        }
+      }
     },
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
@@ -200,7 +243,7 @@ Component({
     defaultBorderDraw : function () {
       let coverColor = this.data.coverColor;
       let borderColor = this.data.borderColor;
-      let noBoldCorner = this.data.noBoldCorner;
+      let boldCornerLen = this.data.boldCornerLen * SystemInfo.pixelRatio;
       let borderWidth = this.data.borderWidth;
 
       this.cropCoverContext.clearRect(0, 0, this.$cropCover.width, this.$cropCover.height);
@@ -209,7 +252,7 @@ Component({
       this.cropCoverContext.fillStyle = borderColor;
 
       //绘制边框（边框内嵌）
-      var borderRect = {
+      let borderRect = {
         left: this.cropRect.left * SystemInfo.pixelRatio,
         top: this.cropRect.top * SystemInfo.pixelRatio,
         width: this.cropRect.width * SystemInfo.pixelRatio,
@@ -217,11 +260,10 @@ Component({
       }
       this.cropCoverContext.fillRect(borderRect.left, borderRect.top, borderRect.width, borderRect.height);
 
-      if (!noBoldCorner) {
+      if (boldCornerLen > 0) {
         //边框四个角加粗
-        var percent = 0.05;
-        var cornerRectWidth = borderRect.width * percent;
-        var cornerRectHeight = borderRect.height * percent;
+        let cornerRectWidth = boldCornerLen;
+        let cornerRectHeight = boldCornerLen;
         this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //左上角
         this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //右上角
         this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top + borderRect.height - cornerRectHeight + borderWidth, cornerRectWidth, cornerRectHeight); //左下角

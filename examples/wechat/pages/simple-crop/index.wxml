@@ -1,7 +1,7 @@
 <view id="simple_crop" class="crop-whole-cover" style="z-index:{{zIndex}}">
   <view class="crop-component">
     <view class="crop-mask">
-      <image class="crop-content"></image>
+      <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 没办法使用 createSelectorQuery -->
     </view>
     <view class="crop-rotate">

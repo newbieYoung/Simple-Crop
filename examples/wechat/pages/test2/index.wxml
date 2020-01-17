@@ -1,6 +1,7 @@
 <!--index.wxml-->
 <view>
-  <simple-crop size="{{size}}"></simple-crop>
+  
+  <canvas canvas-id="test2" type="2d" class="test1" style="width:200px;height:200px;background-color:red;"></canvas>
 </view>
 
 
