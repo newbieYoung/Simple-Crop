@@ -139,19 +139,15 @@ Component({
     attached: function(){
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
 
-      this.updateFrame();
+      this.initMaskAndCover(this.updateFrame);
     }
   },
 
   methods: {
-    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新裁剪框
-    updateFrame: function(){
-      let size = this.data.size;
-      let cropSizePercent = this.data.cropSizePercent;
-      let positionOffset = this.data.positionOffset;
-
+    //初始化 mask 和 cover 元素
+    initMaskAndCover: function(callback){
       let call_count = 0; // 回调计数器
-      
+
       let self = this;
       this.$cropMask = this.createSelectorQuery().select('#' + S_ID + ' .crop-mask');
       this.$cropMask.boundingClientRect(function (rect) {
@@ -159,35 +155,47 @@ Component({
           width: rect.width,
           height: rect.height,
         }
-        self.times = (size.width / self.maskViewSize.width > size.height / self.maskViewSize.height) ? size.width / self.maskViewSize.width / cropSizePercent : size.height / self.maskViewSize.height / cropSizePercent;
-        self.cropRect = {
-          width: size.width / self.times,
-          height: size.height / self.times
-        };
-        self.cropRect.left = (self.maskViewSize.width - self.cropRect.width) / 2 - positionOffset.left;
-        self.cropRect.top = (self.maskViewSize.height - self.cropRect.height) / 2 - positionOffset.top;
-        self.cropPoints = self.rectToPoints(self.cropRect);
-        self.cropCenter = self.getPointsCenter(self.cropPoints);
-
         call_count++;
-        if(call_count>=2){
-          self.borderDraw();
+        if (call_count >= 2) {
+          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+
+          callback.bind(self)();
         }
-      }).exec()
+      }).exec();
 
       this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
       this.$cropCover.node().exec(function (res) {
         self.$cropCover = res[0].node;
-        self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
-        self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
         self.cropCoverContext = self.$cropCover.getContext('2d');
-
         call_count++;
         if (call_count >= 2) {
-          self.borderDraw();
+          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+
+          callback.bind(self)();
         }
-      })
+      });
     },
+
+    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
+    updateFrame: function(){
+      let size = this.data.size;
+      let cropSizePercent = this.data.cropSizePercent;
+      let positionOffset = this.data.positionOffset;
+
+      this.times = (size.width / this.maskViewSize.width > size.height / this.maskViewSize.height) ? size.width / this.maskViewSize.width / cropSizePercent : size.height / this.maskViewSize.height / cropSizePercent;
+      this.cropRect = {
+        width: size.width / this.times,
+        height: size.height / this.times
+      };
+      this.cropRect.left = (this.maskViewSize.width - this.cropRect.width) / 2 - positionOffset.left;
+      this.cropRect.top = (this.maskViewSize.height - this.cropRect.height) / 2 - positionOffset.top;
+      this.cropPoints = this.rectToPoints(this.cropRect);
+      this.cropCenter = this.getPointsCenter(this.cropPoints);
+      this.borderDraw();
+    },
+
     //默认绘制裁剪框
     defaultBorderDraw : function () {
       let coverColor = this.data.coverColor;
