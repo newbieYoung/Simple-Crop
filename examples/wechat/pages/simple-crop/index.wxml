@@ -2,7 +2,7 @@
   <view class="crop-component">
     <view class="crop-mask">
       <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
-      <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突 且 没办法使用 createSelectorQuery -->
+      <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
     </view>
     <view class="crop-rotate">
       <view class="lineation">
