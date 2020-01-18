@@ -4,7 +4,7 @@
       <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
     </view>
-    <view class="crop-rotate">
+    <view wx:if="{{rotateSlider}}" class="crop-rotate">
       <view class="lineation">
         <view>
           <view class="number">-90</view>

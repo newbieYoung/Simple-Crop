@@ -91,26 +91,20 @@ Component({
     cropContentStyle: '', // 裁剪图片样式
 
     _multiPoint: false, // 是否开始多点触控
-    _rotateScale: 1, // 旋转缩放倍数
     _baseMoveX: 0, // 旋转刻度盘位置初始化偏移量
-    _downPoint: [], // 操作点坐标
-    _isControl: false, // 是否正在操作
-    _baseAngle: 0,
     scaleTimes: 1, // 缩放倍数
-    rotateAngle: 0, // 旋转角度
-    contentPoints: {}, // 图片顶点坐标
-    _contentCurMoveX: 0, // 图片 X 轴方向上的总位移
-    _contentCurMoveY: 0, // 图片 Y 轴方向上的总位移
-    _orientation: null, // 图片元数据方向角
-    initContentPoints: {}, // 图片初始顶点坐标
     originImage: null, // 初始图片
-    originWidth: 0, // 初始图片宽度（考虑方向角）
-    originHeight: 0, // 初始图片高度（考虑方向角）
-    initScale: 0, // 初始缩放倍数
     $resultCanvas: null, // 裁剪结果
   },
 
   options: {
+    _contentCurMoveX: 0, // 图片 X 轴方向上的总位移
+    _contentCurMoveY: 0, // 图片 Y 轴方向上的总位移
+    _baseAngle: 0,
+    rotateAngle: 0, // 旋转角度
+    _rotateScale: 1, // 旋转缩放倍数
+    _downPoint: [], // 操作点坐标
+    _isControl: false, // 是否正在操作
     borderDraw: null, // 裁剪框自定义边框绘制函数
     $cropMask: null,
     $cropCover: null,
@@ -133,6 +127,13 @@ Component({
     },
     _initPosition: '', // 裁剪图片初始定位
     _initTransform: '', // 裁剪图片初始位移
+    _orientation: 1, // 默认方向
+    originWidth: 0, // 初始图片宽度（考虑图片方向）
+    originHeight: 0, // 初始图片高度（考虑图片方向）
+    initContentPoints: [], // 图片初始顶点坐标
+    contentPoints: [], //图片顶点坐标
+    initScale: 1, // 初始缩放倍数
+    maxScale: 1, // 最大缩放倍数
   },
 
   lifetimes: { // 组件生命周期
@@ -142,6 +143,7 @@ Component({
     attached: function(){
       console.log('attached');
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
+      this.maxScale = this.data.maxScale;
 
       this.initComponent([this.updateFrame, this.setImage]);
     }
@@ -155,6 +157,38 @@ Component({
   },
 
   methods: {
+    // 微信小程序图片方向转换数字表示
+    orientationToNumber: function(name){
+      let num = 1; //默认方向
+      switch(name){
+        case 'up-mirrored':
+          num = 2;
+          break;
+        case 'down':
+          num = 3;
+          break;
+        case 'down-mirrored':
+          num = 4;
+          break;
+        case 'left-mirrored':
+          num = 5;
+          break;
+        case 'right':
+          num = 6;
+          break;
+        case 'right-mirrored':
+          num = 7;
+          break;
+        case 'left':
+          num = 8;
+          break;
+        case 'up':
+        default:
+          num = 1;
+          break;
+      }
+      return num;
+    },
     //初始化组件
     initComponent: function(callbacks){
       let call_count = 0; // 回调计数器
@@ -201,23 +235,91 @@ Component({
     setImage: function(image){
       if(image != null && image != ''){
         let type = Object.prototype.toString.call(image);
-        let style = this._initPosition + this._initTransform;
         if (type === '[object String]') { // 字符串
-          this.setData({
-            cropContentStyle: style
-          });
-
-          
-          let self = this;
-          wx.getImageInfo({
-            src: image,
-            success(res) {
-              console.log(image);
-              console.log(res);
-              self.cropCoverContext.drawImage(res, 0, 0, 150, 100)
-            }
-          })
+          this.load();
         }
+      }
+    },
+
+    //加载图片
+    load: function(){
+      let self = this;
+      let src = this.data.src;
+      wx.getImageInfo({
+        src: src,
+        success(res) {
+          self._orientation = self.orientationToNumber(res.orientation);
+          self.originWidth = res.width;
+          self.originHeight = res.height;
+          if(self._orientation > 4){
+            self.originWidth = self.height;
+            self.originHeight = self.width;
+          }
+          self.init();
+        }
+      })
+    },
+
+    //初始化
+    init: function(){
+      let style = this._initPosition + this._initTransform;
+      this.setData({
+        cropContentStyle: style
+      });
+
+      let width = this.originWidth/2;
+      let height = this.originHeight/2;
+      this.initContentPoints = [{
+        x: -width,
+        y: height
+      }, {
+        x: width,
+        y: height
+      }, {
+        x: width,
+        y: -height
+      }, {
+        x: -width,
+        y: -height
+      }];
+      this.contentPoints = this.initContentPoints.slice();
+
+      //计算初始缩放倍数
+      let size = this.data.size;
+      if (size.width / size.height > this.originWidth / this.originHeight) {
+        this.initScale = size.width / this.originWidth;
+      } else {
+        this.initScale = size.height / this.originHeight;
+      }
+      this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
+
+      //重置动态操作变量
+      this.reset();
+    },
+
+    //重置
+    reset: function(){
+      let positionOffset = this.data.positionOffset;
+      let rotateSlider = this.data.rotateSlider;
+      console.log(rotateSlider);
+
+      this.startControl();
+      this._rotateScale = 1;
+      this._baseAngle = 0;
+      this.rotateAngle = 0;
+      this._contentCurMoveX = -positionOffset.left;
+      this._contentCurMoveY = -positionOffset.top;
+
+      if(rotateSlider){
+
+      }
+    },
+
+    //操作开始
+    startControl: function(point){
+      if(!this._isControl){
+        this._isControl = true;
+        this._downPoint = point ? point : [];
       }
     },
 
