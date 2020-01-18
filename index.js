@@ -108,13 +108,13 @@
      * @param contentPoints 图片顶点坐标
      * @param _contentCurMoveX 图片 X 轴方向上的总位移
      * @param _contentCurMoveY 图片 Y 轴方向上的总位移
-     * @param _orientation 图片元数据方向角
+     * @param _orientation 图片方向
      * @param initContentPoints 图片初始顶点坐标
      * ------------------------------------
      * 原始信息
      * @param originImage 初始图片
-     * @param originWidth 初始图片宽度（考虑方向角）
-     * @param originHeight 初始图片高度（考虑方向角）
+     * @param originWidth 初始图片宽度（考虑图片方向）
+     * @param originHeight 初始图片高度（考虑图片方向）
      * ------------------------------------
      * 其它
      * @param times 实际尺寸/显示尺寸
@@ -451,7 +451,7 @@
                 self._orientation = EXIF.getTag(this, 'Orientation');
                 self.originWidth = self.$cropContent.width;
                 self.originHeight = self.$cropContent.height;
-                //方向角大于4时，宽高互换
+                //图片方向大于4时，宽高互换
                 if (self._orientation > 4) {
                     self.originWidth = self.$cropContent.height;
                     self.originHeight = self.$cropContent.width;
@@ -725,7 +725,7 @@
         }
     }
 
-    //处理方向角坐标系
+    //处理图片方向坐标系
     SimpleCrop.prototype.transformCoordinates = function () {
         var $imageCanvas = document.createElement('canvas');
         var imageCtx = $imageCanvas.getContext('2d');
@@ -840,7 +840,7 @@
             height: height
         };
 
-        //带有方向角度的图片绘制到 canvas 之前需要进行坐标转换
+        //带有方向的图片绘制到 canvas 之前需要进行坐标转换
         var $coorCanvas = this.transformCoordinates();
 
         //绘制图片
