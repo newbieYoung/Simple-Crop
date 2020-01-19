@@ -11,7 +11,6 @@
         window.SimpleCrop = factory(window.AlloyFinger, window.Prefix, window.EXIF, window.TransformationMatrix);
     }
 }(function (finger, Prefix, EXIF, TransformationMatrix) {
-    console.log(TransformationMatrix);
     //兼容性处理
     function whichTransitionEvent() {
         var t;
