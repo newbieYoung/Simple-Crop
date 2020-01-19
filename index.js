@@ -204,8 +204,14 @@
         this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
 
         this.construct();
+        this.initChilds();
+        this.updateFrame();
+        this.bindEvent();
+        this.show(this.src);
+    }
 
-        //相关元素
+    //初始化相关子元素
+    SimpleCrop.prototype.initChilds = function(){
         this.$cropMask = document.querySelector('#' + this.id + ' .crop-mask');
         var maskStyle = window.getComputedStyle(this.$cropMask);
         this.maskViewSize = {
@@ -216,10 +222,6 @@
         this.cropCoverContext = this.$cropCover.getContext('2d');
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
-
-        this.updateFrame();
-        this.bindEvent();
-        this.show(this.src);
     }
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
