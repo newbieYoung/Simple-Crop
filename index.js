@@ -1331,7 +1331,7 @@
         return points;
     };
 
-    //获取transform属性对应的矩形形式
+    //获取 css transform 属性对应的矩形形式
     SimpleCrop.prototype.getTransformMatrix = function (transform) {
         var transforms = transform.split(' ');
         var params = [];
@@ -1538,8 +1538,7 @@
 
     //计算向量的模
     SimpleCrop.prototype.vecLen = function (vec) {
-        var len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
-        return len;
+        return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
     };
 
     //file转image
