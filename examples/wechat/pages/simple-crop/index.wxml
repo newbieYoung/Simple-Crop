@@ -7,7 +7,7 @@
     <view wx:if="{{rotateSlider}}" class="crop-rotate">
       <scroll-view scroll-x="true">
         <view class="lineation" style="width:{{lineationItemWidth * ((endAngle - startAngle) / gapAngle + 1)}}px;">
-          <view wx:for="{{lineationArr}}" wx:for-index="idx" wx:for-item="item">
+          <view wx:key="*this" wx:for="{{lineationArr}}" wx:for-index="idx" wx:for-item="item">
             <view class="number">{{item}}</view>
             <view class="bg"></view>
           </view>

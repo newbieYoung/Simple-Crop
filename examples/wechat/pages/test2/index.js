@@ -15,7 +15,7 @@ Page({
     wx.chooseImage({
       success(res) {
         self.setData({
-          src: res.tempFilePaths[0]
+          src: res.tempFilePaths[0],
         })
       }
     });
