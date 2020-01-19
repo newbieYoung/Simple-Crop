@@ -12,12 +12,12 @@ Page({
   },
   onLoad: function () {
     let self = this;
-    wx.chooseImage({
-      success(res) {
-        self.setData({
-          src: res.tempFilePaths[0],
-        })
-      }
-    });
+    // wx.chooseImage({
+    //   success(res) {
+    //     self.setData({
+    //       src: res.tempFilePaths[0],
+    //     })
+    //   }
+    // });
   },
 })
