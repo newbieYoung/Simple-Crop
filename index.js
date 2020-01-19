@@ -158,6 +158,8 @@
         this._multiPoint = false; //是否开始多点触控
         this._rotateScale = 1; //旋转缩放倍数
         this._baseMoveX = 0; //旋转刻度盘位置初始化偏移量
+        this._curMoveX = 0; //旋转刻度盘位置当前总偏移量
+        this._changedX = 0; //旋转刻度盘当前偏移量
         this._downPoint = []; //操作点坐标
         this._isControl = false; //是否正在操作
         /**
@@ -428,7 +430,7 @@
         this._contentCurMoveX = -this.positionOffset.left;
         this._contentCurMoveY = -this.positionOffset.top;
         if (this.rotateSlider) {
-            this.$lineation.setAttribute('movex', this._baseMoveX);
+            this._curMoveX = this._baseMoveX;
             this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
         }
         if (this.scaleSlider) {
@@ -539,7 +541,7 @@
                 self.rotateAngle = self._baseAngle - 90;
                 self._baseAngle = self.rotateAngle;
                 if (self.rotateSlider) {
-                    self.$lineation.setAttribute('movex', self._baseMoveX);
+                    self._curMoveX = self._baseMoveX;
                     self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
                 }
                 self.transform();
@@ -653,7 +655,7 @@
             var rotateStyle = window.getComputedStyle(self.$cropRotate);
             var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
             self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
-            self.$lineation.setAttribute('movex', self._baseMoveX);
+            self._curMoveX = self._baseMoveX;
             self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
 
             self.$cropRotate.addEventListener(controlEvents.start, function (e) {
@@ -664,7 +666,7 @@
                 var touch = self.getControlPoints(e)[0];
                 var point = [touch.clientX, touch.clientY];
                 var moveX = point[0] - self._downPoint[0];
-                var lastMoveX = self.$lineation.getAttribute('movex');
+                var lastMoveX = self._curMoveX;
                 if (!lastMoveX) {
                     lastMoveX = 0;
                 } else {
@@ -674,8 +676,8 @@
                 var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
 
                 if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
-                    self.$lineation.setAttribute('movex', curMoveX);
-                    self.$lineation.setAttribute('changedx', moveX);
+                    self._curMoveX = curMoveX;
+                    self._changedX = moveX;
                     self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
                     self.rotateAngle = self._baseAngle + angle;
                     self.transform(true);
@@ -1000,8 +1002,8 @@
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            var changedX = parseFloat(this.$lineation.getAttribute('changedx'));
-            var curMoveX = parseFloat(this.$lineation.getAttribute('movex'));
+            var changedX = self._changedX;
+            var curMoveX = self._curMoveX;
             var totalMoveX = curMoveX - changedX - this._baseMoveX;
             var rotateCenter = this.getPointsCenter(rotatePoints);
             var centerVec = {
