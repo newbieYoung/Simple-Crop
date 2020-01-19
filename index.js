@@ -162,6 +162,7 @@
         this._changedX = 0; //旋转刻度盘当前偏移量
         this._downPoint = []; //操作点坐标
         this._isControl = false; //是否正在操作
+        this._scaleMoveX = 0; //滑动缩放控件偏移量
         /**
          * 旋转交互分为两种：
          * 一种是整角旋转（90度）；
@@ -436,7 +437,7 @@
         if (this.scaleSlider) {
             this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
             this.$scaleValue.style.width = '0px';
-            this.$scaleBtn.setAttribute('movex', 0);
+            this._scaleMoveX = 0;
             this.scaleCurLeft = this.scaleInitLeft;
         }
         this.scaleTimes = this.initScale;
@@ -949,7 +950,7 @@
             var moveX = pointX - this.scaleDownX;
             var newCurLeft = this.scaleCurLeft + moveX;
             if (newCurLeft >= this.scaleInitLeft && newCurLeft <= (this.scaleWidth + this.scaleInitLeft)) {
-                var lastMoveX = parseFloat(this.$scaleBtn.getAttribute('movex'));
+                var lastMoveX = this._scaleMoveX;
                 if (!lastMoveX) {
                     lastMoveX = 0;
                 }
@@ -964,7 +965,7 @@
     SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
         this.$scaleBtn.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
         this.$scaleValue.style.width = curMoveX + 'px';
-        this.$scaleBtn.setAttribute('movex', curMoveX);
+        this._scaleMoveX = curMoveX;
         this.scaleCurLeft = this.scaleInitLeft + curMoveX;
         this.scaleTimes = this.initScale + curMoveX * 1.0 / this.scaleWidth * (this.maxScale - this.initScale);
         this.transform(false, true);
