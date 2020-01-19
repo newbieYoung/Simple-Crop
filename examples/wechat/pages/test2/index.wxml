@@ -1,6 +1,6 @@
 <!--index.wxml-->
 <view>
-  <simple-crop size="{{size}}" src="{{src}}"></simple-crop>
+  <simple-crop wx:if="{{true}}" size="{{size}}" src="{{src}}" uploadCallback="{{uploadCallback}}"></simple-crop>
 </view>
 
 

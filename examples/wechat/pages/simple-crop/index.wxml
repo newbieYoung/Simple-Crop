@@ -16,10 +16,10 @@
       <view class="current"></view>
     </view>
     <view class="crop-btns">
-      <view class="crop-close"></view>
-      <view class="crop-around"></view>
-      <view class="crop-reset"></view>
-      <view class="crop-btn"></view>
+      <view wx:if="{{statusBtns.close}}" class="crop-close"></view>
+      <view wx:if="{{statusBtns.around}}" class="crop-around"></view>
+      <view wx:if="{{statusBtns.reset}}" class="crop-reset"></view>
+      <view wx:if="{{statusBtns.crop}}" class="crop-btn"></view>
     </view>
   </view>
 </view>

@@ -19,10 +19,6 @@ Component({
       type: Number,
       value: 1
     },
-    debug: { // 是否开启调试模式
-      type: Boolean,
-      value: false
-    },
     positionOffset: { // 裁剪框屏幕偏移
       type: Object,
       value: {
@@ -41,10 +37,6 @@ Component({
     zIndex: { // 组件层级
       type: Number,
       value: '9999'
-    },
-    visible: { // 组件是否可见 
-      type: Boolean,
-      value: true
     },
     boldCornerLen: { // 裁剪框边角加粗长度
       type: Number,
@@ -95,7 +87,12 @@ Component({
   data: {
     cropContentStyle: '', // 裁剪图片样式
     lineationArr:[],
-
+    statusBtns: {
+      close: false,
+      crop: false,
+      around: false,
+      reset: false,
+    },
     _multiPoint: false, // 是否开始多点触控
     originImage: null, // 初始图片
     $resultCanvas: null, // 裁剪结果
@@ -491,6 +488,22 @@ Component({
       });
     },
 
+    // 初始化功能按钮
+    initFuncBtns: function (funcBtns){
+      var statusBtns = {
+        close: false,
+        crop: false,
+        around: false,
+        reset: false,
+      };
+      for(var i=0;i<funcBtns.length;i++){
+        statusBtns[funcBtns[i]] = true;
+      }
+      this.setData({
+        statusBtns: statusBtns
+      });
+    },
+
     // 微信小程序图片方向转换数字表示
     orientationToNumber: function(name){
       var num = 1; //默认方向
@@ -570,7 +583,7 @@ Component({
         var type = Object.prototype.toString.call(image);
         if (type === '[object String]') { // 字符串
           this.load();
-          this.uploadCallback();
+          this.data.uploadCallback.bind(this)();
         }
       }
     },
@@ -848,10 +861,12 @@ Component({
     },
     attached: function () {
       console.log('attached');
+      console.log(this.data.funcBtns.indexOf('crop'));
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
-      this.maxScale = this.data.maxScale;
+      this.maxScale = this.data.maxScale ? this.data.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
       this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle);
+      this.initFuncBtns(this.data.funcBtns);
       this.initChilds([this.updateFrame, this.setImage]);
     }
   },
@@ -863,6 +878,9 @@ Component({
     },
     'startAngle, endAngle, gapAngle': function (startAngle, endAngle, gapAngle) {
       this.initRotateSlider(startAngle, endAngle, gapAngle);
-    }
+    },
+    'funcBtns': function (funcBtns){
+      this.initFuncBtns(funcBtns);
+    },
   },
 })

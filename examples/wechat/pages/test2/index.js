@@ -8,6 +8,10 @@ Page({
       width:1000,
       height:600
     },
+    uploadCallback:function(){
+      console.log('uploadCallback');
+      console.log(this);
+    },
     src:null,
   },
   onLoad: function () {
