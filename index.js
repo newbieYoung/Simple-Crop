@@ -2,16 +2,16 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['alloyfinger', 'prefix-umd', 'exif-js'], factory);
+        define(['alloyfinger', 'prefix-umd', 'exif-js', 'transformation-matrix'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node/CommonJS
-        module.exports = factory(require('alloyfinger'), require('prefix-umd'), require('exif-js'));
+        module.exports = factory(require('alloyfinger'), require('prefix-umd'), require('exif-js'), require('transformation-matrix'));
     } else {
         // Browser globals
-        window.SimpleCrop = factory(window.AlloyFinger, window.Prefix, window.EXIF);
+        window.SimpleCrop = factory(window.AlloyFinger, window.Prefix, window.EXIF, window.TransformationMatrix);
     }
-}(function (finger, Prefix, EXIF) {
-
+}(function (finger, Prefix, EXIF, TransformationMatrix) {
+    console.log(TransformationMatrix);
     //兼容性处理
     function whichTransitionEvent() {
         var t;
@@ -908,9 +908,9 @@
 
                 //适配变换
                 var coverTr = this.getCoverTransform(transform);
-                var coverMat = this.cssMatrixAnalyze(this.getTransformMatrix(coverTr));
-                this._contentCurMoveX = coverMat[4];
-                this._contentCurMoveY = coverMat[5];
+                var coverMat = this.getTransformMatrix(coverTr);
+                this._contentCurMoveX = coverMat.e;
+                this._contentCurMoveY = coverMat.f;
                 this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr, this.initContentPoints);
 
                 if (!this.debug) {
@@ -995,9 +995,9 @@
 
         if (scaleKeepCover) { //缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的位移变换
             transform = this.getCoverTransform(transform, true);
-            var scMat = this.cssMatrixAnalyze(this.getTransformMatrix(transform));
-            this._contentCurMoveX = scMat[4];
-            this._contentCurMoveY = scMat[5];
+            var scMat = this.getTransformMatrix(transform);
+            this._contentCurMoveX = scMat.e;
+            this._contentCurMoveY = scMat.f;
         }
 
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
@@ -1292,7 +1292,7 @@
                 x: points[i].x,
                 y: points[i].y
             };
-            item = this.getMatrixPoints(item, matrix);
+            item = TransformationMatrix.applyToPoint(matrix, item);
             nPoints.push(item);
         }
         nPoints.reverse(); //顶点顺序发生了变化，需要颠倒
@@ -1332,60 +1332,64 @@
         return points;
     };
 
-    //计算矩阵变换后的坐标点
-    SimpleCrop.prototype.getMatrixPoints = function (p, matrix) {
-        var mat = this.cssMatrixAnalyze(matrix);
-
-        // var mat3 = [mat[0],mat[2],mat[4],
-        //             mat[1],mat[3],mat[5],
-        //             0,0,1];
-
-        // var mat3 = [a,c,e,
-        //             b,d,f,
-        //             0,0,1];
-
-        // var nx = a * x + c * y + 1 * e;
-        // var ny = b * x + d * y + 1 * f;
-        // var nz = 0 + 0 +1;
-
-        //计算变换后点坐标
-        var nx = mat[0] * p.x + mat[2] * p.y + 1 * mat[4];
-        var ny = mat[1] * p.x + mat[3] * p.y + 1 * mat[5];
-        var nz = 0 + 0 + 1;
-
-        return {
-            x: nx / nz,
-            y: ny / nz
-        };
-    };
-
-    //css矩阵解析
-    SimpleCrop.prototype.cssMatrixAnalyze = function (mat) {
-        var start = mat.indexOf('matrix(');
-        var end = mat.indexOf(')');
-        var arr = [];
-        var numbers = mat.substring(start + 7, end);
-        arr = numbers.split(',');
-        for (var i = 0; i < arr.length; i++) {
-            arr[i] = parseFloat(arr[i]);
-        }
-        return arr;
-    };
-
     //获取transform属性对应的矩形形式
     SimpleCrop.prototype.getTransformMatrix = function (transform) {
-        var $div = document.createElement('div');
-        $div.style.visibility = 'hidden';
-        $div.style.position = 'fixed';
+        var transforms = transform.split(' ');
+        var params = [];
+        for(var i=0;i<transforms.length;i++){
+            if(transforms[i].trim()!=''){ // 不能为空
+                var func = this.getTransformFunctionName(transforms[i]);
+                var result;
+                if(func.name != 'rotate'){
+                    result = TransformationMatrix[func.name](func.params[0],func.params[1]);
+                }else{
+                    result = TransformationMatrix[func.name](func.params[0]);
+                }
+                params.push(result);
+            }
+        }
 
-        $div.style[transformProperty] = transform;
-        document.body.appendChild($div);
+        return TransformationMatrix.compose(params);
+    };
 
-        var style = window.getComputedStyle($div);
-        var matrix = style[transformProperty];
-        document.body.removeChild($div);
+    //根据 css transform 属性获取 transformation-matrix 对应的函数名称以及参数
+    SimpleCrop.prototype.getTransformFunctionName = function(transform){
+        var start = transform.indexOf('(');
+        var end = transform.indexOf(')');
+        var func = {};
 
-        return matrix;
+        //参数
+        var params = transform.substring(start+1,end).split(',');
+        var arr = [];
+        for(var i=0; i<params.length; i++){
+            arr.push(parseFloat(params[i]));
+        }
+        func.params = arr;
+
+        //名称
+        var name = transform.substring(0,start).toLowerCase();
+        var defParams = 0;//默认参数
+        if(name.indexOf('scale')!=-1){
+            func.name = 'scale';
+            defParams = 1;
+        }else if(name.indexOf('translate')!=-1){
+            func.name = 'translate';
+        }else if(name.indexOf('skew')!=-1){
+            func.name = 'skewDEG';
+        }else if(name.indexOf('rotate')!=-1){
+            func.name = 'rotateDEG'; // 角度
+        }
+
+        //加入默认参数
+        if(name.indexOf('x')!=-1){
+            func.params.push(defParams);
+        }else if(name.indexOf('y')!=-1){
+            func.params.unshift(defParams);
+        }else if(name.indexOf('rotate') == -1 && func.params.length<=1){ // 除了 rotate 其它函数支持 x、y 两个参数，如果 css transform 属性参数只有一个则另一个参数也是如此。
+            func.params.push(func.params[0]);
+        }
+
+        return func;
     };
 
     //计算向量 a 在向量 b 上的投影向量
