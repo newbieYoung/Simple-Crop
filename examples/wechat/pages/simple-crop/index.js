@@ -89,6 +89,7 @@ Component({
   
   data: {
     cropContentStyle: '', // 裁剪图片样式
+    lineationArr:[],
 
     _multiPoint: false, // 是否开始多点触控
     _baseMoveX: 0, // 旋转刻度盘位置初始化偏移量
@@ -144,7 +145,8 @@ Component({
       console.log('attached');
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
       this.maxScale = this.data.maxScale;
-
+      
+      this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle);
       this.initComponent([this.updateFrame, this.setImage]);
     }
   },
@@ -153,10 +155,23 @@ Component({
   observers: {
     'src': function (src) {
       this.setImage(src);
+    },
+    'startAngle, endAngle, gapAngle': function (startAngle, endAngle, gapAngle){
+      this.initRotateSlider(startAngle, endAngle, gapAngle);
     }
   },
 
   methods: {
+    // 初始化旋转刻度盘
+    initRotateSlider: function (startAngle, endAngle, gapAngle){
+      let lineationArr = [];
+      for (let i = startAngle; i <= endAngle; i += gapAngle) {
+        lineationArr.push(i)
+      }
+      this.setData({
+        lineationArr: lineationArr,
+      });
+    },
     // 微信小程序图片方向转换数字表示
     orientationToNumber: function(name){
       let num = 1; //默认方向
@@ -301,7 +316,6 @@ Component({
     reset: function(){
       let positionOffset = this.data.positionOffset;
       let rotateSlider = this.data.rotateSlider;
-      console.log(rotateSlider);
 
       this.startControl();
       this._rotateScale = 1;

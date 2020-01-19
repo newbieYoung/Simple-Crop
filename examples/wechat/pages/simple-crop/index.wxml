@@ -5,84 +5,14 @@
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
     </view>
     <view wx:if="{{rotateSlider}}" class="crop-rotate">
-      <view class="lineation">
-        <view>
-          <view class="number">-90</view>
-          <view class="bg"></view>
+      <scroll-view scroll-x="true">
+        <view class="lineation" style="width:{{lineationItemWidth * ((endAngle - startAngle) / gapAngle + 1)}}px;">
+          <view wx:for="{{lineationArr}}" wx:for-index="idx" wx:for-item="item">
+            <view class="number">{{item}}</view>
+            <view class="bg"></view>
+          </view>
         </view>
-        <view>
-          <view class="number">-80</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-70</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-60</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-50</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-40</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-30</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-20</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">-10</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">0</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">10</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">20</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">30</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">40</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">50</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">60</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">70</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">80</view>
-          <view class="bg"></view>
-        </view>
-        <view>
-          <view class="number">90</view>
-          <view class="bg"></view>
-        </view>
-      </view>
+      </scroll-view>
       <view class="current"></view>
     </view>
     <view class="crop-btns">
