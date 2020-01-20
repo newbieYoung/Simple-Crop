@@ -669,11 +669,6 @@
                 var point = [touch.clientX, touch.clientY];
                 var moveX = point[0] - self._downPoint[0];
                 var lastMoveX = self._curMoveX;
-                if (!lastMoveX) {
-                    lastMoveX = 0;
-                } else {
-                    lastMoveX = parseFloat(lastMoveX);
-                }
                 var curMoveX = lastMoveX + moveX;
                 var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
 
@@ -1004,8 +999,8 @@
         if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
             var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
             var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            var changedX = self._changedX;
-            var curMoveX = self._curMoveX;
+            var changedX = this._changedX;
+            var curMoveX = this._curMoveX;
             var totalMoveX = curMoveX - changedX - this._baseMoveX;
             var rotateCenter = this.getPointsCenter(rotatePoints);
             var centerVec = {
