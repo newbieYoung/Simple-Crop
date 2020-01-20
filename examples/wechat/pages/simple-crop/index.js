@@ -146,7 +146,7 @@ Component({
 
   methods: {
     //整角旋转
-    transform: function (rotateCover, scaleKeepCover) {
+    transform : function (rotateCover, scaleKeepCover) {
       var scaleNum = this.scaleTimes / this.times * this._rotateScale;
       var transform = '';
       transform += ' scale(' + scaleNum + ')'; //缩放
@@ -202,7 +202,7 @@ Component({
     },
 
     //获得矩形点坐标中心
-    getPointsCenter: function (points){
+    getPointsCenter : function (points){
       var center = {
         x: (points[0].x + points[2].x) / 2,
         y: (points[0].y + points[2].y) / 2,
@@ -211,7 +211,7 @@ Component({
     },
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
-    getCoverRectScale: function (outer, inner){
+    getCoverRectScale : function (outer, inner){
       var scale = 0;
       for (var i = 0; i < inner.length; i++) {
         var num = this.getCoverPointScale(inner[i], outer);
@@ -223,7 +223,7 @@ Component({
     },
 
     //计算图片内容刚好包含裁剪框的transform变换
-    getCoverTransform: function (transform, onlyTranslate){
+    getCoverTransform : function (transform, onlyTranslate){
       var cRect = this.getCoveRect(this.cropPoints, this.rotateAngle);
       onlyTranslate = onlyTranslate ? onlyTranslate : false;
 
@@ -348,7 +348,7 @@ Component({
     },
 
     //计算新的变换坐标
-    getTransformPoints: function (transform, points){
+    getTransformPoints : function (transform, points){
       var matrix = this.getTransformMatrix(transform);
       var nPoints = [];
       for (var i = 0; i < points.length; i++) {
@@ -365,7 +365,7 @@ Component({
     },
 
     //获取 css transform 属性对应的矩形形式
-    getTransformMatrix: function (transform){
+    getTransformMatrix : function (transform){
       var transforms = transform.split(' ');
       var params = [];
       for (var i = 0; i < transforms.length; i++) {
@@ -385,7 +385,7 @@ Component({
     },
 
     //根据 css transform 属性获取 transformation-matrix 对应的函数名称以及参数
-    getTransformFunctionName: function (transform){
+    getTransformFunctionName : function (transform){
       var start = transform.indexOf('(');
       var end = transform.indexOf(')');
       var func = {};
@@ -425,7 +425,7 @@ Component({
     },
 
     //计算向量夹角
-    vecAngle: function (vec1, vec2){
+    vecAngle : function (vec1, vec2){
       var acos = (vec1.x * vec2.x + vec1.y * vec2.y) / (this.vecLen(vec1) * this.vecLen(vec2));
       if (Math.abs(acos) > 1) { //因为浮点数精度结果有可能超过1，Math.acos(1.0000001) = NaN
         acos = acos > 0 ? 1 : -1;
@@ -436,12 +436,12 @@ Component({
     },
 
     //计算向量的模
-    vecLen: function(vec){
+    vecLen : function(vec){
       return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
     },
 
     //获取刚好包含某个矩形的新矩形
-    getCoveRect: function(rect, angle){
+    getCoveRect : function(rect, angle){
       if (angle < 0) {
         angle = 90 + angle % 90;
       } else {
@@ -481,7 +481,7 @@ Component({
     },
 
     // 初始化旋转刻度盘
-    initRotateSlider: function (startAngle, endAngle, gapAngle){
+    initRotateSlider : function (startAngle, endAngle, gapAngle){
       var lineationArr = [];
       for (var i = startAngle; i <= endAngle; i += gapAngle) {
         lineationArr.push(i)
@@ -492,7 +492,7 @@ Component({
     },
 
     // 初始化功能按钮
-    initFuncBtns: function (funcBtns){
+    initFuncBtns : function (funcBtns){
       var statusBtns = {
         close: false,
         crop: false,
@@ -508,7 +508,7 @@ Component({
     },
 
     // 微信小程序图片方向转换数字表示
-    orientationToNumber: function(name){
+    orientationToNumber : function(name){
       var num = 1; //默认方向
       switch(name){
         case 'up-mirrored':
@@ -541,7 +541,7 @@ Component({
     },
 
     //初始化相关子元素
-    initChilds: function(callbacks){
+    initChilds : function(callbacks){
       var rotateSlider = this.data.rotateSlider;
       var lineationItemWidth = this.data.lineationItemWidth;
       var endAngle = this.data.endAngle;
@@ -615,7 +615,7 @@ Component({
     },
 
     //设置裁剪图片
-    setImage: function(image){
+    setImage : function(image){
       if(image != null && image != ''){
         var type = Object.prototype.toString.call(image);
         if (type === '[object String]') { // 字符串
@@ -626,7 +626,7 @@ Component({
     },
 
     //加载图片
-    load: function(){
+    load : function(){
       var self = this;
       var src = this.data.src;
       wx.getImageInfo({
@@ -646,7 +646,7 @@ Component({
     },
 
     //初始化
-    init: function(){
+    init : function(){
       var width = this.originWidth/2;
       var height = this.originHeight/2;
       this.initContentPoints = [{
@@ -678,7 +678,7 @@ Component({
     },
 
     //重置
-    reset: function(){
+    reset : function(){
       var positionOffset = this.data.positionOffset;
       var rotateSlider = this.data.rotateSlider;
 
@@ -701,7 +701,7 @@ Component({
     },
 
     //操作开始
-    startControl: function(point){
+    startControl : function(point){
       if(!this._isControl){
         this._isControl = true;
         this._downPoint = point ? point : [];
@@ -709,7 +709,7 @@ Component({
     },
 
     //操作结束
-    endControl: function(){
+    endControl : function(){
       if(this._isControl){
         var self = this;
         this._isControl = false;
@@ -739,7 +739,7 @@ Component({
     },
 
     //判断 矩形A 是否完全包含 矩形B
-    isWholeCover: function(rectA, rectB){
+    isWholeCover : function(rectA, rectB){
       for (var i = 0; i < rectB.length; i++) {
         if (!this.isPointInRectCheckByLen(rectB[i], rectA)) {
           return false;
@@ -749,7 +749,7 @@ Component({
     },
 
     //根据矩形中心到某一点向量在矩形边框向量的投影长度判断该点是否在矩形内
-    isPointInRectCheckByLen: function (point, rectPoints){
+    isPointInRectCheckByLen : function (point, rectPoints){
       var pcv = this.getPCVectorProjOnUpAndRight(point, rectPoints);
 
       var precision = 100; //保留两位小数
@@ -767,7 +767,7 @@ Component({
     },
 
     //计算矩形中心到某点的向量在矩形自身坐标系上方向和右方向上的投影向量
-    getPCVectorProjOnUpAndRight: function (point, rectPoints){
+    getPCVectorProjOnUpAndRight : function (point, rectPoints){
       //计算矩形自身坐标系的上方向向量和右方向向量
       var up = {
         x: rectPoints[1].x - rectPoints[2].x,
@@ -797,7 +797,7 @@ Component({
     },
 
     //计算向量 a 在向量 b 上的投影向量
-    getProjectionVector: function (vecA, vecB){
+    getProjectionVector : function (vecA, vecB){
       var bLen = this.vecLen(vecB);
       var ab = vecA.x * vecB.x + vecA.y * vecB.y;
 
@@ -810,7 +810,7 @@ Component({
     },
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-    updateFrame: function(){
+    updateFrame : function(){
       var size = this.data.size;
       var cropSizePercent = this.data.cropSizePercent;
       var positionOffset = this.data.positionOffset;
@@ -892,6 +892,11 @@ Component({
         y: (points[0].y + points[2].y) / 2,
       }
       return center;
+    },
+
+    //滑动旋转刻度盘
+    scrollLineation: function(){
+
     },
   },
 
