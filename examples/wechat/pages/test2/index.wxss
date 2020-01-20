@@ -1,1 +1,14 @@
 /**index.wxss**/
+.test2{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.test2>button{
+  width:80%;
+  margin-top:10px;
+}

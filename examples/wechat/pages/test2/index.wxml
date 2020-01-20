@@ -1,6 +1,7 @@
 <!--index.wxml-->
-<view>
-  <simple-crop wx:if="{{true}}" size="{{size}}" src="{{src}}" uploadCallback="{{uploadCallback}}"></simple-crop>
+<view class="test2">
+  <button bindtap="chooseCropImage">选取裁剪图片</button>
+  <simple-crop wx:if="{{visible}}" size="{{size}}" src="{{src}}" bindcropUpload="uploadCallback" bindcropClose="closeCallback"></simple-crop>
 </view>
 
 

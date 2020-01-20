@@ -78,10 +78,6 @@ Component({
       type: Function,
       value: null
     },
-    uploadCallback: {
-      type: Function,
-      value: function(){}
-    }
   },
   
   data: {
@@ -101,6 +97,7 @@ Component({
   },
 
   options: {
+    isAttached: false,
     scaleTimes: 1, // 缩放倍数
     _curMoveX: 0, // 旋转刻度盘位置当前偏移量
     _changedX: 0, // 旋转刻度盘当前偏移量
@@ -526,6 +523,7 @@ Component({
       this.setData({
         statusBtns: statusBtns
       });
+      
     },
 
     // 微信小程序图片方向转换数字表示
@@ -562,8 +560,11 @@ Component({
     },
 
     //初始化相关子元素
-    initChilds : function(callbacks){
+    initChilds : function(){
       var rotateSlider = this.data.rotateSlider;
+      var size = this.data.size;
+      var cropSizePercent = this.data.cropSizePercent;
+      var positionOffset = this.data.positionOffset;
 
       var call_count = 0; // 回调计数器
       var total_count = 0;
@@ -585,9 +586,7 @@ Component({
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-          for (var i=0;i<callbacks.length;i++){
-            callbacks[i].bind(self)(); 
-          }
+          self.updateFrame(size, cropSizePercent, positionOffset);
         }
       }).exec();
 
@@ -603,9 +602,7 @@ Component({
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-          for (var j = 0; j < callbacks.length; j++) {
-            callbacks[j].bind(self)();
-          }
+          self.updateFrame(size, cropSizePercent, positionOffset);
         }
       });
 
@@ -622,9 +619,7 @@ Component({
             self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
             self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-            for (var j = 0; j < callbacks.length; j++) {
-              callbacks[j].bind(self)();
-            }
+            self.updateFrame(size, cropSizePercent, positionOffset);
           }
         }).exec();
       }
@@ -636,7 +631,7 @@ Component({
         var type = Object.prototype.toString.call(image);
         if (type === '[object String]') { // 字符串
           this.load();
-          this.data.uploadCallback.bind(this)();
+          this.triggerEvent('cropUpload', {component:this}, {})
         }
       }
     },
@@ -826,10 +821,8 @@ Component({
     },
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-    updateFrame : function(){
-      var size = this.data.size;
-      var cropSizePercent = this.data.cropSizePercent;
-      var positionOffset = this.data.positionOffset;
+    updateFrame: function (size, cropSizePercent, positionOffset){
+      var src = this.data.src;
 
       this.times = (size.width / this.maskViewSize.width > size.height / this.maskViewSize.height) ? size.width / this.maskViewSize.width / cropSizePercent : size.height / this.maskViewSize.height / cropSizePercent;
       this.cropRect = {
@@ -841,6 +834,8 @@ Component({
       this.cropPoints = this.rectToPoints(this.cropRect);
       this.cropCenter = this.getPointsCenter(this.cropPoints);
       this.borderDraw();
+
+      this.setImage(src);
     },
 
     //默认绘制裁剪框
@@ -911,7 +906,7 @@ Component({
     },
 
     //滑动旋转刻度盘
-    scrollLineation: function(event){
+    scrollLineation : function(event){
       var endAngle = this.data.endAngle;
       var startAngle = this.data.startAngle;
       var gapAngle = this.data.gapAngle;
@@ -930,6 +925,11 @@ Component({
         }
       //}
     },
+
+    //关闭
+    close : function(){
+      this.triggerEvent('cropClose', {component:this}, {})
+    }
   },
 
   lifetimes: { // 组件生命周期
@@ -937,26 +937,37 @@ Component({
       // 在 created 生命周期中查看 this.data 数据时为默认值
     },
     attached: function () {
-      console.log('attached');
+      this.isAttached = true;
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
       this.maxScale = this.data.maxScale ? this.data.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
       this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle, this.data.lineationItemWidth);
       this.initFuncBtns(this.data.funcBtns);
-      this.initChilds([this.updateFrame, this.setImage]);
+      this.initChilds();
     }
   },
 
   //数据监听器
   observers: {
     'src': function (src) {
-      this.setImage(src);
+      if(this.isAttached){
+        this.setImage(src);
+      }
     },
     'startAngle, endAngle, gapAngle, lineationItemWidth': function (startAngle, endAngle, gapAngle, lineationItemWidth) {
-      this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
+      if (this.isAttached) {
+        this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
+      }
     },
     'funcBtns': function (funcBtns){
-      this.initFuncBtns(funcBtns);
+      if (this.isAttached) {
+        this.initFuncBtns(funcBtns);
+      }
     },
+    'size, cropSizePercent, positionOffset': function (size, cropSizePercent, positionOffset){
+      if(this.isAttached){
+        this.updateFrame(size, cropSizePercent, positionOffset);
+      }
+    }
   },
 })
