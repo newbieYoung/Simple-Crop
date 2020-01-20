@@ -207,7 +207,6 @@
         this.initChilds();
         this.updateFrame();
         this.bindEvent();
-        this.show(this.src);
     }
 
     //初始化相关子元素
@@ -240,6 +239,8 @@
 
         this.borderDraw();
         this.coverDraw();
+
+        this.show(this.src)
     }
 
     //获取操作点
