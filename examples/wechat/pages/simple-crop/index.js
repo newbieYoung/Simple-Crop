@@ -93,6 +93,8 @@ Component({
       around: false,
       reset: false,
     },
+    curMoveX: 0,
+
     _multiPoint: false, // 是否开始多点触控
     originImage: null, // 初始图片
     $resultCanvas: null, // 裁剪结果
@@ -113,6 +115,7 @@ Component({
     $cropMask: null,
     $cropCover: null,
     cropCoverContext: null,
+    $cropRotate: null,
     maskViewSize: { // 容器屏幕尺寸
       width:0,
       height:0
@@ -539,19 +542,29 @@ Component({
 
     //初始化相关子元素
     initChilds: function(callbacks){
+      var rotateSlider = this.data.rotateSlider;
+      var lineationItemWidth = this.data.lineationItemWidth;
+      var endAngle = this.data.endAngle;
+      var startAngle = this.data.startAngle;
+      var gapAngle = this.data.gapAngle;
+
       var call_count = 0; // 回调计数器
+      var total_count = 0;
       this._initPosition = 'position:absolute; left:50%; top:50%;';
       this._initTransform = 'transform:translate3d(-50%,-50%,0)';
 
       var self = this;
       this.$cropMask = this.createSelectorQuery().select('#' + S_ID + ' .crop-mask');
+      total_count++;
       this.$cropMask.boundingClientRect(function (rect) {
         self.maskViewSize = {
           width: rect.width,
           height: rect.height,
         }
+
+        // callback
         call_count++;
-        if (call_count >= 2) {
+        if (call_count >= total_count) {
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
@@ -562,11 +575,14 @@ Component({
       }).exec();
 
       this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
+      total_count++;
       this.$cropCover.node().exec(function (res) {
         self.$cropCover = res[0].node;
         self.cropCoverContext = self.$cropCover.getContext('2d');
+
+        // callback
         call_count++;
-        if (call_count >= 2) {
+        if (call_count >= total_count) {
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
@@ -575,6 +591,27 @@ Component({
           }
         }
       });
+
+      if (rotateSlider){
+        this.$cropRotate = this.createSelectorQuery().select('#' + S_ID + ' .crop-rotate');
+        total_count++;
+        this.$cropRotate.boundingClientRect(function (rect) {
+          var lineationWidth = lineationItemWidth * ((endAngle - startAngle) / gapAngle + 1);
+          var rotateWidth = rect.width;
+          self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
+
+          // callback
+          call_count++;
+          if (call_count >= total_count) {
+            self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+            self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+
+            for (var j = 0; j < callbacks.length; j++) {
+              callbacks[j].bind(self)();
+            }
+          }
+        }).exec();
+      }
     },
 
     //设置裁剪图片
@@ -654,6 +691,9 @@ Component({
 
       if(rotateSlider){
         this._curMoveX = this._baseMoveX;
+        this.setData({
+          curMoveX: -this._curMoveX
+        });
       }
       this.scaleTimes = this.initScale;
       this.transform();
@@ -861,7 +901,6 @@ Component({
     },
     attached: function () {
       console.log('attached');
-      console.log(this.data.funcBtns.indexOf('crop'));
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
       this.maxScale = this.data.maxScale ? this.data.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
