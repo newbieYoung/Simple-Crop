@@ -103,6 +103,7 @@ Component({
   options: {
     scaleTimes: 1, // 缩放倍数
     _curMoveX: 0, // 旋转刻度盘位置当前偏移量
+    _changedX: 0, // 旋转刻度盘当前偏移量
     _baseMoveX: 0, // 旋转刻度盘位置初始化偏移量
     _contentCurMoveX: 0, // 图片 X 轴方向上的总位移
     _contentCurMoveY: 0, // 图片 Y 轴方向上的总位移
@@ -142,6 +143,7 @@ Component({
     contentPoints: [], //图片顶点坐标
     initScale: 1, // 初始缩放倍数
     maxScale: 1, // 最大缩放倍数
+    lineationWidth: 0, // 旋转刻度盘总宽度
   },
 
   methods: {
@@ -163,8 +165,8 @@ Component({
       if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
         var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
         var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-        var changedX = self._changedX;
-        var curMoveX = self._curMoveX;
+        var changedX = this._changedX;
+        var curMoveX = this._curMoveX;
         var totalMoveX = curMoveX - changedX - this._baseMoveX;
         var rotateCenter = this.getPointsCenter(rotatePoints);
         var centerVec = {
@@ -220,6 +222,24 @@ Component({
         }
       }
       return scale;
+    },
+
+    //计算一个矩形刚好包含矩形外一点需要的缩放倍数
+    getCoverPointScale: function (point, rectPoints){
+      var pcv = this.getPCVectorProjOnUpAndRight(point, rectPoints);
+
+      //计算矩形外一点到矩形中心向量在矩形边框向量上的投影距离
+      var uLen = this.vecLen(pcv.uproj);
+      var height = this.vecLen(pcv.up) / 2;
+      var rLen = this.vecLen(pcv.rproj);
+      var width = this.vecLen(pcv.right) / 2;
+
+      //根据投影距离计算缩放倍数
+      if (uLen / height > rLen / width) {
+        return 1 + (uLen - height) / height;
+      } else {
+        return 1 + (rLen - width) / width;
+      }
     },
 
     //计算图片内容刚好包含裁剪框的transform变换
@@ -481,11 +501,12 @@ Component({
     },
 
     // 初始化旋转刻度盘
-    initRotateSlider : function (startAngle, endAngle, gapAngle){
+    initRotateSlider: function (startAngle, endAngle, gapAngle, lineationItemWidth){
       var lineationArr = [];
       for (var i = startAngle; i <= endAngle; i += gapAngle) {
         lineationArr.push(i)
       }
+      this.lineationWidth = lineationItemWidth * ((endAngle - startAngle) / gapAngle + 1);
       this.setData({
         lineationArr: lineationArr,
       });
@@ -543,10 +564,6 @@ Component({
     //初始化相关子元素
     initChilds : function(callbacks){
       var rotateSlider = this.data.rotateSlider;
-      var lineationItemWidth = this.data.lineationItemWidth;
-      var endAngle = this.data.endAngle;
-      var startAngle = this.data.startAngle;
-      var gapAngle = this.data.gapAngle;
 
       var call_count = 0; // 回调计数器
       var total_count = 0;
@@ -596,9 +613,8 @@ Component({
         this.$cropRotate = this.createSelectorQuery().select('#' + S_ID + ' .crop-rotate');
         total_count++;
         this.$cropRotate.boundingClientRect(function (rect) {
-          var lineationWidth = lineationItemWidth * ((endAngle - startAngle) / gapAngle + 1);
           var rotateWidth = rect.width;
-          self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
+          self._baseMoveX = -(self.lineationWidth / 2 - rotateWidth / 2);
 
           // callback
           call_count++;
@@ -895,8 +911,24 @@ Component({
     },
 
     //滑动旋转刻度盘
-    scrollLineation: function(){
+    scrollLineation: function(event){
+      var endAngle = this.data.endAngle;
+      var startAngle = this.data.startAngle;
+      var gapAngle = this.data.gapAngle;
+      var src = this.data.src;
 
+      var scrollLeft = event.detail.scrollLeft;
+      this.startControl();
+      var curMoveX = -scrollLeft;
+      var angle = (curMoveX - this._baseMoveX) / this.lineationWidth * (endAngle - startAngle + gapAngle);
+      //if (angle <= endAngle / 2 && angle >= startAngle / 2){
+        this._changedX = curMoveX - this._curMoveX;
+        this._curMoveX = curMoveX;
+        this.rotateAngle = this._baseAngle + angle;
+        if (src.trim() != ''){
+          this.transform(true);
+        }
+      //}
     },
   },
 
@@ -909,7 +941,7 @@ Component({
       this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
       this.maxScale = this.data.maxScale ? this.data.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
-      this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle);
+      this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle, this.data.lineationItemWidth);
       this.initFuncBtns(this.data.funcBtns);
       this.initChilds([this.updateFrame, this.setImage]);
     }
@@ -920,8 +952,8 @@ Component({
     'src': function (src) {
       this.setImage(src);
     },
-    'startAngle, endAngle, gapAngle': function (startAngle, endAngle, gapAngle) {
-      this.initRotateSlider(startAngle, endAngle, gapAngle);
+    'startAngle, endAngle, gapAngle, lineationItemWidth': function (startAngle, endAngle, gapAngle, lineationItemWidth) {
+      this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
     },
     'funcBtns': function (funcBtns){
       this.initFuncBtns(funcBtns);
