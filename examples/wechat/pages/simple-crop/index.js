@@ -90,13 +90,13 @@ Component({
       reset: false,
     },
     curMoveX: 0,
-
-    _multiPoint: false, // 是否开始多点触控
+    
     originImage: null, // 初始图片
     $resultCanvas: null, // 裁剪结果
   },
 
   options: {
+    _multiPoint: false, // 是否开始多点触控
     isAttached: false,
     scaleTimes: 1, // 缩放倍数
     _curMoveX: 0, // 旋转刻度盘位置当前偏移量
@@ -107,7 +107,7 @@ Component({
     _baseAngle: 0,
     rotateAngle: 0, // 旋转角度
     _rotateScale: 1, // 旋转缩放倍数
-    _downPoint: [], // 操作点坐标
+    _downPoints: [], // 操作点坐标数组
     _isControl: false, // 是否正在操作
     borderDraw: null, // 裁剪框自定义边框绘制函数
     $cropMask: null,
@@ -712,10 +712,10 @@ Component({
     },
 
     //操作开始
-    startControl : function(point){
+    startControl : function(touches){
       if(!this._isControl){
         this._isControl = true;
-        this._downPoint = point ? point : [];
+        this._downPoints = touches ? touches : [];
       }
     },
 
@@ -724,7 +724,7 @@ Component({
       if(this._isControl){
         var self = this;
         this._isControl = false;
-        this._downPoint = [];
+        this._downPoints = [];
         this.scaleDownX = 0;
 
         if (!this.isWholeCover(this.contentPoints, this.cropPoints)) { //如果没有完全包含则需要进行适配变换
@@ -929,7 +929,24 @@ Component({
     //关闭
     close : function(){
       this.triggerEvent('cropClose', {component:this}, {})
-    }
+    },
+
+    //触摸开始
+    touchstart : function(event){
+      console.log(event);
+      this.startControl(event.touches);
+      if(this._downPoints && this._downPoints.length >= 2){
+        this._multiPoint = true;
+      }
+    },
+
+    //触摸移动
+    touchmove: function (event){
+      console.log(event);
+      if(this._downPoints){
+        
+      }
+    },
   },
 
   lifetimes: { // 组件生命周期
