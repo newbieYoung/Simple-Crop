@@ -159,7 +159,7 @@
         this._baseMoveX = 0; //旋转刻度盘位置初始化偏移量
         this._curMoveX = 0; //旋转刻度盘位置当前总偏移量
         this._changedX = 0; //旋转刻度盘当前偏移量
-        this._downPoint = []; //操作点坐标
+        this._downPoints = []; //操作点坐标数组
         this._isControl = false; //是否正在操作
         this._scaleMoveX = 0; //滑动缩放控件偏移量
         /**
@@ -667,9 +667,9 @@
             });
             self.$cropRotate.addEventListener(controlEvents.move, function (e) {
                 var touches = self.getControlPoints(e);
-                if(self._downPoint && self._downPoint.length > 0 && !self._multiPoint){
+                if(self._downPoints && self._downPoints.length > 0 && !self._multiPoint){
                     var point = touches[0];
-                    var moveX = point.clientX - self._downPoint[0].clientX;
+                    var moveX = point.clientX - self._downPoints[0].clientX;
                     var lastMoveX = self._curMoveX;
                     var curMoveX = lastMoveX + moveX;
                     var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
@@ -680,7 +680,7 @@
                         self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
                         self.rotateAngle = self._baseAngle + angle;
                         self.transform(true);
-                        self._downPoint = touches;
+                        self._downPoints = touches;
                     }
                 }
                 e.stopPropagation(); //阻止事件冒泡
@@ -895,7 +895,7 @@
         if (this._isControl) {
             var self = this;
             this._isControl = false;
-            this._downPoint = [];
+            this._downPoints = [];
             this.scaleDownX = 0;
 
             if (!this.isWholeCover(this.contentPoints, this.cropPoints)) { //如果没有完全包含则需要进行适配变换
@@ -938,7 +938,7 @@
         if (!this._isControl) {
             this._isControl = true;
             this.$cropContent.style[transitionProperty] = 'none';
-            this._downPoint = touches ? touches : [];
+            this._downPoints = touches ? touches : [];
         }
     };
 
@@ -972,14 +972,14 @@
 
     //内容图片移动
     SimpleCrop.prototype.contentMove = function (touches) {
-        if (this._downPoint && this._downPoint.length > 0 && !this._multiPoint) {
+        if (this._downPoints && this._downPoints.length > 0 && !this._multiPoint) {
             var point = touches[0];
-            var moveX = point.clientX - this._downPoint[0].clientX;
-            var moveY = point.clientY - this._downPoint[0].clientY;
+            var moveX = point.clientX - this._downPoints[0].clientX;
+            var moveY = point.clientY - this._downPoints[0].clientY;
 
             this._contentCurMoveX += moveX;
             this._contentCurMoveY += moveY;
-            this._downPoint = touches;
+            this._downPoints = touches;
 
             this.transform();
         }
