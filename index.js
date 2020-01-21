@@ -662,24 +662,26 @@
             self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
 
             self.$cropRotate.addEventListener(controlEvents.start, function (e) {
-                var touch = self.getControlPoints(e)[0];
-                self.startControl([touch.clientX, touch.clientY]);
+                var touches = self.getControlPoints(e);
+                self.startControl(touches);
             });
             self.$cropRotate.addEventListener(controlEvents.move, function (e) {
-                var touch = self.getControlPoints(e)[0];
-                var point = [touch.clientX, touch.clientY];
-                var moveX = point[0] - self._downPoint[0];
-                var lastMoveX = self._curMoveX;
-                var curMoveX = lastMoveX + moveX;
-                var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
+                var touches = self.getControlPoints(e);
+                if(self._downPoint && self._downPoint.length > 0 && !self._multiPoint){
+                    var point = touches[0];
+                    var moveX = point.clientX - self._downPoint[0].clientX;
+                    var lastMoveX = self._curMoveX;
+                    var curMoveX = lastMoveX + moveX;
+                    var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
 
-                if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
-                    self._curMoveX = curMoveX;
-                    self._changedX = moveX;
-                    self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
-                    self.rotateAngle = self._baseAngle + angle;
-                    self.transform(true);
-                    self._downPoint = point;
+                    if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
+                        self._curMoveX = curMoveX;
+                        self._changedX = moveX;
+                        self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
+                        self.rotateAngle = self._baseAngle + angle;
+                        self.transform(true);
+                        self._downPoint = touches;
+                    }
                 }
                 e.stopPropagation(); //阻止事件冒泡
                 e.preventDefault();
@@ -691,16 +693,16 @@
         //移动
         var $imageListenerEle = self.isSupportTouch ? self.$container : self.$cropMask;
         $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
-            var points = self.getControlPoints(ev);
-            self.startControl([points[0].clientX, points[0].clientY]);
+            var touches = self.getControlPoints(ev);
+            self.startControl(touches);
         });
         var options = self.passiveSupported ? { // 如果浏览器支持 passive event listener 为了保证截图操作时页面不滚动需要设置为 false
             passive: false,
             capture: false
         } : false;
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) {
-            var points = self.getControlPoints(ev);
-            self.contentMove([points[0].clientX, points[0].clientY]);
+            var touches = self.getControlPoints(ev);
+            self.contentMove(touches);
             ev.preventDefault();
         }, options);
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
@@ -932,11 +934,11 @@
     };
 
     //操作开始
-    SimpleCrop.prototype.startControl = function (point) {
+    SimpleCrop.prototype.startControl = function (touches) {
         if (!this._isControl) {
             this._isControl = true;
             this.$cropContent.style[transitionProperty] = 'none';
-            this._downPoint = point ? point : [];
+            this._downPoint = touches ? touches : [];
         }
     };
 
@@ -969,14 +971,15 @@
     };
 
     //内容图片移动
-    SimpleCrop.prototype.contentMove = function (point) {
-        if (this._downPoint.length != 0 && !this._multiPoint) {
-            var moveX = point[0] - this._downPoint[0];
-            var moveY = point[1] - this._downPoint[1];
+    SimpleCrop.prototype.contentMove = function (touches) {
+        if (this._downPoint && this._downPoint.length > 0 && !this._multiPoint) {
+            var point = touches[0];
+            var moveX = point.clientX - this._downPoint[0].clientX;
+            var moveY = point.clientY - this._downPoint[0].clientY;
 
             this._contentCurMoveX += moveX;
             this._contentCurMoveY += moveY;
-            this._downPoint = point;
+            this._downPoint = touches;
 
             this.transform();
         }
