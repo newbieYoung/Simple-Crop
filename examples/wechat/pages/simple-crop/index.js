@@ -972,6 +972,21 @@ Component({
       this.triggerEvent('cropClose', {component:this}, {})
     },
 
+    //整角旋转 90 度
+    around : function(){
+      this.startControl();
+      this.rotateAngle = this._baseAngle - 90;
+      this._baseAngle = this.rotateAngle;
+      if (this.data.rotateSlider) {
+        this._curMoveX = this._baseMoveX;
+        this.setData({
+          curMoveX: -this._curMoveX
+        });
+      }
+      this.transform();
+      this.endControl();
+    },
+
     //触摸开始
     touchstart : function(event){
       this.startControl(event.touches);
