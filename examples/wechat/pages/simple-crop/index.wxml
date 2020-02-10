@@ -1,6 +1,6 @@
 <view id="simple_crop" class="crop-whole-cover" style="z-index:{{zIndex}}">
-  <view class="crop-component">
-    <view class="crop-mask" bindtouchstart="touchstart">
+  <view class="crop-component" bindtouchend="endControl">
+    <view class="crop-mask" bindtouchstart="touchstart" bindtouchmove="touchmove">
       <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
     </view>

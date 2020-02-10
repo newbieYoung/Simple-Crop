@@ -210,7 +210,7 @@
     }
 
     //初始化相关子元素
-    SimpleCrop.prototype.initChilds = function(){
+    SimpleCrop.prototype.initChilds = function () {
         this.$cropMask = document.querySelector('#' + this.id + ' .crop-mask');
         var maskStyle = window.getComputedStyle(this.$cropMask);
         this.maskViewSize = {
@@ -224,9 +224,9 @@
     }
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-    SimpleCrop.prototype.updateFrame = function(){
+    SimpleCrop.prototype.updateFrame = function () {
         this.times = (this.size.width / this.maskViewSize.width > this.size.height / this.maskViewSize.height) ? this.size.width / this.maskViewSize.width / this.cropSizePercent : this.size.height / this.maskViewSize.height / this.cropSizePercent;
-        
+
         //裁剪框位置相关
         this.cropRect = {
             width: this.size.width / this.times,
@@ -468,7 +468,7 @@
 
     //设置裁剪图片
     SimpleCrop.prototype.setImage = function (image) {
-        if(image != null && image != ''){
+        if (image != null && image != '') {
             var self = this;
             if (self.$cropContent) {
                 self.$cropMask.removeChild(self.$cropContent);
@@ -667,7 +667,7 @@
             });
             self.$cropRotate.addEventListener(controlEvents.move, function (e) {
                 var touches = self.getControlPoints(e);
-                if(self._downPoints && self._downPoints.length > 0 && !self._multiPoint){
+                if (self._downPoints && self._downPoints.length > 0 && !self._multiPoint) {
                     var point = touches[0];
                     var moveX = point.clientX - self._downPoints[0].clientX;
                     var lastMoveX = self._curMoveX;
@@ -1336,13 +1336,13 @@
     SimpleCrop.prototype.getTransformMatrix = function (transform) {
         var transforms = transform.split(' ');
         var params = [];
-        for(var i=0;i<transforms.length;i++){
-            if(transforms[i].trim()!=''){ // 不能为空
+        for (var i = 0; i < transforms.length; i++) {
+            if (transforms[i].trim() != '') { // 不能为空
                 var func = this.getTransformFunctionName(transforms[i]);
                 var result;
-                if(func.name != 'rotate'){
-                    result = TransformationMatrix[func.name](func.params[0],func.params[1]);
-                }else{
+                if (func.name != 'rotate') {
+                    result = TransformationMatrix[func.name](func.params[0], func.params[1]);
+                } else {
                     result = TransformationMatrix[func.name](func.params[0]);
                 }
                 params.push(result);
@@ -1353,39 +1353,39 @@
     };
 
     //根据 css transform 属性获取 transformation-matrix 对应的函数名称以及参数
-    SimpleCrop.prototype.getTransformFunctionName = function(transform){
+    SimpleCrop.prototype.getTransformFunctionName = function (transform) {
         var start = transform.indexOf('(');
         var end = transform.indexOf(')');
         var func = {};
 
         //参数
-        var params = transform.substring(start+1,end).split(',');
+        var params = transform.substring(start + 1, end).split(',');
         var arr = [];
-        for(var i=0; i<params.length; i++){
+        for (var i = 0; i < params.length; i++) {
             arr.push(parseFloat(params[i]));
         }
         func.params = arr;
 
         //名称
-        var name = transform.substring(0,start).toLowerCase();
-        var defParams = 0;//默认参数
-        if(name.indexOf('scale')!=-1){
+        var name = transform.substring(0, start).toLowerCase();
+        var defParams = 0; //默认参数
+        if (name.indexOf('scale') != -1) {
             func.name = 'scale';
             defParams = 1;
-        }else if(name.indexOf('translate')!=-1){
+        } else if (name.indexOf('translate') != -1) {
             func.name = 'translate';
-        }else if(name.indexOf('skew')!=-1){
+        } else if (name.indexOf('skew') != -1) {
             func.name = 'skewDEG';
-        }else if(name.indexOf('rotate')!=-1){
+        } else if (name.indexOf('rotate') != -1) {
             func.name = 'rotateDEG'; // 角度
         }
 
         //加入默认参数
-        if(name.indexOf('x')!=-1){
+        if (name.indexOf('x') != -1) {
             func.params.push(defParams);
-        }else if(name.indexOf('y')!=-1){
+        } else if (name.indexOf('y') != -1) {
             func.params.unshift(defParams);
-        }else if(name.indexOf('rotate') == -1 && func.params.length<=1){ // 除了 rotate 其它函数支持 x、y 两个参数，如果 css transform 属性参数只有一个则另一个参数也是如此。
+        } else if (name.indexOf('rotate') == -1 && func.params.length <= 1) { // 除了 rotate 其它函数支持 x、y 两个参数，如果 css transform 属性参数只有一个则另一个参数也是如此。
             func.params.push(func.params[0]);
         }
 

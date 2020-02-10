@@ -96,8 +96,8 @@ Component({
   },
 
   options: {
+    isAttached: false, //生命周期状态
     _multiPoint: false, // 是否开始多点触控
-    isAttached: false,
     scaleTimes: 1, // 缩放倍数
     _curMoveX: 0, // 旋转刻度盘位置当前偏移量
     _changedX: 0, // 旋转刻度盘当前偏移量
@@ -144,7 +144,7 @@ Component({
   },
 
   methods: {
-    //整角旋转
+    //旋转、缩放、移动
     transform : function (rotateCover, scaleKeepCover) {
       var scaleNum = this.scaleTimes / this.times * this._rotateScale;
       var transform = '';
@@ -455,6 +455,46 @@ Component({
     //计算向量的模
     vecLen : function(vec){
       return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+    },
+
+    //找出一个矩形在另一个矩形外的顶点数据
+    getOutDetails: function (inner, outer){
+      var outDetails = [];
+      for (var i = 0; i < inner.length; i++) {
+        var pt = inner[i];
+        if (!this.isPointInRectCheckByLen(pt, outer)) {
+          var pcv = this.getPCVectorProjOnUpAndRight(pt, outer);
+          var iv = {
+            x: 0,
+            y: 0
+          };
+          var uLen = this.vecLen(pcv.uproj);
+          var height = this.vecLen(pcv.up) / 2;
+          var rLen = this.vecLen(pcv.rproj);
+          var width = this.vecLen(pcv.right) / 2;
+          var uOver = 0;
+          var rOver = 0;
+          if (uLen > height) {
+            uOver = (uLen - height) / uLen;
+            iv.x += pcv.uproj.x * uOver;
+            iv.y += pcv.uproj.y * uOver;
+          }
+          if (rLen > width) {
+            rOver = (rLen - width) / rLen;
+            iv.x += pcv.rproj.x * rOver;
+            iv.y += pcv.rproj.y * rOver;
+          }
+          outDetails.push({
+            x: pt.x,
+            y: pt.y,
+            iv: iv,
+            uOver: uOver,
+            rOver: rOver,
+            pcv: pcv
+          });
+        }
+      }
+      return outDetails;
     },
 
     //获取刚好包含某个矩形的新矩形
@@ -924,6 +964,7 @@ Component({
           this.transform(true);
         }
       //}
+      this.endControl();
     },
 
     //关闭
@@ -933,7 +974,6 @@ Component({
 
     //触摸开始
     touchstart : function(event){
-      console.log(event);
       this.startControl(event.touches);
       if(this._downPoints && this._downPoints.length >= 2){
         this._multiPoint = true;
@@ -942,10 +982,26 @@ Component({
 
     //触摸移动
     touchmove: function (event){
-      console.log(event);
-      if(this._downPoints){
-        
+      if(this._downPoints && this._downPoints.length > 0){
+        if(!this._multiPoint){ // 单指移动
+          this.contentMove(event.touches);
+        }else{ // 双指缩放
+
+        }
       }
+    },
+
+    //裁剪图片移动
+    contentMove: function(touches){
+      var point = touches[0];
+      var moveX = point.clientX - this._downPoints[0].clientX;
+      var moveY = point.clientY - this._downPoints[0].clientY;
+
+      this._contentCurMoveX += moveX;
+      this._contentCurMoveY += moveY;
+      this._downPoints = touches;
+
+      this.transform();
     },
   },
 
