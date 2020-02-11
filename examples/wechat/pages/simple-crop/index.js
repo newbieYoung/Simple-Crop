@@ -97,6 +97,9 @@ Component({
 
   options: {
     isAttached: false, //生命周期状态
+    fingerCenter: {}, //双指操作中心
+    fingerLen: 0, //双指距离
+    fingerScale: 1, //双指缩放倍数
     _multiPoint: false, // 是否开始多点触控
     scaleTimes: 1, // 缩放倍数
     _curMoveX: 0, // 旋转刻度盘位置当前偏移量
@@ -753,10 +756,24 @@ Component({
 
     //操作开始
     startControl : function(touches){
-      if(!this._isControl){
+      
+      touches = touches ? touches : [];
+      if (!this._isControl || this.isTwoFingerEvent(touches)){
         this._isControl = true;
-        this._downPoints = touches ? touches : [];
+        this._downPoints = touches;
       }
+    },
+
+    //双指操作事件
+    isTwoFingerEvent: function(touches){
+      /**
+       * 微信小程序双指操作时，会触发两次 touchstart 事件且前后两次事件触摸点坐标有一个坐标相同
+       */
+      if(this._isControl && this._downPoints && this._downPoints.length == 1 && touches.length >= 2 && 
+        ((touches[0].clientX == this._downPoints[0].clientX && touches[0].clientY == this._downPoints[0].clientY)||(touches[1].clientX == this._downPoints[0].clientX && touches[1].clientY == this._downPoints[0].clientY))){
+          return true;
+      }
+      return false;
     },
 
     //操作结束
@@ -990,8 +1007,19 @@ Component({
     //触摸开始
     touchstart : function(event){
       this.startControl(event.touches);
+      this._multiPoint = false;
       if(this._downPoints && this._downPoints.length >= 2){
         this._multiPoint = true;
+        var center = {
+          clientX: (this._downPoints[0].clientX + this._downPoints[1].clientX) / 2,
+          clientY: (this._downPoints[0].clientY + this._downPoints[1].clientY) / 2
+        };
+        this.fingerLen = Math.sqrt(Math.pow(this._downPoints[0].clientX - this._downPoints[1].clientX,2)+Math.pow(this._downPoints[0].clientY - this._downPoints[1].clientY,2));
+        this.fingerScale = 1;
+        this.fingerCenter = { //双指操作中心
+          x: center.clientX - this.maskViewSize.width / 2,
+          y: this.maskViewSize.height / 2 - center.clientY
+        }
       }
     },
 
@@ -1001,8 +1029,34 @@ Component({
         if(!this._multiPoint){ // 单指移动
           this.contentMove(event.touches);
         }else{ // 双指缩放
-
+          var touches = event.touches;
+          var newFingerLen = Math.sqrt(Math.pow(touches[0].clientX - touches[1].clientX, 2) + Math.pow(touches[0].clientY - touches[1].clientY, 2));
+          var newScale = newFingerLen / this.fingerLen;
+          this.scaleTimes = this.scaleTimes / this.fingerScale * newScale;
+          var translate = this.getFingerScaleTranslate(newScale / this.fingerScale);
+          this._contentCurMoveX -= translate.translateX;
+          this._contentCurMoveY += translate.translateY;
+          this.fingerScale = newScale;
+          this.transform(false, true);
         }
+      }
+    },
+
+    //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
+    getFingerScaleTranslate: function(scale){
+      var fingerPoints = []; //以双指中心缩放的新坐标
+      var center = this.getPointsCenter(this.contentPoints); //中心点不变
+      for (var i = 0; i < this.contentPoints.length; i++) {
+        var point = this.contentPoints[i];
+        fingerPoints.push({
+          x: point.x * scale - this.fingerCenter.x * (scale - 1),
+          y: point.y * scale - this.fingerCenter.y * (scale - 1)
+        })
+      }
+      var newCenter = this.getPointsCenter(fingerPoints);
+      return {
+        translateX: center.x - newCenter.x,
+        translateY: center.y - newCenter.y
       }
     },
 
