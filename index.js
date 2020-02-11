@@ -104,6 +104,8 @@
      * @param cropRect 截图框屏幕尺寸
      * @param cropPoints 裁剪框顶点坐标
      * @param cropCenter 裁剪框中心点坐标
+     * @param contentWidth 图片显示宽度
+     * @param contentHeight 图片显示高度
      * @param contentPoints 图片顶点坐标
      * @param _contentCurMoveX 图片 X 轴方向上的总位移
      * @param _contentCurMoveY 图片 Y 轴方向上的总位移
@@ -391,8 +393,8 @@
         this.$cropContent.style[transformProperty] = this._initTransform;
         this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
 
-        var width = this.originWidth / 2;
-        var height = this.originHeight / 2;
+        var width = this.contentWidth / 2;
+        var height = this.contentHeight / 2;
         this.initContentPoints = [{
             x: -width,
             y: height
@@ -409,10 +411,10 @@
         this.contentPoints = this.initContentPoints.slice();
 
         //计算初始缩放倍数
-        if (this.size.width / this.size.height > this.originWidth / this.originHeight) {
-            this.initScale = this.size.width / this.originWidth;
+        if (this.size.width / this.size.height > this.contentWidth / this.contentHeight) {
+            this.initScale = this.size.width / this.contentWidth;
         } else {
-            this.initScale = this.size.height / this.originHeight;
+            this.initScale = this.size.height / this.contentHeight;
         }
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
         if (this.scaleSlider) {
@@ -450,17 +452,10 @@
     //加载图片
     SimpleCrop.prototype.load = function () {
         var self = this;
-        self.$cropContent.onload = function () {
-            self.originImage = self.$cropContent.cloneNode(true);
-            EXIF.getData(self.$cropContent, function () {
+        self.originImage.onload = function () {
+            EXIF.getData(self.originImage, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
-                self.originWidth = self.$cropContent.width;
-                self.originHeight = self.$cropContent.height;
-                //图片方向大于4时，宽高互换
-                if (self._orientation > 4) {
-                    self.originWidth = self.$cropContent.height;
-                    self.originHeight = self.$cropContent.width;
-                }
+                self.$cropContent = self.transformCoordinates();
                 self.init();
             });
         }
@@ -476,15 +471,15 @@
             var type = Object.prototype.toString.call(image);
             if (type === '[object String]') { //字符串
                 self.src = image;
-                self.$cropContent = new Image();
-                self.$cropContent.src = self.src;
+                self.originImage = new Image();
+                self.originImage.src = self.src;
                 self.load();
                 self.uploadCallback();
             } else if (type === '[object File]') { //文件
                 self.fileToSrc(image, function (src) {
                     self.src = src;
-                    self.$cropContent = new Image();
-                    self.$cropContent.src = self.src;
+                    self.originImage = new Image();
+                    self.originImage.src = self.src;
                     self.load();
                     self.uploadCallback();
                 });
@@ -729,13 +724,23 @@
 
     //处理图片方向
     SimpleCrop.prototype.transformCoordinates = function () {
+        this.originWidth = this.originImage.width;
+        this.originHeight = this.originImage.height;
+        this.contentWidth = this.originWidth;
+        this.contentHeight = this.originHeight;
+        //图片方向大于 4 时宽高互相
+        if (this._orientation > 4) {
+            this.contentWidth = this.originHeight;
+            this.contentHeight = this.originWidth;
+        }
+
         var $imageCanvas = document.createElement('canvas');
         var imageCtx = $imageCanvas.getContext('2d');
-        $imageCanvas.width = this.originWidth;
-        $imageCanvas.height = this.originHeight;
+        $imageCanvas.width = this.contentWidth;
+        $imageCanvas.height = this.contentHeight;
 
-        var width = this.originImage.width;
-        var height = this.originImage.height;
+        var width = this.originWidth;
+        var height = this.originHeight;
 
         switch (this._orientation) {
             case 2:
@@ -842,9 +847,6 @@
             height: height
         };
 
-        //带有方向的图片绘制到 canvas 之前需要进行坐标转换
-        var $coorCanvas = this.transformCoordinates();
-
         //绘制图片
         var imageRect = {
             left: 0,
@@ -862,12 +864,12 @@
         }
 
         var $imageCanvas = document.createElement('canvas');
-        $imageCanvas.width = $coorCanvas.width;
-        $imageCanvas.height = $coorCanvas.height;
+        $imageCanvas.width = this.contentWidth;
+        $imageCanvas.height = this.contentHeight;
         var imageCtx = $imageCanvas.getContext('2d');
         imageCtx._setTransformOrigin(center.x - imageInitRect.left, center.y - imageInitRect.top); //中心点
         imageCtx._rotate(this.rotateAngle);
-        imageCtx.drawImage($coorCanvas, 0, 0, $coorCanvas.width, $coorCanvas.height);
+        imageCtx.drawImage(this.$cropContent, 0, 0, this.contentWidth, this.contentHeight);
 
         //计算裁剪位置并截图
         var _cropRect = {
