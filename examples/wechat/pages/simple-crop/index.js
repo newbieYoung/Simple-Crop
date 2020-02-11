@@ -91,12 +91,15 @@ Component({
     },
     curMoveX: 0,
     
-    originImage: null, // 初始图片
+    coorCanvasWidth: 0,
+    coorCanvasHeight: 0,
     $resultCanvas: null, // 裁剪结果
   },
 
   options: {
     isAttached: false, //生命周期状态
+    originImage: null, // 初始图片
+    coorCanvasCtx: null,
     fingerCenter: {}, //双指操作中心
     fingerLen: 0, //双指距离
     fingerScale: 1, //双指缩放倍数
@@ -609,6 +612,8 @@ Component({
       var cropSizePercent = this.data.cropSizePercent;
       var positionOffset = this.data.positionOffset;
 
+      this.coorCanvasCtx = wx.createCanvasContext('coorCanvas',this);
+
       var call_count = 0; // 回调计数器
       var total_count = 0;
       this._initPosition = 'position:absolute; left:50%; top:50%;';
@@ -686,17 +691,71 @@ Component({
       wx.getImageInfo({
         src: src,
         success(res) {
+          self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
           self.originWidth = res.width;
           self.originHeight = res.height;
           if(self._orientation > 4){
-            self.originWidth = self.height;
-            self.originHeight = self.width;
+            self.originWidth = res.height;
+            self.originHeight = res.width;
           }
           self._initSize = 'width:'+self.originWidth+'px;height:'+self.originHeight+'px;';
           self.init();
         }
       })
+    },
+
+    //处理图片方向
+    transformCoordinates: function(){
+      this.setData({
+        coorCanvasWidth: this.originWidth,
+        coorCanvasHeight: this.originHeight
+      })
+
+      var width = this.originImage.width;
+      var height = this.originImage.height;
+
+      switch (this._orientation) {
+        case 2:
+          // horizontal flip
+          imageCtx.translate(width, 0);
+          imageCtx.scale(-1, 1);
+          break;
+        case 3:
+          // 180° rotate left
+          imageCtx.translate(width, height);
+          imageCtx.rotate(Math.PI);
+          break;
+        case 4:
+          // vertical flip
+          imageCtx.translate(0, height);
+          imageCtx.scale(1, -1);
+          break;
+        case 5:
+          // vertical flip + 90 rotate right
+          imageCtx.rotate(0.5 * Math.PI);
+          imageCtx.scale(1, -1);
+          break;
+        case 6:
+          // 90° rotate right
+          imageCtx.rotate(0.5 * Math.PI);
+          imageCtx.translate(0, -height);
+          break;
+        case 7:
+          // horizontal flip + 90 rotate right
+          imageCtx.rotate(0.5 * Math.PI);
+          imageCtx.translate(width, -height);
+          imageCtx.scale(-1, 1);
+          break;
+        case 8:
+          // 90° rotate left
+          imageCtx.rotate(-0.5 * Math.PI);
+          imageCtx.translate(-width, 0);
+          break;
+      }
+      imageCtx.drawImage(this.originImage, 0, 0, width, height);
+
+      return $imageCanvas;
     },
 
     //初始化

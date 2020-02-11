@@ -727,7 +727,7 @@
         }
     }
 
-    //处理图片方向坐标系
+    //处理图片方向
     SimpleCrop.prototype.transformCoordinates = function () {
         var $imageCanvas = document.createElement('canvas');
         var imageCtx = $imageCanvas.getContext('2d');

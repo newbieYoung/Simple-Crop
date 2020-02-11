@@ -3,6 +3,7 @@
     <view class="crop-mask" catchtouchstart="touchstart" catchtouchmove="touchmove">
       <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
+      <canvas canvas-id="coorCanvas" style="background-color:red;"></canvas>
     </view>
     <view wx:if="{{rotateSlider}}" class="crop-rotate">
       <scroll-view scroll-x="true" scroll-left="{{curMoveX}}" catchscroll="scrollLineation">
