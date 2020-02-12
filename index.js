@@ -847,22 +847,6 @@
             height: height
         };
 
-        //绘制图片
-        var imageRect = {
-            left: 0,
-            top: 0,
-            width: 0,
-            height: 0
-        };
-        for (i = 0; i < points2.length; i++) { //最大x、最大y
-            if (points2[i].x > imageRect.width) {
-                imageRect.width = points2[i].x;
-            }
-            if (points2[i].y > imageRect.height) {
-                imageRect.height = points2[i].y;
-            }
-        }
-
         var $imageCanvas = document.createElement('canvas');
         $imageCanvas.width = this.contentWidth;
         $imageCanvas.height = this.contentHeight;
