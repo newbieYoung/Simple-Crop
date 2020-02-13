@@ -82,7 +82,6 @@ Component({
   
   data: {
     cropContentStyle: '', // 裁剪图片样式
-    cropContentSize: '', // 裁剪图片尺寸
     visibleSrc: '',
     lineationArr:[],
     statusBtns: {
@@ -99,7 +98,8 @@ Component({
   options: {
     isAttached: false, //生命周期状态
     originImage: null, // 初始图片
-    contentCtx: null,
+    $cropContent: null,
+    cropContentCtx: null,
     contentWidth: 0,
     contentHeight: 0,
     fingerCenter: {}, //双指操作中心
@@ -140,6 +140,7 @@ Component({
     },
     _initPosition: '', // 裁剪图片初始定位
     _initTransform: '', // 裁剪图片初始位移
+    _initSize: '', // 裁剪图片尺寸
     _orientation: 1, // 默认方向
     initContentPoints: [], // 图片初始顶点坐标
     contentPoints: [], //图片顶点坐标
@@ -151,8 +152,6 @@ Component({
   methods: {
     //旋转、缩放、移动
     transform : function (rotateCover, scaleKeepCover) {
-      var cropContentSize = this.data.cropContentSize;
-
       var scaleNum = this.scaleTimes / this.times * this._rotateScale;
       var transform = '';
       transform += ' scale(' + scaleNum + ')'; //缩放
@@ -200,7 +199,7 @@ Component({
       transform += ' scale(' + scaleNum + ')'; //缩放
       transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
       transform += ' rotate(' + this.rotateAngle + 'deg)';
-      var style = cropContentSize + this._initPosition + this._initTransform + transform;
+      var style = this._initSize + this._initPosition + this._initTransform + transform;
       this.setData({
         cropContentStyle: style
       });
@@ -612,8 +611,6 @@ Component({
       var cropSizePercent = this.data.cropSizePercent;
       var positionOffset = this.data.positionOffset;
 
-      this.contentCtx = wx.createCanvasContext('cropContent',this);
-
       var call_count = 0; // 回调计数器
       var total_count = 0;
       this._initPosition = 'position:absolute; left:50%; top:50%;';
@@ -637,6 +634,22 @@ Component({
           self.updateFrame(size, cropSizePercent, positionOffset);
         }
       }).exec();
+
+      this.$cropContent = this.createSelectorQuery().select('#' + S_ID + ' .crop-content');
+      total_count++;
+      this.$cropContent.node().exec(function (res) {
+        self.$cropContent = res[0].node;
+        self.cropContentCtx = self.$cropContent.getContext('2d');
+
+        // callback
+        call_count++;
+        if (call_count >= total_count) {
+          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+
+          self.updateFrame(size, cropSizePercent, positionOffset);
+        }
+      });
 
       this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
       total_count++;
@@ -693,14 +706,18 @@ Component({
         success(res) {
           self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
-          self.transformCoordinates();
-          self.init();
+          var image = self.$cropContent.createImage();
+          image.onload = function(){
+            self.transformCoordinates(image);
+            self.init();
+          }
+          image.src = src;
         }
       })
     },
 
     //处理图片方向
-    transformCoordinates: function(){
+    transformCoordinates: function(image){
       this.contentWidth = this.originImage.width;
       this.contentHeight = this.originImage.height;
       //图片方向大于 4 时宽高互相
@@ -708,14 +725,13 @@ Component({
         this.contentWidth = this.originImage.height;
         this.contentHeight = this.originImage.width;
       }
-      var cropContentSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
-      this.setData({
-        cropContentSize: cropContentSize
-      })
+      this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
+      this.$cropContent.width = this.contentWidth;
+      this.$cropContent.height = this.contentHeight;
 
       var width = this.originImage.width;
       var height = this.originImage.height;
-      var imageCtx = this.contentCtx;
+      var imageCtx = this.cropContentCtx;
 
       switch (this._orientation) {
         case 2:
@@ -755,25 +771,24 @@ Component({
           imageCtx.translate(-width, 0);
           break;
       }
-      imageCtx.drawImage(this.data.src, 0, 0, width, height);
+      imageCtx.drawImage(image, 0, 0, width, height);
 
+      //canvas 不受 css transform 影响 需要转换为 image 显示
       var self = this;
-      imageCtx.draw(false,function(){
-        wx.canvasToTempFilePath({
-          x: 0,
-          y: 0,
-          width: self.contentWidth,
-          height: self.contentHeight,
-          destWidth: self.contentWidth,
-          destHeight: self.contentHeight,
-          canvasId: 'cropContent',
-          success(res) {
-            self.setData({
-              visibleSrc:res.tempFilePath
-            })
-          }
-        }, self);
-      });
+      wx.canvasToTempFilePath({
+        x: 0,
+        y: 0,
+        width: self.contentWidth,
+        height: self.contentHeight,
+        destWidth: self.contentWidth,
+        destHeight: self.contentHeight,
+        canvas: self.$cropContent,
+        success(res) {
+          self.setData({
+            visibleSrc:res.tempFilePath
+          })
+        }
+      }, self);
     },
 
     //初始化
@@ -855,8 +870,6 @@ Component({
     //操作结束
     endControl : function(){
       if(this._isControl){
-        var cropContentSize = this.data.cropContentSize;
-
         var self = this;
         this._isControl = false;
         this._downPoints = [];
@@ -876,7 +889,7 @@ Component({
           this._contentCurMoveY = coverMat.f;
           this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr, this.initContentPoints);
 
-          var style = cropContentSize + this._initPosition + this._initTransform + coverTr;
+          var style = this._initSize + this._initPosition + this._initTransform + coverTr;
           this.setData({
             cropContentStyle: style
           });

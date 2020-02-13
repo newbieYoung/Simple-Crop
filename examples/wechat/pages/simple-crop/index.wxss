@@ -34,6 +34,10 @@
     overflow: hidden;
 }
 
+.crop-component .crop-content{
+  visibility: hidden;
+}
+
 .crop-component .crop-cover {
     position: absolute;
     top: 0;
