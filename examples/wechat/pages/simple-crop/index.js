@@ -98,8 +98,6 @@ Component({
   options: {
     isAttached: false, //生命周期状态
     originImage: null, // 初始图片
-    originWidth: 0, // 初始图片宽度（考虑图片方向）
-    originHeight: 0, // 初始图片高度（考虑图片方向）
     contentCtx: null,
     contentWidth: 0,
     contentHeight: 0,
@@ -702,14 +700,12 @@ Component({
 
     //处理图片方向
     transformCoordinates: function(){
-      this.originWidth = this.originImage.width;
-      this.originHeight = this.originImage.height;
-      this.contentWidth = this.originWidth;
-      this.contentHeight = this.originHeight;
+      this.contentWidth = this.originImage.width;
+      this.contentHeight = this.originImage.height;
       //图片方向大于 4 时宽高互相
       if (this._orientation > 4) {
-        this.contentWidth = this.originHeight;
-        this.contentHeight = this.originWidth;
+        this.contentWidth = this.originImage.height;
+        this.contentHeight = this.originImage.width;
       }
 
       this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
@@ -718,8 +714,8 @@ Component({
         cropContentStyle: style
       })
 
-      var width = this.originWidth;
-      var height = this.originHeight;
+      var width = this.originImage.width;
+      var height = this.originImage.height;
       var imageCtx = this.contentCtx;
 
       switch (this._orientation) {

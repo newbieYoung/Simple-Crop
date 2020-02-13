@@ -114,8 +114,6 @@
      * ------------------------------------
      * 原始信息
      * @param originImage 初始图片
-     * @param originWidth 初始图片宽度（考虑图片方向）
-     * @param originHeight 初始图片高度（考虑图片方向）
      * ------------------------------------
      * 双指缩放
      * @param _multiPoint 是否开始多点触控
@@ -717,14 +715,12 @@
 
     //处理图片方向
     SimpleCrop.prototype.transformCoordinates = function () {
-        this.originWidth = this.originImage.width;
-        this.originHeight = this.originImage.height;
-        this.contentWidth = this.originWidth;
-        this.contentHeight = this.originHeight;
+        this.contentWidth = this.originImage.width;
+        this.contentHeight = this.originImage.height;
         //图片方向大于 4 时宽高互相
         if (this._orientation > 4) {
-            this.contentWidth = this.originHeight;
-            this.contentHeight = this.originWidth;
+            this.contentWidth = this.originImage.height;
+            this.contentHeight = this.originImage.width;
         }
 
         this.$cropContent = document.createElement('canvas');
@@ -732,8 +728,8 @@
         this.$cropContent.height = this.contentHeight;
         var imageCtx = this.$cropContent.getContext('2d');
 
-        var width = this.originWidth;
-        var height = this.originHeight;
+        var width = this.originImage.width;
+        var height = this.originImage.height;
 
         switch (this._orientation) {
             case 2:
