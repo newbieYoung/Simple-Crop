@@ -9,12 +9,12 @@ export class SimpleCrop extends React.Component {
   }
 
   //初次渲染
-  componentDidMount() {
+  componentDidMount () {
     this.instance = new Core(this.props);
   }
 
   //组件属性更新是否需要重新构建组件
-  shouldRebuild(prevProps) {
+  shouldRebuild (prevProps) {
     //title、src、debug、zIndex、noBoldCorner、coverColor、borderColor、borderWidth、coverDraw、borderDraw、visible、cropCallback、uploadCallback、closeCallback
     let build = false;
     if (
@@ -66,7 +66,7 @@ export class SimpleCrop extends React.Component {
   }
 
   //更新
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (this.shouldRebuild(prevProps)) {
       if (this.instance) {
         this.instance.$container.removeChild(this.instance.$target);
@@ -126,7 +126,7 @@ export class SimpleCrop extends React.Component {
     }
   }
 
-  render() {
+  render () {
     return <div />;
   }
 }

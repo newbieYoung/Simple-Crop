@@ -815,7 +815,6 @@ Component({
 
     //操作开始
     startControl : function(touches){
-      
       touches = touches ? touches : [];
       if (!this._isControl || this.isTwoFingerEvent(touches)){
         this._isControl = true;

@@ -2,15 +2,15 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['alloyfinger', 'prefix-umd', 'exif-js', 'transformation-matrix'], factory);
+        define(['prefix-umd', 'exif-js', 'transformation-matrix'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node/CommonJS
-        module.exports = factory(require('alloyfinger'), require('prefix-umd'), require('exif-js'), require('transformation-matrix'));
+        module.exports = factory(require('prefix-umd'), require('exif-js'), require('transformation-matrix'));
     } else {
         // Browser globals
-        window.SimpleCrop = factory(window.AlloyFinger, window.Prefix, window.EXIF, window.TransformationMatrix);
+        window.SimpleCrop = factory(window.Prefix, window.EXIF, window.TransformationMatrix);
     }
-}(function (finger, Prefix, EXIF, TransformationMatrix) {
+}(function (Prefix, EXIF, TransformationMatrix) {
     //兼容性处理
     function whichTransitionEvent() {
         var t;
@@ -116,6 +116,12 @@
      * @param originImage 初始图片
      * @param originWidth 初始图片宽度（考虑图片方向）
      * @param originHeight 初始图片高度（考虑图片方向）
+     * ------------------------------------
+     * 双指缩放
+     * @param _multiPoint 是否开始多点触控
+     * @param fingerLen 双指距离
+     * @param fingerScale 双指缩放倍数
+     * @param fingerCenter 双指操作中心
      * ------------------------------------
      * 其它
      * @param times 实际尺寸/显示尺寸
@@ -608,37 +614,6 @@
                 self.scaleMoveAt(self.scaleWidth);
                 self.endControl();
             });
-        } else if (self.isSupportTouch) { // 双指缩放
-            var lastScale = 1;
-            new finger(self.$container, {
-                multipointStart: function (evt) {
-                    self._multiPoint = true; //多点触摸开始
-                    var touches = evt.touches;
-                    var center = {
-                        clientX: (touches[0].clientX + touches[1].clientX) / 2,
-                        clientY: (touches[0].clientY + touches[1].clientY) / 2
-                    }
-                    self.fingerCenter = { //双指操作触摸点中心
-                        x: center.clientX - self.maskViewSize.width / 2,
-                        y: self.maskViewSize.height / 2 - center.clientY
-                    }
-                },
-                pinch: function (evt) { //缩放
-                    if (self._multiPoint) {
-                        var scale = evt.zoom;
-                        self.scaleTimes = self.scaleTimes / lastScale * scale;
-                        var translate = self.getFingerScaleTranslate(scale / lastScale);
-                        self._contentCurMoveX -= translate.translateX;
-                        self._contentCurMoveY += translate.translateY;
-                        lastScale = scale;
-                        self.transform(false, true);
-                    }
-                },
-                multipointEnd: function () {
-                    self._multiPoint = false; //多点触摸结束
-                    lastScale = 1;
-                }
-            });
         }
 
         //滑动旋转
@@ -690,6 +665,20 @@
         $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
             var touches = self.getControlPoints(ev);
             self.startControl(touches);
+            self._multiPoint = false;
+            if (self._downPoints && self._downPoints.length >= 2) {
+                self._multiPoint = true;
+                var center = {
+                    clientX: (self._downPoints[0].clientX + self._downPoints[1].clientX) / 2,
+                    clientY: (self._downPoints[0].clientY + self._downPoints[1].clientY) / 2
+                };
+                self.fingerLen = Math.sqrt(Math.pow(self._downPoints[0].clientX - self._downPoints[1].clientX, 2) + Math.pow(self._downPoints[0].clientY - self._downPoints[1].clientY, 2));
+                self.fingerScale = 1;
+                self.fingerCenter = { //双指操作中心
+                    x: center.clientX - self.maskViewSize.width / 2,
+                    y: self.maskViewSize.height / 2 - center.clientY
+                }
+            }
         });
         var options = self.passiveSupported ? { // 如果浏览器支持 passive event listener 为了保证截图操作时页面不滚动需要设置为 false
             passive: false,
@@ -697,7 +686,20 @@
         } : false;
         $imageListenerEle.addEventListener(controlEvents.move, function (ev) {
             var touches = self.getControlPoints(ev);
-            self.contentMove(touches);
+            if (self._downPoints && self._downPoints.length > 0) {
+                if (!self._multiPoint) { // 单指移动
+                    self.contentMove(event.touches);
+                } else { // 双指缩放
+                    var newFingerLen = Math.sqrt(Math.pow(touches[0].clientX - touches[1].clientX, 2) + Math.pow(touches[0].clientY - touches[1].clientY, 2));
+                    var newScale = newFingerLen / self.fingerLen;
+                    self.scaleTimes = self.scaleTimes / self.fingerScale * newScale;
+                    var translate = self.getFingerScaleTranslate(newScale / self.fingerScale);
+                    self._contentCurMoveX -= translate.translateX;
+                    self._contentCurMoveY += translate.translateY;
+                    self.fingerScale = newScale;
+                    self.transform(false, true);
+                }
+            }
             ev.preventDefault();
         }, options);
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
@@ -855,11 +857,24 @@
 
     //操作开始
     SimpleCrop.prototype.startControl = function (touches) {
-        if (!this._isControl) {
+        touches = touches ? touches : [];
+        if (!this._isControl || this.isTwoFingerEvent(touches)) {
             this._isControl = true;
             this.$cropContent.style[transitionProperty] = 'none';
-            this._downPoints = touches ? touches : [];
+            this._downPoints = touches;
         }
+    };
+
+    //双指操作事件
+    SimpleCrop.prototype.isTwoFingerEvent = function (touches) {
+        /**
+         * 微信小程序双指操作时，会触发两次 touchstart 事件且前后两次事件触摸点坐标有一个坐标相同
+         */
+        if (this._isControl && this._downPoints && this._downPoints.length == 1 && touches.length >= 2 &&
+            ((touches[0].clientX == this._downPoints[0].clientX && touches[0].clientY == this._downPoints[0].clientY) || (touches[1].clientX == this._downPoints[0].clientX && touches[1].clientY == this._downPoints[0].clientY))) {
+            return true;
+        }
+        return false;
     };
 
     //缩放滑动控制条按钮移动
@@ -892,17 +907,15 @@
 
     //内容图片移动
     SimpleCrop.prototype.contentMove = function (touches) {
-        if (this._downPoints && this._downPoints.length > 0 && !this._multiPoint) {
-            var point = touches[0];
-            var moveX = point.clientX - this._downPoints[0].clientX;
-            var moveY = point.clientY - this._downPoints[0].clientY;
+        var point = touches[0];
+        var moveX = point.clientX - this._downPoints[0].clientX;
+        var moveY = point.clientY - this._downPoints[0].clientY;
 
-            this._contentCurMoveX += moveX;
-            this._contentCurMoveY += moveY;
-            this._downPoints = touches;
+        this._contentCurMoveX += moveX;
+        this._contentCurMoveY += moveY;
+        this._downPoints = touches;
 
-            this.transform();
-        }
+        this.transform();
     };
 
     //旋转、缩放、移动
