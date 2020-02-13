@@ -91,15 +91,18 @@ Component({
     },
     curMoveX: 0,
     
-    coorCanvasWidth: 0,
-    coorCanvasHeight: 0,
+    
     $resultCanvas: null, // 裁剪结果
   },
 
   options: {
     isAttached: false, //生命周期状态
     originImage: null, // 初始图片
-    coorCanvasCtx: null,
+    originWidth: 0, // 初始图片宽度（考虑图片方向）
+    originHeight: 0, // 初始图片高度（考虑图片方向）
+    contentCtx: null,
+    contentWidth: 0,
+    contentHeight: 0,
     fingerCenter: {}, //双指操作中心
     fingerLen: 0, //双指距离
     fingerScale: 1, //双指缩放倍数
@@ -140,8 +143,6 @@ Component({
     _initTransform: '', // 裁剪图片初始位移
     _initSize: '', // 裁剪图片初始尺寸
     _orientation: 1, // 默认方向
-    originWidth: 0, // 初始图片宽度（考虑图片方向）
-    originHeight: 0, // 初始图片高度（考虑图片方向）
     initContentPoints: [], // 图片初始顶点坐标
     contentPoints: [], //图片顶点坐标
     initScale: 1, // 初始缩放倍数
@@ -612,7 +613,7 @@ Component({
       var cropSizePercent = this.data.cropSizePercent;
       var positionOffset = this.data.positionOffset;
 
-      this.coorCanvasCtx = wx.createCanvasContext('coorCanvas',this);
+      this.contentCtx = wx.createCanvasContext('cropContent',this);
 
       var call_count = 0; // 回调计数器
       var total_count = 0;
@@ -693,13 +694,7 @@ Component({
         success(res) {
           self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
-          self.originWidth = res.width;
-          self.originHeight = res.height;
-          if(self._orientation > 4){
-            self.originWidth = res.height;
-            self.originHeight = res.width;
-          }
-          self._initSize = 'width:'+self.originWidth+'px;height:'+self.originHeight+'px;';
+          self.transformCoordinates();
           self.init();
         }
       })
@@ -707,13 +702,25 @@ Component({
 
     //处理图片方向
     transformCoordinates: function(){
+      this.originWidth = this.originImage.width;
+      this.originHeight = this.originImage.height;
+      this.contentWidth = this.originWidth;
+      this.contentHeight = this.originHeight;
+      //图片方向大于 4 时宽高互相
+      if (this._orientation > 4) {
+        this.contentWidth = this.originHeight;
+        this.contentHeight = this.originWidth;
+      }
+
+      this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
+      var style = this._initSize+this._initPosition+this._initTransform;
       this.setData({
-        coorCanvasWidth: this.originWidth,
-        coorCanvasHeight: this.originHeight
+        cropContentStyle: style
       })
 
-      var width = this.originImage.width;
-      var height = this.originImage.height;
+      var width = this.originWidth;
+      var height = this.originHeight;
+      var imageCtx = this.contentCtx;
 
       switch (this._orientation) {
         case 2:
@@ -753,15 +760,14 @@ Component({
           imageCtx.translate(-width, 0);
           break;
       }
-      imageCtx.drawImage(this.originImage, 0, 0, width, height);
-
-      return $imageCanvas;
+      imageCtx.drawImage(this.data.src, 0, 0, width, height);
+      imageCtx.draw();
     },
 
     //初始化
     init : function(){
-      var width = this.originWidth/2;
-      var height = this.originHeight/2;
+      var width = this.contentWidth/2;
+      var height = this.contentHeight/2;
       this.initContentPoints = [{
         x: -width,
         y: height
@@ -779,10 +785,10 @@ Component({
 
       //计算初始缩放倍数
       var size = this.data.size;
-      if (size.width / size.height > this.originWidth / this.originHeight) {
-        this.initScale = size.width / this.originWidth;
+      if (size.width / size.height > this.contentWidth / this.contentHeight) {
+        this.initScale = size.width / this.contentWidth;
       } else {
-        this.initScale = size.height / this.originHeight;
+        this.initScale = size.height / this.contentHeight;
       }
       this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
 

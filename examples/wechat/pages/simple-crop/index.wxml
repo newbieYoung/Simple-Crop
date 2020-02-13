@@ -1,9 +1,8 @@
 <view id="simple_crop" class="crop-whole-cover" style="z-index:{{zIndex}}">
   <view class="crop-component" catchtouchend="endControl">
     <view class="crop-mask" catchtouchstart="touchstart" catchtouchmove="touchmove">
-      <image class="crop-content" style="{{cropContentStyle}}" src="{{src}}"></image>
+      <canvas canvas-id="cropContent" class="crop-content" style="{{cropContentStyle}}"></canvas>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
-      <canvas canvas-id="coorCanvas" style="background-color:red;"></canvas>
     </view>
     <view wx:if="{{rotateSlider}}" class="crop-rotate">
       <scroll-view scroll-x="true" scroll-left="{{curMoveX}}" catchscroll="scrollLineation">

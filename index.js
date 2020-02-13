@@ -390,15 +390,6 @@
 
     //初始化
     SimpleCrop.prototype.init = function () {
-        //初始位置垂直水平居中
-        this._initTransform = 'translate3d(-50%,-50%,0)';
-        this.$cropContent.classList.add('crop-content');
-        this.$cropContent.style.position = 'absolute';
-        this.$cropContent.style.left = '50%';
-        this.$cropContent.style.top = '50%';
-        this.$cropContent.style[transformProperty] = this._initTransform;
-        this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
-
         var width = this.contentWidth / 2;
         var height = this.contentHeight / 2;
         this.initContentPoints = [{
@@ -461,7 +452,7 @@
         self.originImage.onload = function () {
             EXIF.getData(self.originImage, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
-                self.$cropContent = self.transformCoordinates();
+                self.transformCoordinates();
                 self.init();
             });
         }
@@ -736,10 +727,10 @@
             this.contentHeight = this.originWidth;
         }
 
-        var $imageCanvas = document.createElement('canvas');
-        var imageCtx = $imageCanvas.getContext('2d');
-        $imageCanvas.width = this.contentWidth;
-        $imageCanvas.height = this.contentHeight;
+        this.$cropContent = document.createElement('canvas');
+        this.$cropContent.width = this.contentWidth;
+        this.$cropContent.height = this.contentHeight;
+        var imageCtx = this.$cropContent.getContext('2d');
 
         var width = this.originWidth;
         var height = this.originHeight;
@@ -784,7 +775,14 @@
         }
         imageCtx.drawImage(this.originImage, 0, 0, width, height);
 
-        return $imageCanvas;
+        //初始位置垂直水平居中
+        this._initTransform = 'translate3d(-50%,-50%,0)';
+        this.$cropContent.classList.add('crop-content');
+        this.$cropContent.style.position = 'absolute';
+        this.$cropContent.style.left = '50%';
+        this.$cropContent.style.top = '50%';
+        this.$cropContent.style[transformProperty] = this._initTransform;
+        this.$cropMask.insertBefore(this.$cropContent, this.$cropCover);
     }
 
     //获取裁剪图片
