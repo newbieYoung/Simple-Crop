@@ -130,7 +130,6 @@
         var self = this;
 
         //浏览器属性
-        self.initCanvasTransform(); //初始化 canvas transform
         self.passiveSupported = false; //判断是否支持 passive
         try {
             var options = Object.defineProperty({}, 'passive', {
@@ -789,10 +788,11 @@
         $contentCanvas.width = contentWidth;
         $contentCanvas.height = contentHeight;
         contentCtx = $contentCanvas.getContext('2d');
-        contentCtx._setTransformOrigin(contentWidth / 2, contentHeight / 2);
-        contentCtx._scale(scaleNum * this.times, scaleNum * this.times); // 缩放 this.times
+        contentCtx.translate(contentWidth / 2, contentHeight / 2);
+        contentCtx.scale(scaleNum * this.times, scaleNum * this.times) // 缩放 this.times
         contentCtx.translate((this._contentCurMoveX + this.positionOffset.left) / scaleNum, (this._contentCurMoveY + this.positionOffset.top) / scaleNum);
-        contentCtx._rotate(this.rotateAngle);
+        contentCtx.rotate(this.rotateAngle / 180 * Math.PI);
+        contentCtx.translate(-contentWidth / 2, -contentHeight / 2);
         contentCtx.drawImage(this.$cropContent, 0, 0, contentWidth, contentHeight);
 
         var cropWidth = this.size.width;
@@ -1475,60 +1475,6 @@
             callback(e.target.result);
         }
         reader.readAsDataURL(file)
-    };
-
-    //让canvas transform类似css3 transform
-    SimpleCrop.prototype.initCanvasTransform = function () {
-        CanvasRenderingContext2D.prototype._setTransformOrigin = function (x, y) {
-            this._transformOrigin = {
-                x: x,
-                y: y
-            };
-        }
-        CanvasRenderingContext2D.prototype._scale = function (x, y) {
-            if (this._transformOrigin == null) {
-                this._transformOrigin = {
-                    x: 0,
-                    y: 0
-                };
-            }
-            this.translate(this._transformOrigin.x, this._transformOrigin.y);
-            this.scale(x, y);
-            this.translate(-this._transformOrigin.x, -this._transformOrigin.y);
-        }
-        CanvasRenderingContext2D.prototype._rotate = function (deg) {
-            if (this._transformOrigin == null) {
-                this._transformOrigin = {
-                    x: 0,
-                    y: 0
-                };
-            }
-            this.translate(this._transformOrigin.x, this._transformOrigin.y);
-            this.rotate(deg / 180 * Math.PI);
-            this.translate(-this._transformOrigin.x, -this._transformOrigin.y);
-        }
-        CanvasRenderingContext2D.prototype._skew = function (xDeg, yDeg) {
-            if (this._transformOrigin == null) {
-                this._transformOrigin = {
-                    x: 0,
-                    y: 0
-                };
-            }
-            this.translate(this._transformOrigin.x, this._transformOrigin.y);
-            this.transform(1, xDeg / 180 * Math.PI, yDeg / 180 * Math.PI, 1, 0, 0);
-            this.translate(-this._transformOrigin.x, -this._transformOrigin.y);
-        }
-        CanvasRenderingContext2D.prototype._transform = function (a, b, c, d, e, f) {
-            if (this._transformOrigin == null) {
-                this._transformOrigin = {
-                    x: 0,
-                    y: 0
-                };
-            }
-            this.translate(this._transformOrigin.x, this._transformOrigin.y);
-            this.transform(a, b, c, d, e, f);
-            this.translate(-this._transformOrigin.x, -this._transformOrigin.y);
-        }
     };
 
     return SimpleCrop;
