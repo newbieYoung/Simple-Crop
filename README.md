@@ -1,67 +1,57 @@
 # SimpleCrop
 
-`The only` web picture cropping component that supports cropping pictures at any angle and has an `interactive experience` comparable to native clients.
+`全网唯一`支持裁剪图片任意角度旋转、交互体验`媲美原生客户端`的 Web 图片裁剪组件。
 
-[中文](README-zh.md)
+[English](README.md)
 
-## Features
+## 特性及优势
 
-Compared with the currently popular Web picture cropping components, its advantages are as follows:
+和目前流行的 Web 图片裁剪组件相比，其优势在于以下几点：
 
-- Picture supports rotation at any angle.
-- Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame.
-- Touch scaling is based on the center of two fingers.
-- Supports mobile and PC.
-- Supports script, React, Vue, AngularJS (Vue, AngularJS to be implemented).
-- Has an interactive experience comparable to native clients.
+- 裁剪图片支持任意角度旋转；
+- 支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
+- 移动端缩放以双指中心为基准点；
+- 支持移动设备和 PC；
+- 支持 script 标签、微信小程序、React、Vue 等多种开发模式；
+- 操作体验媲美原生客户端。
 
-## Installation
+## 安装
 
 ```
 npm install simple-crop
 ```
 
-## Examples
+## 示例
 
-### Mobile Example
+### 移动端示例
 
-![Mobile example](https://newbieyoung.github.io/images/simple-crop-0.jpg)
+![移动端示例](https://newbieyoung.github.io/images/simple-crop-0.jpg)
 
-> On the left is the picture cropping example in the IOS system album, and on the right is the SimpleCrop mobile example.
+> 左侧是 IOS 系统相册中原生的图片裁剪功能，右侧为 SimpleCrop 移动端示例。
 
-Scan the QR code:
+可以扫描二维码体验：
 
-![QR code for mobile example](https://newbieyoung.github.io/images/simple-crop-1.png)
+![移动端示例二维码](https://newbieyoung.github.io/images/simple-crop-1.png)
 
-Visit the following links:
-
-- script
+或者访问以下链接：
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/test-2.html)
 
-- React
+### PC 示例
 
-[https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html)
+![PC 示例](https://newbieyoung.github.io/images/simple-crop-11.jpg)
 
-### PC Example
-
-![PC example](https://newbieyoung.github.io/images/simple-crop-11.jpg)
-
-- script
+链接如下：
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
 
-- React
+## 用法
 
-[https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html)
+### 1、引入样式
 
-## Usage
+目前提供了两种默认样式 `./dist/template-2.css` 适用移动设备，`./dist/template-1.css` 适用 PC。
 
-### 1. import css style
-
-Two default styles are currently provided, `./dist/template-2.css` for mobile, `./dist/template-1.css` for PC.
-
-- script
+- link 标签
 
 ```html
 <link rel="stylesheet" href="./dist/template-2.css" />
@@ -73,11 +63,11 @@ Two default styles are currently provided, `./dist/template-2.css` for mobile, `
 import "./dist/template-2.css";
 ```
 
-### 2. import component code
+### 2、引入组件代码
 
-SimpleCrop expects to implement full framework support, but currently only supports script and React. The corresponding codes are as follows:
+SimpleCrop 期望实现全框架支持，但是目前仅支持 script 标签和 React 两种，对应代码如下：
 
-- script
+- script 标签
 
 ```html
 <script src="./index.js"></script>
@@ -89,9 +79,9 @@ SimpleCrop expects to implement full framework support, but currently only suppo
 import { SimpleCrop } from "./index-react.jsx";
 ```
 
-### 3. initialization
+### 3、初始化
 
-- Mobile initialization parameters example:
+- 移动端初始化参数示例：
 
 ```javascript
 new SimpleCrop({
@@ -109,11 +99,11 @@ new SimpleCrop({
 });
 ```
 
-- PC initialization parameters example:
+- PC 初始化参数示例：
 
 ```javascript
 new SimpleCrop({
-  title: "Picture is too large, please crop.",
+  title: "上传图片过大，请裁剪",
   src: "./img/test1.jpg",
   size: {
     width: 800,
@@ -142,150 +132,150 @@ new SimpleCrop({
 });
 ```
 
-## License
+## 开源许可协议
 
-This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
+[MIT](http://opensource.org/licenses/MIT) License.
 
-## Properties and Methods
+## 常用属性及方法说明
 
 <table style="word-break: normal;">
 	<tr>
-		<td>Property</td>
-		<td>Description</td>
+		<td>属性</td>
+		<td>说明</td>
 	</tr>
 	<tr>
 		<td>debug</td>
-		<td>Debug mode (Turn on debugging mode will show the automatic adsorption process of picture.) </td>
+		<td>是否开启调试模式（开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程）</td>
 	</tr>
 	<tr>
 		<td>title</td>
-		<td>Component title</td>
+		<td>标题</td>
 	</tr>
 	<tr>
 		<td>src</td>
-		<td>Picture src</td>
+		<td>图片地址</td>
 	</tr>
 	<tr>
 		<td>visible</td>
-		<td>Whether the component is visible</td>
+		<td>组件是否可见</td>
 	</tr>
 	<tr>
 		<td>$container</td>
-		<td>Component container (If no container is set, the component will be added to the body element by default.)</td>
+		<td>容器（如果不设置容器那么裁剪组件会默认添加到 body 元素中）</td>
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>Whether to enable the scale slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
+		<td>是否开启缩放滑动控制条（PC建议开启，移动端默认会启动双指滑动缩放方式）</td>
 	</tr>
 	<tr>
 		<td>size</td>
-		<td>Target size</td>
+		<td>裁剪图片目标尺寸</td>
 	</tr>
 	<tr>
 		<td>zIndex</td>
-		<td>Component's z-index css property</td>
+		<td>组件层级</td>
 	</tr>
 	<tr>
 		<td>positionOffset</td>
-		<td>Crop frame offset, the crop frame defaults to the center of the canvas.</td>
+		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
 	</tr>
 	<tr>
 		<td>maxScale</td>
-		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop frame, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop frame ).</td>
+		<td>最大缩放倍数，如果裁剪图片放大至设置的最大缩放倍数仍然不能完全填满裁剪框，则最大缩放倍数会强制等于 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
 	</tr>
 	<tr>
 		<td>borderWidth</td>
-		<td>Crop frame border width</td>
+		<td>裁剪框边框宽度</td>
 	</tr>
 	<tr>
 		<td>borderColor</td>
-		<td>Crop frame border color</td>
+		<td>裁剪框边框颜色</td>
 	</tr>
 	<tr>
 		<td>boldCornerLen</td>
-		<td>The bold length of the crop frame corners.</td>
+		<td>裁剪框边角加粗长度</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>The proportion of the crop frame to the crop display area, 0.9 means 90%.</td>
+		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
 	</tr>
 	<tr>
 		<td>coverColor</td>
-		<td>Cover background color</td>
+		<td>遮罩背景颜色</td>
 	</tr>
 	<tr>
 		<td>funcBtns</td>
-		<td>Function buttons ( Currently supported: upload, crop, close, around, reset.)</td>
+		<td>默认功能按钮（目前支持 upload 重新上传、crop 裁剪图片、close 取消、around 90度旋转、reset 重置）</td>
 	</tr>
 	<tr>
 		<td>rotateSlider</td>
-		<td>Whether to turn the rotary dial ( On by default ).</td>
+		<td>是否开启旋转刻度盘（默认开启）</td>
 	</tr>
 	<tr>
 		<td>startAngle</td>
-		<td>Rotating dial start angle</td>
+		<td>旋转刻度盘开始角度</td>
 	</tr>
 	<tr>
 		<td>endAngle</td>
-		<td>Rotating dial end angle</td>
+		<td>旋转刻度盘结束角度</td>
 	</tr>
 	<tr>
 		<td>gapAngle</td>
-		<td>Rotating dial interval angle</td>
+		<td>旋转刻度盘间隔角度</td>
 	</tr>
 	<tr>
 		<td>lineationItemWidth</td>
-		<td>Rotating dial interval width ( Unit px )</td>
+		<td>旋转刻度盘间隔宽度（单位 px）</td>
 	</tr>
 	<tr>
 		<td>borderDraw</td>
-		<td>Crop frame custom border drawing function</td>
+		<td>裁剪框自定义边框绘制函数</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
-		<td>Crop frame custom auxiliary line drawing function</td>
+		<td>裁剪框自定义辅助线绘制函数</td>
 	</tr>
 	<tr>
 		<td>uploadCallback</td>
-		<td>Re-upload cropped picture callback function</td>
+		<td>重新上传裁剪图片回调函数</td>
 	</tr>
 	<tr>
 		<td>closeCallback</td>
-		<td>Close cropping component callback function</td>
+		<td>关闭裁剪组件回调函数</td>
 	</tr>
 	<tr>
 		<td>cropCallback</td>
-		<td>Picture cropping completion callback function ( Use `this.$resultCanvas` to get the crop result. )</td>
+		<td>图片裁剪完成回调函数（在函数中通过 this.$resultCanvas 来获取裁剪结果）</td>
 	</tr>
 </table>
 
 <table style="word-break: normal;">
 	<tr>
-		<td>Method</td>
-		<td>Description</td>
+		<td>方法</td>
+		<td>说明</td>
 	</tr>
 	<tr>
 		<td>setImage</td>
-		<td>Set crop picture</td>
+		<td>设置裁剪图片</td>
 	</tr>
 	<tr>
 		<td>show</td>
-		<td>Display component</td>
+		<td>显示组件</td>
 	</tr>
 	<tr>
 		<td>hide</td>
-		<td>Hidden component</td>
+		<td>隐藏组件</td>
 	</tr>
 </table>
 
-## Dependencies
+## 依赖
 
-- AlloyFinger [https://github.com/AlloyTeam/AlloyFinger](https://github.com/AlloyTeam/AlloyFinger) Handle mobile touch operations.
+- transformation-matrix [https://github.com/chrvadala/transformation-matrix](https://github.com/chrvadala/transformation-matrix) 处理位移变换矩阵；
 
-- Exif.js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) Get image metadata.
+- exif-js [https://github.com/exif-js/exif-js](https://github.com/exif-js/exif-js) 获取图片元数据；
 
-- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) Handle css prefixes.
+- prefix-umd [https://github.com/newbieYoung/prefix-umd](https://github.com/exif-js/exif-js) 处理 css 属性前缀。
 
-## More
+## 原理及实现
 
 `SimpleCrop 媲美原生体验的 Web 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)

@@ -33,14 +33,14 @@ class Test1 extends React.Component {
   }
 
   //图片裁剪回调函数
-  cropCallback() {
+  cropCallback () {
     this.$resultCanvas.style.marginRight = "10px";
     this.$resultCanvas.style.width = "50%";
     document.body.appendChild(this.$resultCanvas);
   }
 
   //自定义辅助线
-  coverDraw() {
+  coverDraw () {
     this.cropCoverContext.setLineDash([15, 20]);
     this.cropCoverContext.lineWidth = 2;
 
@@ -92,7 +92,7 @@ class Test1 extends React.Component {
   }
 
   //绘制辅助线
-  drawCover() {
+  drawCover () {
     let cropParams = this.state.cropParams;
     cropParams.coverDraw = this.coverDraw;
     this.setState({
@@ -100,7 +100,7 @@ class Test1 extends React.Component {
     });
   }
 
-  render() {
+  render () {
     return (
       <div>
         <button onClick={this.drawCover.bind(this)}>绘制辅助线</button>
