@@ -417,7 +417,6 @@
             this.$maxScale.innerText = '(x' + this.maxScale + ')';
         }
 
-        //重置动态操作变量
         this.reset();
     }
 

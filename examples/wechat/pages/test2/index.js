@@ -7,10 +7,12 @@ Page({
     src: null,
     visible: false,
     size:{
-      width:1000,
-      height:600
+      width:300,
+      height:200
     },
+    result:'',
   },
+
   onLoad: function () {
   },
 
@@ -31,6 +33,16 @@ Page({
   uploadCallback: function (event) {
     console.log('uploadCallback');
     console.log(event);
+  },
+
+  //裁剪图片回调
+  cropCallback: function (event){
+    console.log('cropCallback');
+    console.log(event);
+
+    this.setData({
+      result: event.detail.component.resultSrc,
+    });
   },
 
   //关闭回调

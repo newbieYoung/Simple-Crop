@@ -100,6 +100,8 @@ Component({
     originImage: null, // 初始图片
     $cropContent: null,
     cropContentCtx: null,
+    $cropResult: null,
+    cropResultCtx: null,
     contentWidth: 0,
     contentHeight: 0,
     fingerCenter: {}, //双指操作中心
@@ -611,12 +613,20 @@ Component({
       var cropSizePercent = this.data.cropSizePercent;
       var positionOffset = this.data.positionOffset;
 
+      var self = this;
       var call_count = 0; // 回调计数器
       var total_count = 0;
       this._initPosition = 'position:absolute; left:50%; top:50%;';
       this._initTransform = 'transform:translate3d(-50%,-50%,0)';
+      var callback = function () {
+        if (call_count >= total_count) {
+          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
+          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
 
-      var self = this;
+          self.updateFrame(size, cropSizePercent, positionOffset);
+        }
+      }
+      
       this.$cropMask = this.createSelectorQuery().select('#' + S_ID + ' .crop-mask');
       total_count++;
       this.$cropMask.boundingClientRect(function (rect) {
@@ -624,15 +634,8 @@ Component({
           width: rect.width,
           height: rect.height,
         }
-
-        // callback
         call_count++;
-        if (call_count >= total_count) {
-          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
-          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
-
-          self.updateFrame(size, cropSizePercent, positionOffset);
-        }
+        callback();
       }).exec();
 
       this.$cropContent = this.createSelectorQuery().select('#' + S_ID + ' .crop-content');
@@ -640,15 +643,17 @@ Component({
       this.$cropContent.node().exec(function (res) {
         self.$cropContent = res[0].node;
         self.cropContentCtx = self.$cropContent.getContext('2d');
-
-        // callback
         call_count++;
-        if (call_count >= total_count) {
-          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
-          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
+        callback();
+      });
 
-          self.updateFrame(size, cropSizePercent, positionOffset);
-        }
+      this.$cropResult = this.createSelectorQuery().select('#' + S_ID + ' .crop-result');
+      total_count++;
+      this.$cropResult.node().exec(function (res) {
+        self.$cropResult = res[0].node;
+        self.cropResultCtx = self.$cropResult.getContext('2d');
+        call_count++;
+        callback();
       });
 
       this.$cropCover = this.createSelectorQuery().select('#' + S_ID + ' .crop-cover');
@@ -656,15 +661,8 @@ Component({
       this.$cropCover.node().exec(function (res) {
         self.$cropCover = res[0].node;
         self.cropCoverContext = self.$cropCover.getContext('2d');
-
-        // callback
         call_count++;
-        if (call_count >= total_count) {
-          self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
-          self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
-
-          self.updateFrame(size, cropSizePercent, positionOffset);
-        }
+        callback();
       });
 
       if (rotateSlider){
@@ -673,15 +671,8 @@ Component({
         this.$cropRotate.boundingClientRect(function (rect) {
           var rotateWidth = rect.width;
           self._baseMoveX = -(self.lineationWidth / 2 - rotateWidth / 2);
-
-          // callback
           call_count++;
-          if (call_count >= total_count) {
-            self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
-            self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
-
-            self.updateFrame(size, cropSizePercent, positionOffset);
-          }
+          callback();
         }).exec();
       }
     },
@@ -728,10 +719,14 @@ Component({
       this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
       this.$cropContent.width = this.contentWidth;
       this.$cropContent.height = this.contentHeight;
+      this.$cropResult.width = this.contentWidth;
+      this.$cropResult.height = this.contentHeight;
 
       var width = this.originImage.width;
       var height = this.originImage.height;
       var imageCtx = this.cropContentCtx;
+      imageCtx.clearRect(0,0,width,height);
+      imageCtx.save();
 
       switch (this._orientation) {
         case 2:
@@ -772,6 +767,7 @@ Component({
           break;
       }
       imageCtx.drawImage(image, 0, 0, width, height);
+      imageCtx.restore();
 
       //canvas 不受 css transform 影响 需要转换为 image 显示
       var self = this;
@@ -789,6 +785,51 @@ Component({
           })
         }
       }, self);
+    },
+
+    //获取裁剪图片
+    getCropImage: function(){
+      var positionOffset = this.data.positionOffset;
+      var size = this.data.size;
+      var self = this;
+
+      var contentWidth = this.contentWidth;
+      var contentHeight = this.contentHeight;
+      var center = {
+        x: contentWidth / 2,
+        y: contentHeight / 2
+      };
+      var image = this.$cropResult.createImage();
+      image.onload = function () {
+        var scaleNum = self.scaleTimes / self.times * self._rotateScale;
+        self.cropResultCtx.clearRect(0,0,contentWidth,contentHeight);
+        self.cropResultCtx.save();
+        self.cropResultCtx.translate(center.x, center.y);
+        self.cropResultCtx.scale(scaleNum * self.times, scaleNum * self.times) // 缩放 this.times
+        self.cropResultCtx.translate((self._contentCurMoveX + positionOffset.left) / scaleNum, (self._contentCurMoveY + positionOffset.top) / scaleNum);
+        self.cropResultCtx.rotate(self.rotateAngle/180*Math.PI);
+        self.cropResultCtx.translate(-center.x, -center.y);
+        self.cropResultCtx.drawImage(image, 0, 0, contentWidth, contentHeight);
+        self.cropResultCtx.restore();
+
+
+        var cropWidth = size.width;
+        var cropHeight = size.height;
+        wx.canvasToTempFilePath({
+          x: 0,
+          y: 0,
+          width: cropWidth,
+          height: cropHeight,
+          destWidth: cropWidth,
+          destHeight: cropHeight,
+          canvas: self.$cropResult,
+          success(res) {
+            self.resultSrc = res.tempFilePath
+            self.triggerEvent('cropCrop', { component: self }, {})
+          }
+        }, self);
+      }
+      image.src = this.data.visibleSrc;
     },
 
     //初始化
@@ -819,7 +860,6 @@ Component({
       }
       this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
 
-      //重置动态操作变量
       this.reset();
     },
 
