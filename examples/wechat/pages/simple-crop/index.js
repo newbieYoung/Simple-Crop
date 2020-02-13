@@ -798,6 +798,10 @@ Component({
       var size = this.data.size;
       var self = this;
 
+      wx.showLoading({
+        title: '正在裁剪...',
+      });
+
       var contentWidth = this.contentWidth;
       var contentHeight = this.contentHeight;
       var cropWidth = size.width;
@@ -830,6 +834,7 @@ Component({
               wx.canvasToTempFilePath({
                 canvas: self.$cropFinal,
                 success(res) {
+                  wx.hideLoading()
                   self.resultSrc = res.tempFilePath
                   self.triggerEvent('cropCrop', { component: self }, {})
                 }

@@ -37,9 +37,6 @@ Page({
 
   //裁剪图片回调
   cropCallback: function (event){
-    console.log('cropCallback');
-    console.log(event);
-
     this.setData({
       visible: false,
       result: event.detail.component.resultSrc,
@@ -48,9 +45,6 @@ Page({
 
   //关闭回调
   closeCallback: function (event) {
-    console.log('closeCallback');
-    console.log(event);
-
     this.setData({
       visible: false,
     });
