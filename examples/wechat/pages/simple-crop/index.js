@@ -82,6 +82,8 @@ Component({
   
   data: {
     cropContentStyle: '', // 裁剪图片样式
+    cropContentSize: '', // 裁剪图片尺寸
+    visibleSrc: '',
     lineationArr:[],
     statusBtns: {
       close: false,
@@ -90,7 +92,6 @@ Component({
       reset: false,
     },
     curMoveX: 0,
-    
     
     $resultCanvas: null, // 裁剪结果
   },
@@ -139,7 +140,6 @@ Component({
     },
     _initPosition: '', // 裁剪图片初始定位
     _initTransform: '', // 裁剪图片初始位移
-    _initSize: '', // 裁剪图片初始尺寸
     _orientation: 1, // 默认方向
     initContentPoints: [], // 图片初始顶点坐标
     contentPoints: [], //图片顶点坐标
@@ -151,6 +151,8 @@ Component({
   methods: {
     //旋转、缩放、移动
     transform : function (rotateCover, scaleKeepCover) {
+      var cropContentSize = this.data.cropContentSize;
+
       var scaleNum = this.scaleTimes / this.times * this._rotateScale;
       var transform = '';
       transform += ' scale(' + scaleNum + ')'; //缩放
@@ -198,7 +200,7 @@ Component({
       transform += ' scale(' + scaleNum + ')'; //缩放
       transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
       transform += ' rotate(' + this.rotateAngle + 'deg)';
-      var style = this._initSize + this._initPosition + this._initTransform + transform;
+      var style = cropContentSize + this._initPosition + this._initTransform + transform;
       this.setData({
         cropContentStyle: style
       });
@@ -568,7 +570,6 @@ Component({
       this.setData({
         statusBtns: statusBtns
       });
-      
     },
 
     // 微信小程序图片方向转换数字表示
@@ -707,11 +708,9 @@ Component({
         this.contentWidth = this.originImage.height;
         this.contentHeight = this.originImage.width;
       }
-
-      this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
-      var style = this._initSize+this._initPosition+this._initTransform;
+      var cropContentSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
       this.setData({
-        cropContentStyle: style
+        cropContentSize: cropContentSize
       })
 
       var width = this.originImage.width;
@@ -757,7 +756,24 @@ Component({
           break;
       }
       imageCtx.drawImage(this.data.src, 0, 0, width, height);
-      imageCtx.draw();
+
+      var self = this;
+      imageCtx.draw(false,function(){
+        wx.canvasToTempFilePath({
+          x: 0,
+          y: 0,
+          width: self.contentWidth,
+          height: self.contentHeight,
+          destWidth: self.contentWidth,
+          destHeight: self.contentHeight,
+          canvasId: 'cropContent',
+          success(res) {
+            self.setData({
+              visibleSrc:res.tempFilePath
+            })
+          }
+        }, self);
+      });
     },
 
     //初始化
@@ -839,6 +855,8 @@ Component({
     //操作结束
     endControl : function(){
       if(this._isControl){
+        var cropContentSize = this.data.cropContentSize;
+
         var self = this;
         this._isControl = false;
         this._downPoints = [];
@@ -858,7 +876,7 @@ Component({
           this._contentCurMoveY = coverMat.f;
           this.contentPoints = this.getTransformPoints('scaleY(-1)' + coverTr, this.initContentPoints);
 
-          var style = this._initSize + this._initPosition + this._initTransform + coverTr;
+          var style = cropContentSize + this._initPosition + this._initTransform + coverTr;
           this.setData({
             cropContentStyle: style
           });
@@ -1051,10 +1069,12 @@ Component({
 
     //整角旋转 90 度
     around : function(){
+      var rotateSlider = this.data.rotateSlider;
+
       this.startControl();
       this.rotateAngle = this._baseAngle - 90;
       this._baseAngle = this.rotateAngle;
-      if (this.data.rotateSlider) {
+      if (rotateSlider) {
         this._curMoveX = this._baseMoveX;
         this.setData({
           curMoveX: -this._curMoveX
@@ -1139,12 +1159,20 @@ Component({
       // 在 created 生命周期中查看 this.data 数据时为默认值
     },
     attached: function () {
-      this.isAttached = true;
-      this.borderDraw = this.data.borderDraw ? this.data.borderDraw.bind(this) : this.defaultBorderDraw;
-      this.maxScale = this.data.maxScale ? this.data.maxScale : 1; //最大缩放倍数，默认为原始尺寸
+      var borderDraw = this.data.borderDraw;
+      var maxScale = this.data.maxScale;
+      var startAngle = this.data.startAngle;
+      var endAngle = this.data.endAngle;
+      var gapAngle = this.data.gapAngle;
+      var lineationItemWidth = this.data.lineationItemWidth;
+      var funcBtns = this.data.funcBtns;
 
-      this.initRotateSlider(this.data.startAngle, this.data.endAngle, this.data.gapAngle, this.data.lineationItemWidth);
-      this.initFuncBtns(this.data.funcBtns);
+      this.isAttached = true;
+      this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
+      this.maxScale = maxScale ? maxScale : 1; //最大缩放倍数，默认为原始尺寸
+
+      this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
+      this.initFuncBtns(funcBtns);
       this.initChilds();
     }
   },
