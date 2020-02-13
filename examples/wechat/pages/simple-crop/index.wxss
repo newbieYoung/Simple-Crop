@@ -34,10 +34,8 @@
     overflow: hidden;
 }
 
-.crop-component .crop-result{
-  background-color:red;
-}
-
+.crop-component .crop-final,
+.crop-component .crop-result,
 .crop-component .crop-content{
   visibility: hidden;
 }

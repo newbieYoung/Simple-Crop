@@ -3,6 +3,7 @@
     <view class="crop-mask" catchtouchstart="touchstart" catchtouchmove="touchmove">
       <canvas type="2d" class="crop-content"></canvas>
       <canvas type="2d" class="crop-result"></canvas>
+      <canvas type="2d" class="crop-final"></canvas>
       <image style="{{cropContentStyle}}" src="{{visibleSrc}}"></image>
       <canvas type="2d" class="crop-cover"></canvas><!-- canvas-id 和 type 属性冲突且没办法使用 createSelectorQuery -->
     </view>

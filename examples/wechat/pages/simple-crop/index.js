@@ -91,13 +91,13 @@ Component({
       reset: false,
     },
     curMoveX: 0,
-    
-    $resultCanvas: null, // 裁剪结果
   },
 
   options: {
     isAttached: false, //生命周期状态
     originImage: null, // 初始图片
+    $cropFinal:null,
+    cropFinalCtx:null,
     $cropContent: null,
     cropContentCtx: null,
     $cropResult: null,
@@ -647,6 +647,17 @@ Component({
         callback();
       });
 
+      this.$cropFinal = this.createSelectorQuery().select('#' + S_ID + ' .crop-final');
+      total_count++;
+      this.$cropFinal.node().exec(function (res) {
+        self.$cropFinal = res[0].node;
+        self.$cropFinal.width = size.width;
+        self.$cropFinal.height = size.height;
+        self.cropFinalCtx = self.$cropFinal.getContext('2d');
+        call_count++;
+        callback();
+      });
+
       this.$cropResult = this.createSelectorQuery().select('#' + S_ID + ' .crop-result');
       total_count++;
       this.$cropResult.node().exec(function (res) {
@@ -772,12 +783,6 @@ Component({
       //canvas 不受 css transform 影响 需要转换为 image 显示
       var self = this;
       wx.canvasToTempFilePath({
-        x: 0,
-        y: 0,
-        width: self.contentWidth,
-        height: self.contentHeight,
-        destWidth: self.contentWidth,
-        destHeight: self.contentHeight,
         canvas: self.$cropContent,
         success(res) {
           self.setData({
@@ -795,12 +800,14 @@ Component({
 
       var contentWidth = this.contentWidth;
       var contentHeight = this.contentHeight;
+      var cropWidth = size.width;
+      var cropHeight = size.height;
       var center = {
         x: contentWidth / 2,
         y: contentHeight / 2
       };
-      var image = this.$cropResult.createImage();
-      image.onload = function () {
+      var image1 = this.$cropResult.createImage();
+      image1.onload = function () {
         var scaleNum = self.scaleTimes / self.times * self._rotateScale;
         self.cropResultCtx.clearRect(0,0,contentWidth,contentHeight);
         self.cropResultCtx.save();
@@ -809,27 +816,30 @@ Component({
         self.cropResultCtx.translate((self._contentCurMoveX + positionOffset.left) / scaleNum, (self._contentCurMoveY + positionOffset.top) / scaleNum);
         self.cropResultCtx.rotate(self.rotateAngle/180*Math.PI);
         self.cropResultCtx.translate(-center.x, -center.y);
-        self.cropResultCtx.drawImage(image, 0, 0, contentWidth, contentHeight);
+        self.cropResultCtx.drawImage(image1, 0, 0, contentWidth, contentHeight); // canvas 不能直接绘制 canvas，需要先转换为图片
         self.cropResultCtx.restore();
 
-
-        var cropWidth = size.width;
-        var cropHeight = size.height;
         wx.canvasToTempFilePath({
-          x: 0,
-          y: 0,
-          width: cropWidth,
-          height: cropHeight,
-          destWidth: cropWidth,
-          destHeight: cropHeight,
           canvas: self.$cropResult,
           success(res) {
-            self.resultSrc = res.tempFilePath
-            self.triggerEvent('cropCrop', { component: self }, {})
+            var image2 = self.$cropFinal.createImage();
+            image2.onload = function(){
+              self.cropFinalCtx.clearRect(0, 0, cropWidth, cropHeight);
+              self.cropFinalCtx.drawImage(image2, (contentWidth - cropWidth) / 2, (contentHeight - cropHeight) / 2, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight)
+
+              wx.canvasToTempFilePath({
+                canvas: self.$cropFinal,
+                success(res) {
+                  self.resultSrc = res.tempFilePath
+                  self.triggerEvent('cropCrop', { component: self }, {})
+                }
+              }, self);
+            }
+            image2.src = res.tempFilePath;
           }
         }, self);
       }
-      image.src = this.data.visibleSrc;
+      image1.src = this.data.visibleSrc;
     },
 
     //初始化

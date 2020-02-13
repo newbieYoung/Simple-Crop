@@ -12,3 +12,10 @@
   width:80%;
   margin-top:10px;
 }
+
+.test2>image{
+  margin-top:10px;
+  width:80%;
+  background-color:#eee;
+  border:1rpx solid #eee;
+}

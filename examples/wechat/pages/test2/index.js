@@ -7,8 +7,8 @@ Page({
     src: null,
     visible: false,
     size:{
-      width:300,
-      height:200
+      width:400,
+      height:400
     },
     result:'',
   },
@@ -41,6 +41,7 @@ Page({
     console.log(event);
 
     this.setData({
+      visible: false,
       result: event.detail.component.resultSrc,
     });
   },
