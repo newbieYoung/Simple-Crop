@@ -795,12 +795,10 @@
         $contentCanvas.height = contentHeight;
         contentCtx = $contentCanvas.getContext('2d');
         contentCtx._setTransformOrigin(contentWidth / 2, contentHeight / 2);
-        contentCtx._scale(scaleNum * this.times, scaleNum * this.times);
+        contentCtx._scale(scaleNum * this.times, scaleNum * this.times); // 缩放 this.times
         contentCtx.translate(this._contentCurMoveX / scaleNum, this._contentCurMoveY / scaleNum);
         contentCtx._rotate(this.rotateAngle);
         contentCtx.drawImage(this.$cropContent, 0, 0, contentWidth, contentHeight);
-        $contentCanvas.style.width = '50%';
-        document.body.appendChild($contentCanvas);
 
         var cropWidth = this.size.width;
         var cropHeight = this.size.height;
