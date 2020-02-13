@@ -1061,7 +1061,7 @@
 
         //计算放大后的新坐标
         if (scale > 1) {
-            transform += 'scale(' + scale + ')';
+            transform += ' scale(' + scale + ')';
             this._rotateScale = this._rotateScale * scale;
             scalePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
         }
