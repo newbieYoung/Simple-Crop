@@ -675,7 +675,7 @@
             var touches = self.getControlPoints(ev);
             if (self._downPoints && self._downPoints.length > 0) {
                 if (!self._multiPoint) { // 单指移动
-                    self.contentMove(event.touches);
+                    self.contentMove(touches);
                 } else { // 双指缩放
                     var newFingerLen = Math.sqrt(Math.pow(touches[0].clientX - touches[1].clientX, 2) + Math.pow(touches[0].clientY - touches[1].clientY, 2));
                     var newScale = newFingerLen / self.fingerLen;
