@@ -180,7 +180,7 @@
         this.id = 'crop-' + new Date().getTime();
         this.zIndex = params.zIndex != null ? params.zIndex : 9999;
         this.visible = params.visible != null ? params.visible : true; //默认显示
-        this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 12;
+        this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
         this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
         this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
 
@@ -357,10 +357,15 @@
 
     //默认绘制裁剪框
     SimpleCrop.prototype.defaultBorderDraw = function () {
-        this.cropCoverContext.clearRect(0, 0, this.$cropCover.width, this.$cropCover.height);
+        var borderWidth = this.borderWidth;
+        var boldCornerLen = this.boldCornerLen;
+        boldCornerLen = boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2;
+
+        var coverWidth = this.$cropCover.width;
+        var coverHeight = this.$cropCover.height;
+        this.cropCoverContext.clearRect(0, 0, coverWidth, coverHeight);
         this.cropCoverContext.fillStyle = this.coverColor;
-        this.cropCoverContext.fillRect(0, 0, this.$cropCover.width, this.$cropCover.height);
-        this.cropCoverContext.fillStyle = this.borderColor;
+        this.cropCoverContext.fillRect(0, 0, coverWidth, coverHeight);
 
         //绘制边框（边框内嵌）
         var borderRect = {
@@ -369,20 +374,19 @@
             width: this.cropRect.width * window.devicePixelRatio,
             height: this.cropRect.height * window.devicePixelRatio
         }
+        this.cropCoverContext.fillStyle = this.borderColor;
         this.cropCoverContext.fillRect(borderRect.left, borderRect.top, borderRect.width, borderRect.height);
 
         if (this.boldCornerLen > 0) {
             //边框四个角加粗
-            var cornerRectWidth = this.boldCornerLen * window.devicePixelRatio;
-            var cornerRectHeight = this.boldCornerLen * window.devicePixelRatio;
-            this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //左上角
-            this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + this.borderWidth, borderRect.top - this.borderWidth, cornerRectWidth, cornerRectHeight); //右上角
-            this.cropCoverContext.fillRect(borderRect.left - this.borderWidth, borderRect.top + borderRect.height - cornerRectHeight + this.borderWidth, cornerRectWidth, cornerRectHeight); //左下角
-            this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + this.borderWidth, borderRect.top + borderRect.height - cornerRectHeight + this.borderWidth, cornerRectWidth, cornerRectHeight); //右下角
+            this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top - borderWidth, boldCornerLen, boldCornerLen); //左上角
+            this.cropCoverContext.fillRect(borderRect.left + borderRect.width - boldCornerLen + borderWidth, borderRect.top - borderWidth, boldCornerLen, boldCornerLen); //右上角
+            this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top + borderRect.height - boldCornerLen + borderWidth, boldCornerLen, boldCornerLen); //左下角
+            this.cropCoverContext.fillRect(borderRect.left + borderRect.width - boldCornerLen + borderWidth, borderRect.top + borderRect.height - boldCornerLen + borderWidth, boldCornerLen, boldCornerLen); //右下角
         }
 
         //清空内容区域
-        this.cropCoverContext.clearRect(borderRect.left + this.borderWidth, borderRect.top + this.borderWidth, borderRect.width - 2 * this.borderWidth, borderRect.height - 2 * this.borderWidth);
+        this.cropCoverContext.clearRect(borderRect.left + borderWidth, borderRect.top + borderWidth, borderRect.width - 2 * borderWidth, borderRect.height - 2 * borderWidth);
     };
 
     //初始化

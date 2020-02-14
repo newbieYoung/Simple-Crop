@@ -40,7 +40,7 @@ Component({
     },
     boldCornerLen: { // 裁剪框边角加粗长度
       type: Number,
-      value: 12,
+      value: 24,
     },
     coverColor: { // 遮罩背景颜色
       type: String,
@@ -110,7 +110,7 @@ Component({
         this.initFuncBtns(funcBtns);
       }
     },
-    'size, cropSizePercent, positionOffset': function (size, cropSizePercent, positionOffset) {
+    'size, cropSizePercent, positionOffset, borderWidth': function () {
       if (this.isAttached) {
         this.updateFrame();
       }
@@ -1066,13 +1066,15 @@ Component({
     defaultBorderDraw : function () {
       var coverColor = this.data.coverColor;
       var borderColor = this.data.borderColor;
-      var boldCornerLen = this.data.boldCornerLen * SystemInfo.pixelRatio;
+      var boldCornerLen = this.data.boldCornerLen;
       var borderWidth = this.data.borderWidth;
+      boldCornerLen = boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2;
 
-      this.cropCoverContext.clearRect(0, 0, this.$cropCover.width, this.$cropCover.height);
+      var coverWidth = this.$cropCover.width;
+      var coverHeight = this.$cropCover.height;
+      this.cropCoverContext.clearRect(0, 0, coverWidth, coverHeight);
       this.cropCoverContext.fillStyle = coverColor;
-      this.cropCoverContext.fillRect(0, 0, this.$cropCover.width, this.$cropCover.height);
-      this.cropCoverContext.fillStyle = borderColor;
+      this.cropCoverContext.fillRect(0, 0, coverWidth, coverHeight);
 
       //绘制边框（边框内嵌）
       var borderRect = {
@@ -1081,16 +1083,15 @@ Component({
         width: this.cropRect.width * SystemInfo.pixelRatio,
         height: this.cropRect.height * SystemInfo.pixelRatio
       }
+      this.cropCoverContext.fillStyle = borderColor;
       this.cropCoverContext.fillRect(borderRect.left, borderRect.top, borderRect.width, borderRect.height);
 
       if (boldCornerLen > 0) {
         //边框四个角加粗
-        var cornerRectWidth = boldCornerLen;
-        var cornerRectHeight = boldCornerLen;
-        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //左上角
-        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + borderWidth, borderRect.top - borderWidth, cornerRectWidth, cornerRectHeight); //右上角
-        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top + borderRect.height - cornerRectHeight + borderWidth, cornerRectWidth, cornerRectHeight); //左下角
-        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - cornerRectWidth + borderWidth, borderRect.top + borderRect.height - cornerRectHeight + borderWidth, cornerRectWidth, cornerRectHeight); //右下角
+        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top - borderWidth, boldCornerLen, boldCornerLen); //左上角
+        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - boldCornerLen + borderWidth, borderRect.top - borderWidth, boldCornerLen, boldCornerLen); //右上角
+        this.cropCoverContext.fillRect(borderRect.left - borderWidth, borderRect.top + borderRect.height - boldCornerLen + borderWidth, boldCornerLen, boldCornerLen); //左下角
+        this.cropCoverContext.fillRect(borderRect.left + borderRect.width - boldCornerLen + borderWidth, borderRect.top + borderRect.height - boldCornerLen + borderWidth, boldCornerLen, boldCornerLen); //右下角
       }
 
       //清空内容区域
