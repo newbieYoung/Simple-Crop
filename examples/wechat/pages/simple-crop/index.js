@@ -93,6 +93,30 @@ Component({
     curMoveX: 0,
   },
 
+  //数据监听器
+  observers: {
+    'src': function (src) {
+      if (this.isAttached) {
+        this.setImage(src);
+      }
+    },
+    'startAngle, endAngle, gapAngle, lineationItemWidth': function (startAngle, endAngle, gapAngle, lineationItemWidth) {
+      if (this.isAttached) {
+        this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
+      }
+    },
+    'funcBtns': function (funcBtns) {
+      if (this.isAttached) {
+        this.initFuncBtns(funcBtns);
+      }
+    },
+    'size, cropSizePercent, positionOffset': function (size, cropSizePercent, positionOffset) {
+      if (this.isAttached) {
+        this.updateFrame(size, cropSizePercent, positionOffset);
+      }
+    }
+  },
+
   options: {
     isAttached: false, //生命周期状态
     originImage: null, // 初始图片
@@ -651,8 +675,6 @@ Component({
       total_count++;
       this.$cropFinal.node().exec(function (res) {
         self.$cropFinal = res[0].node;
-        self.$cropFinal.width = size.width;
-        self.$cropFinal.height = size.height;
         self.cropFinalCtx = self.$cropFinal.getContext('2d');
         call_count++;
         callback();
@@ -732,6 +754,8 @@ Component({
       this.$cropContent.height = this.contentHeight;
       this.$cropResult.width = this.contentWidth;
       this.$cropResult.height = this.contentHeight;
+      this.$cropFinal.width = this.data.size.width;
+      this.$cropFinal.height = this.data.size.height;
 
       var width = this.originImage.width;
       var height = this.originImage.height;
@@ -1242,30 +1266,6 @@ Component({
       this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
       this.initFuncBtns(funcBtns);
       this.initChilds();
-    }
-  },
-
-  //数据监听器
-  observers: {
-    'src': function (src) {
-      if(this.isAttached){
-        this.setImage(src);
-      }
-    },
-    'startAngle, endAngle, gapAngle, lineationItemWidth': function (startAngle, endAngle, gapAngle, lineationItemWidth) {
-      if (this.isAttached) {
-        this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
-      }
-    },
-    'funcBtns': function (funcBtns){
-      if (this.isAttached) {
-        this.initFuncBtns(funcBtns);
-      }
-    },
-    'size, cropSizePercent, positionOffset': function (size, cropSizePercent, positionOffset){
-      if(this.isAttached){
-        this.updateFrame(size, cropSizePercent, positionOffset);
-      }
     }
   },
 })
