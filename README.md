@@ -45,6 +45,14 @@ npm install simple-crop
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
 
+### 微信小程序示例
+
+## 用法
+
+- [script 标签用法](USAGE-script.md)
+
+------
+
 ## 用法
 
 ### 1、引入样式
