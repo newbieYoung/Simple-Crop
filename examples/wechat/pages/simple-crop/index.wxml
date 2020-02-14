@@ -19,10 +19,10 @@
       <view class="current"></view>
     </view>
     <view class="crop-btns">
-      <view wx:if="{{statusBtns.crop}}" class="crop-btn" catchtap="getCropImage"></view>
       <view wx:if="{{statusBtns.close}}" class="crop-close" catchtap="close"></view>
       <view wx:if="{{statusBtns.around}}" class="crop-around" catchtap="around"></view>
       <view wx:if="{{statusBtns.reset}}" class="crop-reset" catchtap="reset"></view>
+      <view wx:if="{{statusBtns.crop}}" class="crop-btn" catchtap="getCropImage"></view>
     </view>
   </view>
 </view>
