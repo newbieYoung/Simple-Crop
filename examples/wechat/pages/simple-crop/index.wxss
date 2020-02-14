@@ -37,6 +37,9 @@
 .crop-component .crop-final,
 .crop-component .crop-result,
 .crop-component .crop-content{
+  position: absolute;
+  top:-100%;
+  left:-100%;
   visibility: hidden;
 }
 
