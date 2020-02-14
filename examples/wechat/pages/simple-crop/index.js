@@ -632,11 +632,6 @@ Component({
 
     //初始化相关子元素
     initChilds : function(){
-      var rotateSlider = this.data.rotateSlider;
-      var size = this.data.size;
-      var cropSizePercent = this.data.cropSizePercent;
-      var positionOffset = this.data.positionOffset;
-
       var self = this;
       var call_count = 0; // 回调计数器
       var total_count = 0;
@@ -697,7 +692,7 @@ Component({
         callback();
       });
 
-      if (rotateSlider){
+      if (this.data.rotateSlider){
         this.$cropRotate = this.createSelectorQuery().select('#' + S_ID + ' .crop-rotate');
         total_count++;
         this.$cropRotate.boundingClientRect(function (rect) {
@@ -1046,7 +1041,7 @@ Component({
       return proj
     },
 
-    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
+    //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移等参数更新并重现绘制裁剪框
     updateFrame: function (){
       var src = this.data.src;
       var size = this.data.size;
