@@ -15,10 +15,6 @@ Component({
         height: 0,
       },
     },
-    maxScale: { // 最大缩放倍数
-      type: Number,
-      value: 1
-    },
     positionOffset: { // 裁剪框屏幕偏移
       type: Object,
       value: {
@@ -114,6 +110,13 @@ Component({
       if (this.isAttached) {
         this.updateFrame();
       }
+    },
+    'borderWidth, borderColor, boldCornerLen, coverColor, borderDraw': function(){
+      if(this.isAttached){
+        var borderDraw = this.data.borderDraw;
+        this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
+        this.borderDraw();
+      }
     }
   },
 
@@ -171,7 +174,6 @@ Component({
     initContentPoints: [], // 图片初始顶点坐标
     contentPoints: [], //图片顶点坐标
     initScale: 1, // 初始缩放倍数
-    maxScale: 1, // 最大缩放倍数
     lineationWidth: 0, // 旋转刻度盘总宽度
   },
 
@@ -891,7 +893,6 @@ Component({
       } else {
         this.initScale = size.height / this.contentHeight;
       }
-      this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
 
       this.reset();
     },
@@ -1250,7 +1251,6 @@ Component({
     },
     attached: function () {
       var borderDraw = this.data.borderDraw;
-      var maxScale = this.data.maxScale;
       var startAngle = this.data.startAngle;
       var endAngle = this.data.endAngle;
       var gapAngle = this.data.gapAngle;
@@ -1259,7 +1259,6 @@ Component({
 
       this.isAttached = true;
       this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
-      this.maxScale = maxScale ? maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
       this.initRotateSlider(startAngle, endAngle, gapAngle, lineationItemWidth);
       this.initFuncBtns(funcBtns);
