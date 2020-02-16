@@ -64,30 +64,30 @@
      * 配置
      * @param title 标题
      * @param visible 组件是否可见
-     * @param src   图片地址
-     * @param maxScale 最大缩放倍数
-     * @param size 裁剪图片目标尺寸
-     * @param debug 是否开启调试模式
-     * @param positionOffset 裁剪框屏幕偏移
-     * @param $container 容器
-     * @param scaleSlider 是否开启缩放滑动控制条
-     * @param funcBtns 功能按钮数组
-     * ------------------------------------
-     * 浏览器属性
-     * @param isSupportTouch 是否支持 touch 事件
-     * @param passiveSupported 事件是否支持 passive
-     * ------------------------------------
-     * 样式
      * @param zIndex 组件层级
+     * @param maxScale 最大缩放倍数（pc）
+     * @param debug 是否开启调试模式（pc、mobile）
+     * @param $container 容器（pc、mobile）
+     * @param scaleSlider 是否开启缩放滑动控制条（pc、mobile）
+     * ------------------------------------
+     * 裁剪图片
+     * @param src   图片地址
+     * @param size 裁剪图片目标尺寸
+     * originImage 初始图片
+     * _orientation 图片方向
+     * ------------------------------------
+     * 裁剪框
+     * @param positionOffset 裁剪框屏幕偏移
      * @param boldCornerLen 裁剪框边角加粗长度
      * @param coverColor 遮罩背景颜色
      * @param cropSizePercent 裁剪框占裁剪显示区域的比例
      * @param borderWidth 裁剪框边框宽度
      * @param borderColor 裁剪框边框颜色
+     * @param coverDraw 裁剪框辅助线绘制函数
+     * @param borderDraw 裁剪框边框绘制函数
      * ------------------------------------
-     * 自定义函数
-     * @param coverDraw 裁剪框自定义辅助线绘制函数
-     * @param borderDraw 裁剪框自定义边框绘制函数
+     * 功能按钮
+     * @param funcBtns 功能按钮配置数组
      * @param cropCallback 图片裁剪完成回调函数
      * @param uploadCallback 重新上传裁剪图片回调函数
      * @param closeCallback 关闭裁剪组件回调函数
@@ -98,34 +98,33 @@
      * @param endAngle 旋转刻度盘结束角度
      * @param gapAngle 旋转刻度盘间隔角度
      * @param lineationItemWidth 旋转刻度盘间隔宽度
-     * @property lineationWidth 根据上述参数计算出的旋转刻度盘总宽度
+     * lineationWidth 根据上述参数计算出的旋转刻度盘总宽度
      * ------------------------------------
      * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
-     * @param maskViewSize 容器屏幕尺寸
-     * @param cropRect 截图框屏幕尺寸
-     * @param cropPoints 裁剪框顶点坐标
-     * @param cropCenter 裁剪框中心点坐标
-     * @param contentWidth 图片显示宽度
-     * @param contentHeight 图片显示高度
-     * @param contentPoints 图片顶点坐标
-     * @param _contentCurMoveX 图片 X 轴方向上的总位移
-     * @param _contentCurMoveY 图片 Y 轴方向上的总位移
-     * @param _orientation 图片方向
-     * @param initContentPoints 图片初始顶点坐标
-     * ------------------------------------
-     * 原始信息
-     * @param originImage 初始图片
+     * maskViewSize 容器屏幕尺寸
+     * cropRect 截图框屏幕尺寸
+     * cropPoints 裁剪框顶点坐标
+     * cropCenter 裁剪框中心点坐标
+     * contentWidth 图片显示宽度
+     * contentHeight 图片显示高度
+     * contentPoints 图片顶点坐标
+     * initContentPoints 图片初始顶点坐标
+     * _contentCurMoveX 图片 X 轴方向上的总位移
+     * _contentCurMoveY 图片 Y 轴方向上的总位移
      * ------------------------------------
      * 双指缩放
-     * @param _multiPoint 是否开始多点触控
-     * @param fingerLen 双指距离
-     * @param fingerScale 双指缩放倍数
-     * @param fingerCenter 双指操作中心
+     * _multiPoint 是否开始多点触控
+     * fingerLen 双指距离
+     * fingerScale 双指缩放倍数
+     * fingerCenter 双指操作中心
      * ------------------------------------
      * 其它
-     * @param times 实际尺寸/显示尺寸
-     * @param initScale 初始缩放倍数
-     * @param $resultCanvas 裁切结果
+     * times 实际尺寸/显示尺寸
+     * initScale 初始缩放倍数
+     * $resultCanvas 裁切结果（pc、mobile）
+     * resultSrc 裁剪结果（wechat）
+     * isSupportTouch 是否支持 touch 事件（pc、mobile）
+     * passiveSupported 事件是否支持 passive（pc、mobile）
      */
     function SimpleCrop(params) {
         var self = this;

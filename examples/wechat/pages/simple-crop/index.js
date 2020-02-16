@@ -152,7 +152,10 @@ Component({
     cropResultCtx: null,
     contentWidth: 0,
     contentHeight: 0,
-    fingerCenter: {}, //双指操作中心
+    fingerCenter: {
+      x:0,
+      y:0,
+    }, //双指操作中心
     fingerLen: 0, //双指距离
     fingerScale: 1, //双指缩放倍数
     _multiPoint: false, // 是否开始多点触控
