@@ -92,9 +92,9 @@ Component({
 
   //数据监听器
   observers: {
-    'src': function (src) {
+    'src': function () {
       if (this.isAttached) {
-        this.setImage(src);
+        this.setImage();
       }
     },
     'startAngle, endAngle, gapAngle, lineationItemWidth': function () {
@@ -746,9 +746,10 @@ Component({
     },
 
     //设置裁剪图片
-    setImage: function (image) {
-      if (image != null && image != '') {
-        var type = Object.prototype.toString.call(image);
+    setImage: function () {
+      var src = this.data.src;
+      if (src != null && src != '') {
+        var type = Object.prototype.toString.call(src);
         if (type === '[object String]') { // 字符串
           this.load();
           this.triggerEvent('cropUpload', {
