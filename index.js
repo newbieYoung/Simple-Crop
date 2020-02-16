@@ -98,6 +98,7 @@
      * @param endAngle 旋转刻度盘结束角度
      * @param gapAngle 旋转刻度盘间隔角度
      * @param lineationItemWidth 旋转刻度盘间隔宽度
+     * @property lineationWidth 根据上述参数计算出的旋转刻度盘总宽度
      * ------------------------------------
      * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
      * @param maskViewSize 容器屏幕尺寸
@@ -197,6 +198,7 @@
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
         this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
         this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
+        this.initRotateSlider();
 
         /**
          * 默认功能按钮为取消、裁剪、90度旋转、重置
@@ -212,6 +214,18 @@
         this.initChilds();
         this.updateFrame();
         this.bindEvent();
+    }
+
+    //初始化旋转刻度盘
+    SimpleCrop.prototype.initRotateSlider = function () {
+        //开始角度需要小于0，结束角度需要大于0，且开始角度和结束角度之间存在大于0的整数个间隔
+        this.startAngle = this.startAngle < 0 ? parseInt(this.startAngle) : 0;
+        this.endAngle = this.endAngle > 0 ? parseInt(this.endAngle) : 0;
+        this.gapAngle = this.gapAngle > 0 ? parseInt(this.gapAngle) : 3;
+        if ((this.endAngle - this.startAngle) % this.gapAngle != 0) {
+            this.endAngle = Math.ceil((this.endAngle - this.startAngle) / this.gapAngle) * this.gapAngle + this.startAngle;
+        }
+        this.lineationWidth = this.lineationItemWidth * ((this.endAngle - this.startAngle) / this.gapAngle + 1);
     }
 
     //初始化相关子元素
@@ -307,7 +321,7 @@
 
         if (this.rotateSlider) {
             html += '<div class="crop-rotate">'
-            html += '<ul class="lineation" style="width:' + this.lineationItemWidth * ((this.endAngle - this.startAngle) / this.gapAngle + 1) + 'px;">';
+            html += '<ul class="lineation" style="width:' + this.lineationWidth + 'px;">';
             for (var i = this.startAngle; i <= this.endAngle; i += this.gapAngle) {
                 html += '<li><div class="number">' + i + '</div><div class="bg"></div></li>';
             }
@@ -614,11 +628,9 @@
             self.$rotateCurrent = document.querySelector('#' + self.id + ' .current');
 
             //初始化刻度位置
-            var lineationStyle = window.getComputedStyle(self.$lineation);
-            var lineationWidth = parseFloat(lineationStyle.getPropertyValue('width'));
             var rotateStyle = window.getComputedStyle(self.$cropRotate);
-            var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width'));
-            self._baseMoveX = -(lineationWidth / 2 - rotateWidth / 2);
+            var rotateWidth = parseFloat(rotateStyle.getPropertyValue('width')); // 旋转刻度盘显示宽度
+            self._baseMoveX = -(self.lineationWidth * (0 - self.startAngle + self.gapAngle / 2) / (self.endAngle - self.startAngle + self.gapAngle) - rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
             self._curMoveX = self._baseMoveX;
             self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
 
@@ -633,9 +645,8 @@
                     var moveX = point.clientX - self._downPoints[0].clientX;
                     var lastMoveX = self._curMoveX;
                     var curMoveX = lastMoveX + moveX;
-                    var angle = (curMoveX - self._baseMoveX) / lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
-
-                    if (angle <= self.endAngle / 2 && angle >= self.startAngle / 2) {
+                    if (curMoveX <= 0 && curMoveX >= (rotateWidth - self.lineationWidth)) { //滚动边界
+                        var angle = (curMoveX - self._baseMoveX) / self.lineationWidth * (self.endAngle - self.startAngle + self.gapAngle);
                         self._curMoveX = curMoveX;
                         self._changedX = moveX;
                         self.$lineation.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
