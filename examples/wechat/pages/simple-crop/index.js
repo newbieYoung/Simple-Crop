@@ -70,10 +70,14 @@ Component({
       type: Array,
       value: ["close", "crop", "around", "reset"],
     },
-    borderDraw: { // 裁剪框自定义边框绘制函数
+    borderDraw: { // 裁剪框边框绘制函数
       type: Function,
       value: null
     },
+    coverDraw: { // 裁剪框辅助线绘制函数
+      type: Function,
+      value: null
+    }
   },
 
   data: {
@@ -121,11 +125,14 @@ Component({
         this.updateFrame();
       }
     },
-    'borderWidth, borderColor, boldCornerLen, coverColor, borderDraw': function () {
+    'borderWidth, borderColor, boldCornerLen, coverColor, borderDraw, coverDraw': function () {
       if (this.isAttached) {
         var borderDraw = this.data.borderDraw;
+        var coverDraw = this.data.coverDraw;
         this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
+        this.coverDraw = coverDraw ? coverDraw.bind(this) : function(){};
         this.borderDraw();
+        this.coverDraw();
       }
     }
   },
@@ -160,7 +167,8 @@ Component({
     _rotateScale: 1, // 旋转缩放倍数
     _downPoints: [], // 操作点坐标数组
     _isControl: false, // 是否正在操作
-    borderDraw: null, // 裁剪框自定义边框绘制函数
+    borderDraw: null, // 裁剪框边框绘制函数
+    coverDraw: null, // 裁剪框辅助线绘制函数
     $cropMask: null,
     $cropCover: null,
     cropCoverContext: null,
@@ -1103,6 +1111,7 @@ Component({
       this.cropPoints = this.rectToPoints(this.cropRect);
       this.cropCenter = this.getPointsCenter(this.cropPoints);
       this.borderDraw();
+      this.coverDraw();
 
       this.setImage(src);
     },
@@ -1292,9 +1301,11 @@ Component({
     },
     attached: function () {
       var borderDraw = this.data.borderDraw;
+      var coverDraw = this.data.coverDraw;
 
       this.isAttached = true;
       this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
+      this.coverDraw = coverDraw ? coverDraw.bind(this) : function(){};
 
       this.initRotateSlider();
       this.initFuncBtns();
