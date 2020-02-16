@@ -198,6 +198,7 @@
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
         this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
         this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
+        this.lineationItemWidth = this.lineationItemWidth >= 40.5 ? this.lineationItemWidth : 40.5; // 最小宽度限制
         this.initRotateSlider();
 
         /**

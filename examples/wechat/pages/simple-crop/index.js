@@ -111,9 +111,9 @@ Component({
         });
       }
     },
-    'funcBtns': function (funcBtns) {
+    'funcBtns': function () {
       if (this.isAttached) {
-        this.initFuncBtns(funcBtns);
+        this.initFuncBtns();
       }
     },
     'size, cropSizePercent, positionOffset, borderWidth': function () {
@@ -135,6 +135,7 @@ Component({
     _startAngle: -90, // 格式化后的旋转刻度盘相关参数
     _endAngle: 90,
     _gapAngle: 0,
+    _lineationItemWidth: 40.5,
     originImage: null, // 初始图片
     $cropFinal: null,
     cropFinalCtx: null,
@@ -590,7 +591,8 @@ Component({
       this._startAngle = this.data.startAngle;
       this._endAngle = this.data.endAngle;
       this._gapAngle = this.data.gapAngle;
-      var lineationItemWidth = this.data.lineationItemWidth;
+      this._lineationItemWidth = this.data.lineationItemWidth;
+      this._lineationItemWidth = this._lineationItemWidth>=40.5?this._lineationItemWidth:40.5;//最小宽度限制
 
       //开始角度需要小于0，结束角度需要大于0，且开始角度和结束角度之间存在大于0的整数个间隔
       this._startAngle = this._startAngle < 0 ? parseInt(this._startAngle) : 0;
@@ -604,7 +606,7 @@ Component({
       for (var i = this._startAngle; i <= this._endAngle; i += this._gapAngle) {
         lineationArr.push(i)
       }
-      var lineationWidth = lineationItemWidth * ((this._endAngle - this._startAngle) / this._gapAngle + 1);
+      var lineationWidth = this._lineationItemWidth * ((this._endAngle - this._startAngle) / this._gapAngle + 1);
 
       if (isUpdateNow){
         this.setData({
@@ -620,7 +622,8 @@ Component({
     },
 
     // 初始化功能按钮
-    initFuncBtns: function (funcBtns) {
+    initFuncBtns: function () {
+      var funcBtns = this.data.funcBtns;
       var statusBtns = {
         close: false,
         crop: false,
@@ -1288,13 +1291,12 @@ Component({
     },
     attached: function () {
       var borderDraw = this.data.borderDraw;
-      var funcBtns = this.data.funcBtns;
 
       this.isAttached = true;
       this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
 
       this.initRotateSlider();
-      this.initFuncBtns(funcBtns);
+      this.initFuncBtns();
       this.initChilds();
     }
   },
