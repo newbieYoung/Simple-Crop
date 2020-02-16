@@ -101,18 +101,9 @@ Component({
         this.setImage();
       }
     },
-    'startAngle, endAngle, gapAngle, lineationItemWidth': function () {
+    'rotateSlider, startAngle, endAngle, gapAngle, lineationItemWidth': function () {
       if (this.isAttached) {
-        var dataParams = this.initRotateSlider(false);
-        var lineationWidth = dataParams.lineationWidth;
-        this._baseMoveX = -(lineationWidth * (0 - this._startAngle + this._gapAngle / 2) / (this._endAngle - this._startAngle + this._gapAngle) - this.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
-        var angle = this.rotateAngle - this._baseAngle;
-        this._curMoveX = angle * lineationWidth / (this._endAngle - this._startAngle + this._gapAngle) + this._baseMoveX;
-        this.setData({
-          curMoveX: -this._curMoveX,
-          lineationArr: dataParams.lineationArr,
-          lineationWidth: dataParams.lineationWidth
-        });
+        this.initRotateSlider(true);
       }
     },
     'funcBtns': function () {
@@ -597,8 +588,8 @@ Component({
     },
 
     // 初始化旋转刻度盘
-    initRotateSlider: function (isUpdateNow) {
-      isUpdateNow = isUpdateNow != null ? isUpdateNow : true;//是否立即更新 data
+    initRotateSlider: function (isUpdate) {
+      isUpdate = isUpdate != null ? isUpdate : false; // 是否是更新操作
       this._startAngle = this.data.startAngle;
       this._endAngle = this.data.endAngle;
       this._gapAngle = this.data.gapAngle;
@@ -613,22 +604,34 @@ Component({
         this._endAngle = Math.ceil((this._endAngle - this._startAngle) / this._gapAngle) * this._gapAngle + this._startAngle;
       }
 
+      //计算刻度列表
       var lineationArr = [];
       for (var i = this._startAngle; i <= this._endAngle; i += this._gapAngle) {
         lineationArr.push(i)
       }
       var lineationWidth = this._lineationItemWidth * ((this._endAngle - this._startAngle) / this._gapAngle + 1);
 
-      if (isUpdateNow){
+      var self = this;
+      self.$cropRotate = self.createSelectorQuery().select('#' + S_ID + ' .crop-rotate');
+      self.$cropRotate.boundingClientRect(function (rect) {
+        self.rotateWidth = rect.width;
+        self._baseMoveX = -(lineationWidth * (0 - self._startAngle + self._gapAngle / 2) / (self._endAngle - self._startAngle + self._gapAngle) - self.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
+        if(isUpdate){
+          var angle = self.rotateAngle - self._baseAngle;
+          self._curMoveX = angle * lineationWidth / (self._endAngle - self._startAngle + self._gapAngle) + self._baseMoveX;
+          self.setData({
+            curMoveX: -self._curMoveX,
+            lineationArr: lineationArr,
+            lineationWidth: lineationWidth
+          });
+        }
+      }).exec();
+
+      if (!isUpdate){
         this.setData({
           lineationArr: lineationArr,
           lineationWidth: lineationWidth
         });
-      }else{
-        return {
-          lineationArr: lineationArr,
-          lineationWidth: lineationWidth
-        }
       }
     },
 
@@ -744,16 +747,7 @@ Component({
         callback();
       });
 
-      if (this.data.rotateSlider) {
-        this.$cropRotate = this.createSelectorQuery().select('#' + S_ID + ' .crop-rotate');
-        total_count++;
-        this.$cropRotate.boundingClientRect(function (rect) {
-          self.rotateWidth = rect.width;
-          self._baseMoveX = -(self.data.lineationWidth * (0 - self._startAngle + self._gapAngle / 2) / (self._endAngle - self._startAngle + self._gapAngle) - self.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
-          call_count++;
-          callback();
-        }).exec();
-      }
+      
     },
 
     //设置裁剪图片
