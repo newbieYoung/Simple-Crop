@@ -324,13 +324,14 @@
         var angle = this.rotateAngle - this._baseAngle;
         this._curMoveX = angle * this.lineationWidth / (this.endAngle - this.startAngle + this.gapAngle) + this._baseMoveX;
 
-        //超出滚动边界
+        //超出滚动边界，旋转刻度盘重置
         if (this._curMoveX > 0 || this._curMoveX < this.rotateWidth - this.lineationWidth) {
-            this.rotateAngle = this._baseAngle;
+            this.startControl();
             this._curMoveX = this._baseMoveX;
+            this._baseAngle = 0;
+            this.rotateAngle = 0;
             this._changedX = 0;
             this._rotateScale = 1;
-            this.startControl();
             this.transform(true);
             this.endControl();
         }
@@ -454,7 +455,7 @@
         } else {
             this.$cropScale.style.visibility = 'hidden';
         }
-        this.transform(true);
+        this.transform();
     };
 
     //html结构
@@ -674,8 +675,10 @@
         this.rotateAngle = this._baseAngle - 90;
         this._baseAngle = this.rotateAngle;
         this._curMoveX = this._baseMoveX;
+        this._changedX = 0;
+        this._rotateScale = 1;
         this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
-        this.transform();
+        this.transform(true);
         this.endControl();
     };
 
@@ -990,7 +993,7 @@
         }
     }
 
-    //滑动控制条按钮移动到某个位置
+    //移动滑动控制条按钮到某个位置
     SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
         this.$scaleBtn.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
         this.$scaleValue.style.width = curMoveX + 'px';

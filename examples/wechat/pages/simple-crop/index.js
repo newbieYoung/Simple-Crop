@@ -111,7 +111,7 @@ Component({
         this.initFuncBtns();
       }
     },
-    'size, cropSizePercent, positionOffset, borderWidth': function () {
+    'size, cropSizePercent, positionOffset': function () {
       if (this.isAttached) {
         this.updateFrame();
       }
@@ -617,6 +617,18 @@ Component({
         self._baseMoveX = -(lineationWidth * (0 - self._startAngle + self._gapAngle / 2) / (self._endAngle - self._startAngle + self._gapAngle) - self.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
         var angle = self.rotateAngle - self._baseAngle;
         self._curMoveX = angle * lineationWidth / (self._endAngle - self._startAngle + self._gapAngle) + self._baseMoveX;
+
+        //超出滚动边界
+        if (self._curMoveX > 0 || self._curMoveX < self.rotateWidth - lineationWidth) {
+          self.rotateAngle = self._baseAngle;
+          self._curMoveX = self._baseMoveX;
+          self._changedX = 0;
+          self._rotateScale = 1;
+          self.startControl();
+          self.transform(true);
+          self.endControl();
+        }
+
         self.setData({
           curMoveX: -self._curMoveX,
           lineationArr: lineationArr,
@@ -940,21 +952,23 @@ Component({
     reset: function () {
       var positionOffset = this.data.positionOffset;
       var rotateSlider = this.data.rotateSlider;
-
       this.startControl();
+
+      this.scaleTimes = this.initScale;
+      this._contentCurMoveX = -positionOffset.left;
+      this._contentCurMoveY = -positionOffset.top;
+      
       this._rotateScale = 1;
       this._baseAngle = 0;
       this.rotateAngle = 0;
-      this._contentCurMoveX = -positionOffset.left;
-      this._contentCurMoveY = -positionOffset.top;
-
+      this._changedX = 0;
+      this._curMoveX = this._baseMoveX;
       if (rotateSlider) {
-        this._curMoveX = this._baseMoveX;
         this.setData({
           curMoveX: -this._curMoveX
         });
       }
-      this.scaleTimes = this.initScale;
+      
       this.transform();
       this.endControl();
     },
@@ -1198,17 +1212,17 @@ Component({
     //整角旋转 90 度
     around: function () {
       var rotateSlider = this.data.rotateSlider;
-
       this.startControl();
       this.rotateAngle = this._baseAngle - 90;
       this._baseAngle = this.rotateAngle;
+      this._curMoveX = this._baseMoveX;
+      this._changedX = 0;
       if (rotateSlider) {
-        this._curMoveX = this._baseMoveX;
         this.setData({
           curMoveX: -this._curMoveX
         });
       }
-      this.transform();
+      this.transform(true);
       this.endControl();
     },
 
