@@ -678,7 +678,7 @@
         this._changedX = 0;
         this._rotateScale = 1;
         this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
-        this.transform(true);
+        this.transform(false, true);
         this.endControl();
     };
 

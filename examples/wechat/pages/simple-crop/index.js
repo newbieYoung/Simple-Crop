@@ -1222,7 +1222,7 @@ Component({
           curMoveX: -this._curMoveX
         });
       }
-      this.transform(true);
+      this.transform(false,true);
       this.endControl();
     },
 
