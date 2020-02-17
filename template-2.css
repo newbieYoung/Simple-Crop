@@ -135,13 +135,14 @@
     position: absolute;
     top: 0;
     bottom: 0;
+    left: 0;
+    right: 0;
     margin: auto;
     content: '';
     display: inline-block;
 }
 
 .crop-component .crop-close:after {
-    left: 16px;
     width: 18px;
     height: 18px;
     background-image: url(./img/crop-close-white.png);
@@ -149,7 +150,6 @@
 }
 
 .crop-component .crop-btn:after {
-    right: 16px;
     width: 21px;
     height: 15px;
     background-image: url(./img/crop-btn.png);
@@ -157,8 +157,6 @@
 }
 
 .crop-component .crop-reset:after {
-    left: 0;
-    right: -20%;
     width: 22px;
     height: 19px;
     background-image: url(./img/crop-reset.png);
@@ -166,8 +164,6 @@
 }
 
 .crop-component .crop-around:after {
-    right: 0;
-    left: -20%;
     width: 18px;
     height: 22px;
     background-image: url(./img/crop-rotate.png);
