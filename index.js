@@ -90,9 +90,9 @@
      * @param uploadCallback 重新上传裁剪图片回调函数
      * @param closeCallback 关闭裁剪组件回调函数
      * ------------------------------------
-     * 滑动缩放控制条
-     * @param scaleSlider 是否开启缩放滑动控制条（pc、mobile）
-     * @param maxScale 最大缩放倍数（pc）
+     * 滑动控制条
+     * @param scaleSlider 是否开启滑动控制条（pc、mobile）
+     * @param maxScale 最大缩放倍数（pc、mobile）
      * ------------------------------------
      * 旋转刻度盘
      * @param rotateSlider 是否开启旋转刻度盘
@@ -137,10 +137,6 @@
         this.title = params.title;
         this.debug = params.debug != null ? params.debug : false;
         this.$container = params.$container != null ? params.$container : document.body; //容器
-
-        //滑动缩放控制条
-        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
-        this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
         //其它
         var self = this;
@@ -298,10 +294,11 @@
         } else {
             this.$cropBtns.style.visibility = 'hidden';
         }
-    }
+    };
 
     //初始化旋转刻度盘
     SimpleCrop.prototype.initRotateSlider = function (params) {
+        this.__initParams = params;
         this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
         this.startAngle = params.startAngle != null ? params.startAngle : -90;
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
@@ -340,7 +337,7 @@
         } else {
             this.$cropRotate.style.visibility = 'hidden';
         }
-    }
+    };
 
     //初始化相关子元素
     SimpleCrop.prototype.initChilds = function () {
@@ -354,7 +351,21 @@
         this.cropCoverContext = this.$cropCover.getContext('2d');
         this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
         this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
-    }
+
+        //滑动控制条
+        this.$cropScale = document.querySelector('#' + this.id + ' .crop-scale');
+        this.$scaleBtn = document.querySelector('#' + this.id + ' .scale-btn');
+        this.$scaleNum = document.querySelector('#' + this.id + ' .scale-num');
+        this.$scaleOneTimes = document.querySelector('#' + this.id + ' .one-times-icon');
+        this.$scaleTwoTimes = document.querySelector('#' + this.id + ' .two-times-icon');
+        this.$scaleContainer = document.querySelector('#' + this.id + ' .scale-container');
+        this.$scaleValue = document.querySelector('#' + this.id + ' .scale-value');
+        this.$maxScale = document.querySelector('#' + this.id + ' .max-scale');
+        this.scaleDownX = 0;
+        this.scaleInitLeft = this.$scaleBtn.getBoundingClientRect().left;
+        this.scaleCurLeft = this.scaleInitLeft;
+        this.scaleWidth = this.$scaleNum.getBoundingClientRect().width;
+    };
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
     SimpleCrop.prototype.updateFrame = function (params) {
@@ -381,7 +392,7 @@
 
         var src = params.src != null ? params.src : this.src;
         this.show(src)
-    }
+    };
 
     //获取操作点
     SimpleCrop.prototype.getControlPoints = function (e) {
@@ -393,7 +404,7 @@
                 clientY: e.clientY
             }]
         }
-    }
+    };
 
     //获取操作事件名称
     SimpleCrop.prototype.getControlEvents = function () {
@@ -412,7 +423,26 @@
                 cancel: 'mouseleave'
             }
         }
-    }
+    };
+
+    //初始化滑动控制条
+    SimpleCrop.prototype.initScaleSlider = function (params) {
+        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
+        this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
+        this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
+        this.scaleTimes = this.initScale;
+        if (this.scaleSlider) {
+            this._scaleMoveX = 0;
+            this.scaleCurLeft = this.scaleInitLeft;
+            this.$maxScale.innerText = '(x' + this.maxScale + ')';
+            this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
+            this.$scaleValue.style.width = '0px';
+            this.$cropScale.style.visibility = 'visible';
+        } else {
+            this.$cropScale.style.visibility = 'hidden';
+        }
+        this.transform(true);
+    };
 
     //html结构
     SimpleCrop.prototype.construct = function () {
@@ -428,18 +458,21 @@
         html += '<div class="crop-mask">'
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
-        //支持触摸事件则采用双指缩放操作方式，否则采用缩放滑动控制条的操作方式
-        if (this.scaleSlider || !this.isSupportTouch) {
-            this.scaleSlider = true;
+
+        //滑动控制条
+        if (this.scaleSlider) {
             html += '<div class="crop-scale">';
-            html += '<div class="one-times-icon"></div>';
-            html += '<div class="scale-container">';
-            html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
-            html += '</div>';
-            html += '<div class="two-times-icon"></div>';
-            html += '<div class="max-scale"></div>'
-            html += '</div>';
+        } else {
+            html += '<div class="crop-scale" style="visibility:hidden;">';
         }
+        html += '<div class="one-times-icon"></div>';
+        html += '<div class="scale-container">';
+        html += '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
+        html += '</div>';
+        html += '<div class="two-times-icon"></div>';
+        html += '<div class="max-scale"></div>'
+        html += '</div>';
+
         //旋转刻度盘
         if (this.rotateSlider) {
             html += '<div class="crop-rotate">'
@@ -450,6 +483,7 @@
         html += '</ul>';
         html += '<div class="current"></div>';
         html += '</div>';
+
         //功能按钮
         html += '<div class="crop-btns" style="visibility:hidden;"></div>';
         html += '</div>';
@@ -525,11 +559,6 @@
         } else {
             this.initScale = this.size.height / this.contentHeight;
         }
-        this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
-        if (this.scaleSlider) {
-            this.$maxScale = document.querySelector('#' + this.id + ' .max-scale');
-            this.$maxScale.innerText = '(x' + this.maxScale + ')';
-        }
 
         this.reset();
     };
@@ -546,14 +575,7 @@
             this._curMoveX = this._baseMoveX;
             this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
         }
-        if (this.scaleSlider) {
-            this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
-            this.$scaleValue.style.width = '0px';
-            this._scaleMoveX = 0;
-            this.scaleCurLeft = this.scaleInitLeft;
-        }
-        this.scaleTimes = this.initScale;
-        this.transform();
+        this.initScaleSlider(this.__initParams);
         this.endControl();
     };
 
@@ -645,57 +667,42 @@
         this.endControl();
     };
 
-    //绑定事件
+    //事件监听
     SimpleCrop.prototype.bindEvent = function () {
         var self = this;
         var controlEvents = this.getControlEvents();
 
         //滑动控制条
         // ------------------ //
-        if (self.scaleSlider) {
-            self.$scaleBtn = document.querySelector('#' + self.id + ' .scale-btn');
-            self.$scaleNum = document.querySelector('#' + self.id + ' .scale-num');
-            self.$scaleOneTimes = document.querySelector('#' + self.id + ' .one-times-icon');
-            self.$scaleTwoTimes = document.querySelector('#' + self.id + ' .two-times-icon');
-            self.$scaleContainer = document.querySelector('#' + self.id + ' .scale-container');
-            self.$scaleValue = document.querySelector('#' + self.id + ' .scale-value');
-
-            self.scaleDownX = 0;
-            self.scaleInitLeft = self.$scaleBtn.getBoundingClientRect().left;
-            self.scaleCurLeft = self.scaleInitLeft;
-            self.scaleWidth = self.$scaleNum.getBoundingClientRect().width;
-
-            self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
-                self.scaleDownX = self.getControlPoints(ev)[0].clientX;
-                self.startControl();
-            });
-            self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
-                self.scaleMove(ev);
-                ev.stopPropagation();
-            });
-            self.$scaleContainer.addEventListener(controlEvents.cancel, self.endControl.bind(self)); //结束
-            self.$scaleContainer.addEventListener(controlEvents.end, self.endControl.bind(self));
-            self.$scaleContainer.addEventListener('click', function (ev) {
-                self.startControl();
-                var rect = self.$scaleBtn.getBoundingClientRect();
-                if (self.scaleDownX <= 0) {
-                    self.scaleDownX = rect.left + rect.width * 1.0 / 2;
-                }
-                self.scaleMove(ev);
-                self.endControl();
-            });
-            self.$scaleOneTimes.addEventListener('click', function () { //极小
-                self.startControl();
-                self._rotateScale = 1; //缩放滑动控制条点击初始缩放倍数时需要重置旋转缩放倍数，否则交互有点奇怪
-                self.scaleMoveAt(0);
-                self.endControl();
-            });
-            self.$scaleTwoTimes.addEventListener('click', function () { //极大
-                self.startControl();
-                self.scaleMoveAt(self.scaleWidth);
-                self.endControl();
-            });
-        }
+        self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
+            self.scaleDownX = self.getControlPoints(ev)[0].clientX;
+            self.startControl();
+        });
+        self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
+            self.scaleMove(ev);
+            ev.stopPropagation();
+        });
+        self.$scaleContainer.addEventListener(controlEvents.cancel, self.endControl.bind(self)); //结束
+        self.$scaleContainer.addEventListener(controlEvents.end, self.endControl.bind(self));
+        self.$scaleContainer.addEventListener('click', function (ev) {
+            self.startControl();
+            var rect = self.$scaleBtn.getBoundingClientRect();
+            if (self.scaleDownX <= 0) {
+                self.scaleDownX = rect.left + rect.width * 1.0 / 2;
+            }
+            self.scaleMove(ev);
+            self.endControl();
+        });
+        self.$scaleOneTimes.addEventListener('click', function () { //极小
+            self.startControl();
+            self.scaleMoveAt(0);
+            self.endControl();
+        });
+        self.$scaleTwoTimes.addEventListener('click', function () { //极大
+            self.startControl();
+            self.scaleMoveAt(self.scaleWidth);
+            self.endControl();
+        });
         // ------------------ //
 
         //旋转刻度盘
@@ -953,7 +960,7 @@
         return false;
     };
 
-    //缩放滑动控制条按钮移动
+    //滑动控制条按钮移动
     SimpleCrop.prototype.scaleMove = function (ev) {
         if (this.scaleDownX > 0) {
             var pointX = this.getControlPoints(ev)[0].clientX;
@@ -971,7 +978,7 @@
         }
     }
 
-    //滑缩放滑动控制条按钮移动到某个位置
+    //滑动控制条按钮移动到某个位置
     SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
         this.$scaleBtn.style[transformProperty] = 'translateX(' + curMoveX + 'px)';
         this.$scaleValue.style.width = curMoveX + 'px';
