@@ -138,20 +138,11 @@
         this.debug = params.debug != null ? params.debug : false;
         this.$container = params.$container != null ? params.$container : document.body; //容器
 
-        //裁剪图片
-        this.src = params.src;
-        this.size = params.size;
-
         //裁剪框
-        this.positionOffset = params.positionOffset != null ? params.positionOffset : {
-            top: 0,
-            left: 0
-        };
         this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
         this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
         this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
         this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
-        this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
         this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : function () {};
         this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
 
@@ -193,10 +184,11 @@
         this.rotateAngle = 0; //旋转角度
 
         this.construct();
+        //注意 construct 和 bindEvent 中间函数的先后顺序
         this.initFuncBtns(params); //初始化功能按钮
         this.initRotateSlider(params); //初始化旋转刻度盘
         this.initChilds();
-        this.updateFrame();
+        this.updateFrame(params);
         this.bindEvent();
     }
 
@@ -210,12 +202,10 @@
          * around 90度旋转
          * reset 重置
          */
-        if (params) {
-            this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
-            this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
-            this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
-            this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
-        }
+        this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
+        this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
+        this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
+        this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
 
         this.$cropBtns = document.querySelector('#' + this.id + ' .crop-btns');
         var html = '';
@@ -304,23 +294,21 @@
 
     //初始化旋转刻度盘
     SimpleCrop.prototype.initRotateSlider = function (params) {
-        if (params) {
-            this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
-            this.startAngle = params.startAngle != null ? params.startAngle : -90;
-            this.endAngle = params.endAngle != null ? params.endAngle : 90;
-            this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
-            this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
-            this.lineationItemWidth = this.lineationItemWidth >= 40.5 ? this.lineationItemWidth : 40.5; // 最小宽度限制
+        this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
+        this.startAngle = params.startAngle != null ? params.startAngle : -90;
+        this.endAngle = params.endAngle != null ? params.endAngle : 90;
+        this.gapAngle = params.gapAngle != null ? params.gapAngle : 10;
+        this.lineationItemWidth = params.lineationItemWidth != null ? params.lineationItemWidth : 40.5;
+        this.lineationItemWidth = this.lineationItemWidth >= 40.5 ? this.lineationItemWidth : 40.5; // 最小宽度限制
 
-            //开始角度需要小于0，结束角度需要大于0，且开始角度和结束角度之间存在大于0的整数个间隔
-            this.startAngle = this.startAngle < 0 ? parseInt(this.startAngle) : 0;
-            this.endAngle = this.endAngle > 0 ? parseInt(this.endAngle) : 0;
-            this.gapAngle = this.gapAngle > 0 ? parseInt(this.gapAngle) : 3;
-            if ((this.endAngle - this.startAngle) % this.gapAngle != 0) {
-                this.endAngle = Math.ceil((this.endAngle - this.startAngle) / this.gapAngle) * this.gapAngle + this.startAngle;
-            }
-            this.lineationWidth = this.lineationItemWidth * ((this.endAngle - this.startAngle) / this.gapAngle + 1);
+        //开始角度需要小于0，结束角度需要大于0，且开始角度和结束角度之间存在大于0的整数个间隔
+        this.startAngle = this.startAngle < 0 ? parseInt(this.startAngle) : 0;
+        this.endAngle = this.endAngle > 0 ? parseInt(this.endAngle) : 0;
+        this.gapAngle = this.gapAngle > 0 ? parseInt(this.gapAngle) : 3;
+        if ((this.endAngle - this.startAngle) % this.gapAngle != 0) {
+            this.endAngle = Math.ceil((this.endAngle - this.startAngle) / this.gapAngle) * this.gapAngle + this.startAngle;
         }
+        this.lineationWidth = this.lineationItemWidth * ((this.endAngle - this.startAngle) / this.gapAngle + 1);
 
         this.$cropRotate = document.querySelector('#' + this.id + ' .crop-rotate');
         this.$lineation = document.querySelector('#' + this.id + ' .lineation');
@@ -361,7 +349,13 @@
     }
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-    SimpleCrop.prototype.updateFrame = function () {
+    SimpleCrop.prototype.updateFrame = function (params) {
+        this.size = params.size;
+        this.positionOffset = params.positionOffset != null ? params.positionOffset : {
+            top: 0,
+            left: 0
+        };
+        this.cropSizePercent = params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
         this.times = (this.size.width / this.maskViewSize.width > this.size.height / this.maskViewSize.height) ? this.size.width / this.maskViewSize.width / this.cropSizePercent : this.size.height / this.maskViewSize.height / this.cropSizePercent;
 
         //裁剪框位置相关
@@ -377,7 +371,8 @@
         this.borderDraw();
         this.coverDraw();
 
-        this.show(this.src)
+        var src = params.src != null ? params.src : this.src;
+        this.show(src)
     }
 
     //获取操作点
@@ -647,7 +642,8 @@
         var self = this;
         var controlEvents = this.getControlEvents();
 
-        //滑动缩放
+        //滑动控制条
+        // ------------------ //
         if (self.scaleSlider) {
             self.$scaleBtn = document.querySelector('#' + self.id + ' .scale-btn');
             self.$scaleNum = document.querySelector('#' + self.id + ' .scale-num');
@@ -692,6 +688,7 @@
                 self.endControl();
             });
         }
+        // ------------------ //
 
         //旋转刻度盘
         // ------------------ //
@@ -723,7 +720,8 @@
         self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
         // ------------------ //
 
-        //移动
+        //裁剪图片移动、双指缩放操作
+        // ------------------ //
         var $imageListenerEle = self.isSupportTouch ? self.$container : self.$cropMask;
         $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
             var touches = self.getControlPoints(ev);
@@ -767,6 +765,7 @@
         }, options);
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         $imageListenerEle.addEventListener(controlEvents.cancel, self.endControl.bind(self));
+        // ------------------ //
     };
 
     //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
