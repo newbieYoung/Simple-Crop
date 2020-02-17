@@ -290,7 +290,7 @@
         }
 
         if (this.funcBtns.length > 0) {
-            this.$cropBtns.style.visibility = 'visible';
+            this.$cropBtns.style.visibility = '';
         } else {
             this.$cropBtns.style.visibility = 'hidden';
         }
@@ -333,7 +333,7 @@
         this.$lineation.style.width = this.lineationWidth + 'px';
         this.$lineation.style[transformProperty] = 'translateX(' + this._curMoveX + 'px)';
         if (this.rotateSlider) {
-            this.$cropRotate.style.visibility = 'visible';
+            this.$cropRotate.style.visibility = '';
         } else {
             this.$cropRotate.style.visibility = 'hidden';
         }
@@ -437,7 +437,7 @@
             this.$maxScale.innerText = '(x' + this.maxScale + ')';
             this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
             this.$scaleValue.style.width = '0px';
-            this.$cropScale.style.visibility = 'visible';
+            this.$cropScale.style.visibility = '';
         } else {
             this.$cropScale.style.visibility = 'hidden';
         }
@@ -623,7 +623,7 @@
             this.setImage(image);
         }
         this.visible = true;
-        this.$target.style.visibility = 'visible';
+        this.$target.style.visibility = '';
     };
 
     //隐藏
