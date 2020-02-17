@@ -103,7 +103,7 @@ Component({
     },
     'rotateSlider, startAngle, endAngle, gapAngle, lineationItemWidth': function () {
       if (this.isAttached) {
-        this.initRotateSlider(true);
+        this.initRotateSlider();
       }
     },
     'funcBtns': function () {
@@ -588,8 +588,7 @@ Component({
     },
 
     // 初始化旋转刻度盘
-    initRotateSlider: function (isUpdate) {
-      isUpdate = isUpdate != null ? isUpdate : false; // 是否是更新操作
+    initRotateSlider: function () {
       this._startAngle = this.data.startAngle;
       this._endAngle = this.data.endAngle;
       this._gapAngle = this.data.gapAngle;
@@ -616,23 +615,14 @@ Component({
       self.$cropRotate.boundingClientRect(function (rect) {
         self.rotateWidth = rect.width;
         self._baseMoveX = -(lineationWidth * (0 - self._startAngle + self._gapAngle / 2) / (self._endAngle - self._startAngle + self._gapAngle) - self.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
-        if(isUpdate){
-          var angle = self.rotateAngle - self._baseAngle;
-          self._curMoveX = angle * lineationWidth / (self._endAngle - self._startAngle + self._gapAngle) + self._baseMoveX;
-          self.setData({
-            curMoveX: -self._curMoveX,
-            lineationArr: lineationArr,
-            lineationWidth: lineationWidth
-          });
-        }
-      }).exec();
-
-      if (!isUpdate){
-        this.setData({
+        var angle = self.rotateAngle - self._baseAngle;
+        self._curMoveX = angle * lineationWidth / (self._endAngle - self._startAngle + self._gapAngle) + self._baseMoveX;
+        self.setData({
+          curMoveX: -self._curMoveX,
           lineationArr: lineationArr,
           lineationWidth: lineationWidth
         });
-      }
+      }).exec();
     },
 
     // 初始化功能按钮
