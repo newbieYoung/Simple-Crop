@@ -138,14 +138,6 @@
         this.debug = params.debug != null ? params.debug : false;
         this.$container = params.$container != null ? params.$container : document.body; //容器
 
-        //裁剪框
-        this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
-        this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
-        this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
-        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
-        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : function () {};
-        this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
-
         //滑动缩放控制条
         this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
         this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
@@ -188,9 +180,25 @@
         this.initFuncBtns(params); //初始化功能按钮
         this.initRotateSlider(params); //初始化旋转刻度盘
         this.initChilds();
+        this.initFrameBorder(params, true);
         this.updateFrame(params);
         this.bindEvent();
     }
+
+    //初始化裁剪框边框以及辅助线
+    SimpleCrop.prototype.initFrameBorder = function (params, onlyInit) {
+        this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
+        this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
+        this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
+        this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
+        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : function () {};
+        this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
+
+        if (!onlyInit) {
+            this.borderDraw();
+            this.coverDraw();
+        }
+    };
 
     //初始化功能按钮
     SimpleCrop.prototype.initFuncBtns = function (params) {
