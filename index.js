@@ -130,6 +130,7 @@
      * passiveSupported 事件是否支持 passive（pc、mobile）
      */
     function SimpleCrop(params) {
+        this.__initParams = params;
         //配置
         this.id = 'crop-' + new Date().getTime();
         this.zIndex = params.zIndex != null ? params.zIndex : 9999;
@@ -298,7 +299,6 @@
 
     //初始化旋转刻度盘
     SimpleCrop.prototype.initRotateSlider = function (params) {
-        this.__initParams = params;
         this.rotateSlider = params.rotateSlider != null ? params.rotateSlider : true; //默认开启
         this.startAngle = params.startAngle != null ? params.startAngle : -90;
         this.endAngle = params.endAngle != null ? params.endAngle : 90;
@@ -323,6 +323,17 @@
         this._baseMoveX = -(this.lineationWidth * (0 - this.startAngle + this.gapAngle / 2) / (this.endAngle - this.startAngle + this.gapAngle) - this.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
         var angle = this.rotateAngle - this._baseAngle;
         this._curMoveX = angle * this.lineationWidth / (this.endAngle - this.startAngle + this.gapAngle) + this._baseMoveX;
+
+        //超出滚动边界
+        if (this._curMoveX > 0 || this._curMoveX < this.rotateWidth - this.lineationWidth) {
+            this.rotateAngle = this._baseAngle;
+            this._curMoveX = this._baseMoveX;
+            this._changedX = 0;
+            this._rotateScale = 1;
+            this.startControl();
+            this.transform(true);
+            this.endControl();
+        }
 
         //setData
         var html = '';
@@ -427,16 +438,18 @@
 
     //初始化滑动控制条
     SimpleCrop.prototype.initScaleSlider = function (params) {
+        this.scaleTimes = this.initScale;
         this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
         this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
-        this.scaleTimes = this.initScale;
+
+        this._scaleMoveX = 0;
+        this.scaleCurLeft = this.scaleInitLeft;
+        this.$maxScale.innerText = '(x' + this.maxScale + ')';
+        this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
+        this.$scaleValue.style.width = '0px';
+
         if (this.scaleSlider) {
-            this._scaleMoveX = 0;
-            this.scaleCurLeft = this.scaleInitLeft;
-            this.$maxScale.innerText = '(x' + this.maxScale + ')';
-            this.$scaleBtn.style[transformProperty] = 'translateX(0px)';
-            this.$scaleValue.style.width = '0px';
             this.$cropScale.style.visibility = '';
         } else {
             this.$cropScale.style.visibility = 'hidden';
@@ -566,15 +579,16 @@
     //重置
     SimpleCrop.prototype.reset = function () {
         this.startControl();
+        this._contentCurMoveX = -this.positionOffset.left;
+        this._contentCurMoveY = -this.positionOffset.top;
+
         this._rotateScale = 1;
         this._baseAngle = 0;
         this.rotateAngle = 0;
-        this._contentCurMoveX = -this.positionOffset.left;
-        this._contentCurMoveY = -this.positionOffset.top;
-        if (this.rotateSlider) {
-            this._curMoveX = this._baseMoveX;
-            this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
-        }
+        this._curMoveX = this._baseMoveX;
+        this._changedX = 0;
+        this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+
         this.initScaleSlider(this.__initParams);
         this.endControl();
     };
@@ -659,10 +673,8 @@
         this.startControl();
         this.rotateAngle = this._baseAngle - 90;
         this._baseAngle = this.rotateAngle;
-        if (this.rotateSlider) {
-            this._curMoveX = this._baseMoveX;
-            this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
-        }
+        this._curMoveX = this._baseMoveX;
+        this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
         this.transform();
         this.endControl();
     };
