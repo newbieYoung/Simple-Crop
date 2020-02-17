@@ -159,21 +159,6 @@
         this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
         this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
-
-
-        /**
-         * 默认功能按钮为取消、裁剪、90度旋转、重置
-         * upload 重新上传
-         * crop 裁剪
-         * close 取消
-         * around 90度旋转
-         * reset 重置
-         */
-        this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
-        this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
-        this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
-        this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
-
         //其它
         var self = this;
         self.passiveSupported = false; //判断是否支持 passive
@@ -208,10 +193,113 @@
         this.rotateAngle = 0; //旋转角度
 
         this.construct();
+        this.initFuncBtns(params); //初始化功能按钮
         this.initRotateSlider(params); //初始化旋转刻度盘
         this.initChilds();
         this.updateFrame();
         this.bindEvent();
+    }
+
+    //初始化功能按钮
+    SimpleCrop.prototype.initFuncBtns = function (params) {
+        /**
+         * 默认功能按钮为取消、裁剪、90度旋转、重置
+         * upload 重新上传
+         * crop 裁剪
+         * close 取消
+         * around 90度旋转
+         * reset 重置
+         */
+        if (params) {
+            this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
+            this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
+            this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
+            this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
+        }
+
+        this.$cropBtns = document.querySelector('#' + this.id + ' .crop-btns');
+        var html = '';
+        if (this.funcBtns.includes('upload')) {
+            html += '<div class="upload-btn-container">';
+            html += '<button class="upload-btn"></button>';
+            html += '<input type="file" accept="image/png,image/jpeg">';
+            html += '</div>';
+        }
+        if (this.funcBtns.includes('close')) {
+            html += '<button class="crop-close"></button>';
+        }
+        if (this.funcBtns.includes('around')) {
+            html += '<button class="crop-around"></button>';
+        }
+        if (this.funcBtns.includes('reset')) {
+            html += '<button class="crop-reset"></button>';
+        }
+        if (this.funcBtns.includes('crop')) {
+            html += '<button class="crop-btn"></button>';
+        }
+        this.$cropBtns.innerHTML = html;
+
+        //重新上传
+        if (this.funcBtns.includes('upload')) {
+            if (this.$uploadBtn) {
+                this.$uploadBtn.removeEventListener('change', this.uploadInput);
+            } else {
+                this.__uploadInput = this.uploadInput.bind(this);
+            }
+            this.$uploadBtn = document.querySelector('#' + this.id + ' .upload-btn-container');
+            this.$uploadInput = document.querySelector('#' + this.id + ' .upload-btn-container input');
+            this.$uploadBtn.addEventListener('change', this.uploadInput);
+        }
+
+        //裁剪
+        if (this.funcBtns.includes('crop')) {
+            if (this.$cropBtn) {
+                this.$cropBtn.removeEventListener('click', this.__crop);
+            } else {
+                this.__crop = this.crop.bind(this);
+            }
+            this.$cropBtn = document.querySelector('#' + this.id + ' .crop-btn');
+            this.$cropBtn.addEventListener('click', this.__crop);
+        }
+
+        //整角旋转
+        if (this.funcBtns.includes('around')) {
+            if (this.$aroundBtn) {
+                this.$aroundBtn.removeEventListener('click', this.__around);
+            } else {
+                this.__around = this.around.bind(this);
+            }
+            this.$aroundBtn = document.querySelector('#' + this.id + ' .crop-around');
+            this.$aroundBtn.addEventListener('click', this.__around);
+        }
+
+        //还原
+        if (this.funcBtns.includes('reset')) {
+            if (this.$resetBtn) {
+                this.$resetBtn.removeEventListener('click', this.reset);
+            } else {
+                this.__reset = this.reset.bind(this);
+            }
+            this.$resetBtn = document.querySelector('#' + this.id + ' .crop-reset');
+            this.$resetBtn.addEventListener('click', this.__reset);
+        }
+
+        //关闭
+        if (this.funcBtns.includes('close')) {
+            if (this.$closeBtn) {
+                this.$closeBtn.removeEventListener('click', this.close);
+            } else {
+                this.__close = this.close.bind(this);
+            }
+            this.$closeBtn = document.querySelector('#' + this.id + ' .crop-close');
+            this.$closeBtn.addEventListener('click', this.__close);
+        }
+
+        if (this.funcBtns.length > 0) {
+            this.$cropBtns.style.visibility = 'visible';
+        } else {
+            this.$cropBtns.style.visibility = 'hidden';
+        }
     }
 
     //初始化旋转刻度盘
@@ -234,11 +322,9 @@
             this.lineationWidth = this.lineationItemWidth * ((this.endAngle - this.startAngle) / this.gapAngle + 1);
         }
 
-        if (!this.$cropRotate) {
-            this.$cropRotate = document.querySelector('#' + this.id + ' .crop-rotate');
-            this.$lineation = document.querySelector('#' + this.id + ' .lineation');
-            this.$rotateCurrent = document.querySelector('#' + this.id + ' .current');
-        }
+        this.$cropRotate = document.querySelector('#' + this.id + ' .crop-rotate');
+        this.$lineation = document.querySelector('#' + this.id + ' .lineation');
+        this.$rotateCurrent = document.querySelector('#' + this.id + ' .current');
         var rotateStyle = window.getComputedStyle(this.$cropRotate);
         this.rotateWidth = parseFloat(rotateStyle.getPropertyValue('width')); // 旋转刻度盘显示宽度
         this._baseMoveX = -(this.lineationWidth * (0 - this.startAngle + this.gapAngle / 2) / (this.endAngle - this.startAngle + this.gapAngle) - this.rotateWidth / 2); //开始角度大于 0 且结束角度小于 0，以 0 度为起点
@@ -246,9 +332,6 @@
         this._curMoveX = angle * this.lineationWidth / (this.endAngle - this.startAngle + this.gapAngle) + this._baseMoveX;
 
         //setData
-        if (this.rotateSlider) {
-            this.$cropRotate.style.visibility = 'visible';
-        }
         var html = '';
         for (var i = this.startAngle; i <= this.endAngle; i += this.gapAngle) {
             html += '<li><div class="number">' + i + '</div><div class="bg"></div></li>';
@@ -256,6 +339,11 @@
         this.$lineation.innerHTML = html;
         this.$lineation.style.width = this.lineationWidth + 'px';
         this.$lineation.style[transformProperty] = 'translateX(' + this._curMoveX + 'px)';
+        if (this.rotateSlider) {
+            this.$cropRotate.style.visibility = 'visible';
+        } else {
+            this.$cropRotate.style.visibility = 'hidden';
+        }
     }
 
     //初始化相关子元素
@@ -331,15 +419,12 @@
         } else {
             html += '<div class="crop-component" style="visibility:hidden;">';
         }
-
         if (this.title) {
             html += '<p class="crop-title">' + this.title + '</p>';
         }
-
         html += '<div class="crop-mask">'
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
-
         //支持触摸事件则采用双指缩放操作方式，否则采用缩放滑动控制条的操作方式
         if (this.scaleSlider || !this.isSupportTouch) {
             this.scaleSlider = true;
@@ -352,7 +437,6 @@
             html += '<div class="max-scale"></div>'
             html += '</div>';
         }
-
         //旋转刻度盘
         if (this.rotateSlider) {
             html += '<div class="crop-rotate">'
@@ -363,32 +447,8 @@
         html += '</ul>';
         html += '<div class="current"></div>';
         html += '</div>';
-
-        if (this.funcBtns.length > 0) {
-            html += '<div class="crop-btns">';
-
-            if (this.funcBtns.includes('upload')) {
-                html += '<div class="upload-btn-container">';
-                html += '<button class="upload-btn"></button>';
-                html += '<input type="file" accept="image/png,image/jpeg">';
-                html += '</div>';
-            }
-            if (this.funcBtns.includes('close')) {
-                html += '<button class="crop-close"></button>';
-            }
-            if (this.funcBtns.includes('around')) {
-                html += '<button class="crop-around"></button>';
-            }
-            if (this.funcBtns.includes('reset')) {
-                html += '<button class="crop-reset"></button>';
-            }
-            if (this.funcBtns.includes('crop')) {
-                html += '<button class="crop-btn"></button>';
-            }
-
-            html += '</div>';
-        }
-
+        //功能按钮
+        html += '<div class="crop-btns" style="visibility:hidden;"></div>';
         html += '</div>';
 
         this.$target = document.createElement('div');
@@ -469,7 +529,7 @@
         }
 
         this.reset();
-    }
+    };
 
     //重置
     SimpleCrop.prototype.reset = function () {
@@ -492,7 +552,7 @@
         this.scaleTimes = this.initScale;
         this.transform();
         this.endControl();
-    }
+    };
 
     //加载图片
     SimpleCrop.prototype.load = function () {
@@ -530,7 +590,7 @@
                 });
             }
         }
-    }
+    };
 
     //显示
     SimpleCrop.prototype.show = function (image) {
@@ -547,67 +607,45 @@
         this.$target.style.visibility = 'hidden';
     };
 
+    //关闭
+    SimpleCrop.prototype.close = function () {
+        this.hide();
+        this.closeCallback();
+    };
+
+    //裁剪
+    SimpleCrop.prototype.crop = function () {
+        this.getCropImage();
+        this.cropCallback();
+        this.hide();
+    };
+
+    //上传
+    SimpleCrop.prototype.uploadInput = function (evt) {
+        var files = evt.target.files;
+        if (files.length > 0) {
+            this.show(files[0]);
+        }
+        this.$uploadInput.value = ''; //清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
+    };
+
+    //整角旋转
+    SimpleCrop.prototype.around = function () {
+        this.startControl();
+        this.rotateAngle = this._baseAngle - 90;
+        this._baseAngle = this.rotateAngle;
+        if (this.rotateSlider) {
+            this._curMoveX = this._baseMoveX;
+            this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
+        }
+        this.transform();
+        this.endControl();
+    };
+
     //绑定事件
     SimpleCrop.prototype.bindEvent = function () {
-        //获取事件相关dom元素
         var self = this;
         var controlEvents = this.getControlEvents();
-
-        //裁剪
-        if (self.funcBtns.includes('crop')) {
-            self.$cropBtn = document.querySelector('#' + self.id + ' .crop-btn');
-            self.$cropBtn.addEventListener('click', function () {
-                self.getCropImage();
-                self.cropCallback();
-                self.hide();
-            });
-        }
-
-        //上传
-        if (self.funcBtns.includes('upload')) {
-            self.$uploadBtn = document.querySelector('#' + self.id + ' .upload-btn-container');
-            self.$uploadInput = document.querySelector('#' + self.id + ' .upload-btn-container input');
-            self.$uploadBtn.addEventListener('change', function (evt) {
-                var files = evt.target.files;
-                if (files.length > 0) {
-                    self.show(files[0]);
-                }
-                self.$uploadInput.value = ''; //清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
-            });
-        }
-
-        //整角旋转
-        if (self.funcBtns.includes('around')) {
-            self.$cropAround = document.querySelector('#' + self.id + ' .crop-around');
-            self.$cropAround.addEventListener('click', function () {
-                self.startControl();
-                self.rotateAngle = self._baseAngle - 90;
-                self._baseAngle = self.rotateAngle;
-                if (self.rotateSlider) {
-                    self._curMoveX = self._baseMoveX;
-                    self.$lineation.style[transformProperty] = 'translateX(' + self._baseMoveX + 'px)';
-                }
-                self.transform();
-                self.endControl();
-            })
-        }
-
-        //还原
-        if (self.funcBtns.includes('reset')) {
-            self.$cropReset = document.querySelector('#' + self.id + ' .crop-reset');
-            self.$cropReset.addEventListener('click', function () {
-                self.reset();
-            })
-        }
-
-        //关闭
-        if (self.funcBtns.includes('close')) {
-            self.$closeBtn = document.querySelector('#' + self.id + ' .crop-close');
-            self.$closeBtn.addEventListener('click', function () {
-                self.hide();
-                self.closeCallback();
-            });
-        }
 
         //滑动缩放
         if (self.scaleSlider) {
