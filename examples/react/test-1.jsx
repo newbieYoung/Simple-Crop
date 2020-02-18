@@ -9,27 +9,48 @@ class Test1 extends React.Component {
 
     this.state = {
       cropParams: {
-        visible: true, //是否显示
         title: "上传图片过大，请裁剪",
         src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg",
         size: {
-          width: 800,
-          height: 900
+          width: 1000,
+          height: 600
         },
-        positionOffset: {
-          left: 0,
-          top: 50
-        },
-        maxScale: 2,
-        borderWidth: 2,
+        cropSizePercent: 0.65,
+        scaleSlider: true,
+        maxScale: 3,
+        borderWidth: 1,
         funcBtns: ["close", "crop", "upload"],
-        borderColor: "#0BFF00",
+        borderColor: "#fff",
         coverColor: "rgba(0,0,0,.5)",
         startAngle: -360,
         endAngle: 360,
         cropCallback: this.cropCallback
       }
     };
+  }
+
+  //组件更新
+  updateComponent () {
+    let cropParams = this.state.cropParams;
+    cropParams.borderColor = "#0BFF00";
+    cropParams.cropSizePercent = 0.5;
+    cropParams.size = {
+      width: 600,
+      height: 600
+    };
+    this.setState({
+      cropParams: cropParams
+    })
+  }
+
+  //设置裁剪图片
+  setCropImage () {
+    console.log('setCropImg');
+    let cropParams = this.state.cropParams;
+    cropParams.src = "https://newbieyoung.github.io/Simple-Crop/img/test1.jpg";
+    this.setState({
+      cropParams: cropParams
+    });
   }
 
   //图片裁剪回调函数
@@ -39,71 +60,11 @@ class Test1 extends React.Component {
     document.body.appendChild(this.$resultCanvas);
   }
 
-  //自定义辅助线
-  coverDraw () {
-    this.cropCoverContext.setLineDash([15, 20]);
-    this.cropCoverContext.lineWidth = 2;
-
-    this.cropCoverContext.beginPath();
-    let rect1 = {
-      left: this.cropRect.left * window.devicePixelRatio,
-      top:
-        (this.cropRect.top + this.cropRect.height * 0.125) *
-        window.devicePixelRatio,
-      right:
-        (this.cropRect.left + this.cropRect.width) * window.devicePixelRatio,
-      bottom:
-        (this.cropRect.top +
-          this.cropRect.height -
-          this.cropRect.height * 0.125) *
-        window.devicePixelRatio
-    };
-    this.cropCoverContext.moveTo(rect1.left, rect1.top);
-    this.cropCoverContext.lineTo(rect1.right, rect1.top);
-    this.cropCoverContext.moveTo(rect1.left, rect1.bottom);
-    this.cropCoverContext.lineTo(rect1.right, rect1.bottom);
-    this.cropCoverContext.strokeStyle = "#ffffff";
-    this.cropCoverContext.stroke();
-
-    this.cropCoverContext.beginPath();
-    let rect2 = {
-      left:
-        (this.cropRect.left + this.cropRect.width * 0.2) *
-        window.devicePixelRatio,
-      top:
-        (this.cropRect.top + this.cropRect.height * 0.2) *
-        window.devicePixelRatio,
-      right:
-        (this.cropRect.left + this.cropRect.width - this.cropRect.width * 0.2) *
-        window.devicePixelRatio,
-      bottom:
-        (this.cropRect.top +
-          this.cropRect.height -
-          this.cropRect.height * 0.2) *
-        window.devicePixelRatio
-    };
-    this.cropCoverContext.moveTo(rect2.left, rect2.top);
-    this.cropCoverContext.lineTo(rect2.right, rect2.top);
-    this.cropCoverContext.lineTo(rect2.right, rect2.bottom);
-    this.cropCoverContext.lineTo(rect2.left, rect2.bottom);
-    this.cropCoverContext.lineTo(rect2.left, rect2.top);
-    this.cropCoverContext.strokeStyle = "#ffeb3b";
-    this.cropCoverContext.stroke();
-  }
-
-  //绘制辅助线
-  drawCover () {
-    let cropParams = this.state.cropParams;
-    cropParams.coverDraw = this.coverDraw;
-    this.setState({
-      cropParams: cropParams
-    });
-  }
-
   render () {
     return (
       <div>
-        <button onClick={this.drawCover.bind(this)}>绘制辅助线</button>
+        <button onClick={this.setCropImage.bind(this)}>设置裁剪图片</button>
+        <button onClick={this.updateComponent.bind(this)}>组件更新</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>
     );

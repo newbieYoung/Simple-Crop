@@ -132,7 +132,7 @@
         //配置
         this.id = 'crop-' + new Date().getTime();
         this.visible = params.visible != null ? params.visible : true; //默认显示
-        this.title = params.title;
+        this.title = params.title != null ? params.title : '';
         this.debug = params.debug != null ? params.debug : false;
         this.$container = params.$container != null ? params.$container : document.body; //容器
 
@@ -182,6 +182,18 @@
         this.updateFrame(params);
         this.bindEvent();
     }
+
+    //初始化标题
+    SimpleCrop.prototype.initTitle = function (params) {
+        this.title = params.title != null ? params.title : '';
+        this.$title = document.querySelector('#' + this.id + ' .crop-title');
+        this.$title.innerText = this.title;
+        if (!params.title) {
+            this.$title.style.visibility = '';
+        } else {
+            this.$title.style.visibility = 'hidden';
+        }
+    };
 
     //初始化裁剪框边框以及辅助线
     SimpleCrop.prototype.initFrameBorder = function (params, onlyInit) {
@@ -465,9 +477,7 @@
     SimpleCrop.prototype.construct = function () {
         var html = '';
         html += '<div class="crop-component">';
-        if (this.title) {
-            html += '<p class="crop-title">' + this.title + '</p>';
-        }
+        html += '<p class="crop-title">' + this.title + '</p>';
         html += '<div class="crop-mask">'
         html += '<canvas class="crop-cover"></canvas>';
         html += '</div>';
@@ -511,9 +521,7 @@
         }
         this.$target.innerHTML = html;
         this.$container.appendChild(this.$target);
-        if (this.title) {
-            this.$title = document.querySelector('#' + this.id + ' .crop-title');
-        }
+
     };
 
     //默认绘制裁剪框

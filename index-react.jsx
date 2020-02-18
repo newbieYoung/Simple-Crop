@@ -15,37 +15,41 @@ export class SimpleCrop extends React.Component {
 
   //更新
   componentDidUpdate (prevProps) {
-    if (this.hasChanged(['src', prevProps])) {
-      this.instance.setImage(this.props.src);
-    }
+    if (this.instance) {
+      if (this.hasChanged(['src'], prevProps)) {
+        this.instance.setImage(this.props.src);
+      }
 
-    if (this.hasChanged(['rotateSlider', 'startAngle', 'endAngle', 'gapAngle', 'lineationItemWidth', prevProps])) {
-      this.instance.initRotateSlider(this.props);
-    }
+      if (this.hasChanged(['rotateSlider', 'startAngle', 'endAngle', 'gapAngle', 'lineationItemWidth'], prevProps)) {
+        this.instance.initRotateSlider(this.props);
+      }
 
-    if (this.hasChanged(['cropSizePercent'], prevProps)
-      || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
-      || !this.isEquivalent(this.props.size, prevProps.size)) {
-      this.instance.updateFrame(this.props);
-    }
+      if (this.hasChanged(['cropSizePercent'], prevProps)
+        || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
+        || !this.isEquivalent(this.props.size, prevProps.size)) {
+        this.instance.updateFrame(this.props);
+      }
 
-    if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
-      this.instance.initFrameBorder(this.props)
-    }
+      if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
+        this.instance.initFrameBorder(this.props)
+      }
 
-    if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {
-      this.instance.initFuncBtns(this.props);
-    }
+      if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {
+        this.instance.initFuncBtns(this.props);
+      }
 
-    if (this.hasChanged(['scaleSlider', 'maxScale'], prevProps)) {
-      this.instance.initScaleSlider(this.props)
-    }
+      if (this.hasChanged(['scaleSlider', 'maxScale'], prevProps)) {
+        this.instance.initScaleSlider(this.props)
+      }
 
-    if (this.hasChanged(['visible'], prevProps)) {
-      if (this.props.visible) {
-        this.instance.show();
-      } else {
+      if (this.hasChanged(['title'], prevProps)) {
+        this.instance.initTitle(this.props);
+      }
+
+      if (this.props.visible == false) {
         this.instance.hide();
+      } else {
+        this.instance.show();
       }
     }
   }
@@ -54,12 +58,12 @@ export class SimpleCrop extends React.Component {
   hasChanged (names, props) {
     let cur = {};
     let prev = {};
-    for (let i = 0; i < names; i++) {
+    for (let i = 0; i < names.length; i++) {
       let item = names[i];
       cur[item] = this.props[item];
       prev[item] = props[item];
     }
-    return this.isEquivalent(cur, prev);
+    return !this.isEquivalent(cur, prev);
   }
 
   //根据两个简单对象的值比较它们是否相同
@@ -81,9 +85,9 @@ export class SimpleCrop extends React.Component {
 
       return true;
     } else if (a === b) {
-      return true;
+      return true
     } else {
-      return false;
+      return false
     }
   }
 
