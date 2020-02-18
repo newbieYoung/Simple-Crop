@@ -889,7 +889,7 @@
         var $contentCanvas = document.createElement('canvas');
         $contentCanvas.width = contentWidth;
         $contentCanvas.height = contentHeight;
-        contentCtx = $contentCanvas.getContext('2d');
+        var contentCtx = $contentCanvas.getContext('2d');
         contentCtx.translate(contentWidth / 2, contentHeight / 2);
         contentCtx.scale(scaleNum * this.times, scaleNum * this.times) // 缩放 this.times
         contentCtx.translate((this._contentCurMoveX + this.positionOffset.left) / scaleNum, (this._contentCurMoveY + this.positionOffset.top) / scaleNum);
@@ -902,7 +902,7 @@
         var $cropCanvas = document.createElement('canvas');
         $cropCanvas.width = cropWidth;
         $cropCanvas.height = cropHeight;
-        cropCtx = $cropCanvas.getContext('2d');
+        var cropCtx = $cropCanvas.getContext('2d');
         cropCtx.drawImage($contentCanvas, (contentWidth - cropWidth) / 2, (contentHeight - cropHeight) / 2, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
         this.$resultCanvas = $cropCanvas;
     };
