@@ -993,7 +993,6 @@ Component({
     //操作结束
     endControl: function () {
       if (this._isControl) {
-        var self = this;
         this._isControl = false;
         this._downPoints = [];
         this.scaleDownX = 0;
@@ -1170,15 +1169,6 @@ Component({
       });
 
       return points;
-    },
-
-    //获得矩形点坐标中心
-    getPointsCenter: function (points) {
-      var center = {
-        x: (points[0].x + points[2].x) / 2,
-        y: (points[0].y + points[2].y) / 2,
-      }
-      return center;
     },
 
     //滑动旋转刻度盘
