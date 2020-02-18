@@ -401,7 +401,7 @@
         this.coverDraw();
 
         var src = params.src != null ? params.src : this.src;
-        this.show(src)
+        this.setImage(src)
     };
 
     //获取操作点
@@ -459,11 +459,7 @@
     //html结构
     SimpleCrop.prototype.construct = function () {
         var html = '';
-        if (this.visible) {
-            html += '<div class="crop-component">';
-        } else {
-            html += '<div class="crop-component" style="visibility:hidden;">';
-        }
+        html += '<div class="crop-component">';
         if (this.title) {
             html += '<p class="crop-title">' + this.title + '</p>';
         }
@@ -503,12 +499,16 @@
         this.$target = document.createElement('div');
         this.$target.id = this.id;
         this.$target.classList.add('crop-whole-cover');
+        if (this.visible) {
+            this.$target.style.visibility = '';
+        } else {
+            this.$target.style.visibility = 'hidden';
+        }
         this.$target.innerHTML = html;
         this.$container.appendChild(this.$target);
         if (this.title) {
             this.$title = document.querySelector('#' + this.id + ' .crop-title');
         }
-        this.targetDisplay = window.getComputedStyle(this.$target).getPropertyValue('display');
     };
 
     //默认绘制裁剪框
