@@ -20,23 +20,25 @@ export class SimpleCrop extends React.Component {
     }
 
     if (this.hasChanged(['rotateSlider', 'startAngle', 'endAngle', 'gapAngle', 'lineationItemWidth', prevProps])) {
-      this.instance.initRotateSlider({
-        rotateSlider: this.props.rotateSlider,
-        startAngle: this.props.startAngle,
-        endAngle: this.props.endAngle,
-        gapAngle: this.props.gapAngle,
-        lineationItemWidth: this.props.lineationItemWidth
-      });
+      this.instance.initRotateSlider(this.props);
     }
 
     if (this.hasChanged(['cropSizePercent'], prevProps)
       || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
       || !this.isEquivalent(this.props.size, prevProps.size)) {
-      this.instance.updateFrame({
-        size: this.props.size,
-        positionOffset: this.props.positionOffset,
-        cropSizePercent: this.props.cropSizePercent
-      });
+      this.instance.updateFrame(this.props);
+    }
+
+    if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
+      this.instance.initFrameBorder(this.props)
+    }
+
+    if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {
+      this.instance.initFuncBtns(this.props);
+    }
+
+    if (this.hasChanged(['scaleSlider', 'maxScale'], prevProps)) {
+      this.instance.initScaleSlider(this.props)
     }
 
     if (this.hasChanged(['visible'], prevProps)) {

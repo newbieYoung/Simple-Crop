@@ -129,13 +129,16 @@
      * passiveSupported 事件是否支持 passive（pc、mobile）
      */
     function SimpleCrop(params) {
-        this.__initParams = params;
         //配置
         this.id = 'crop-' + new Date().getTime();
         this.visible = params.visible != null ? params.visible : true; //默认显示
         this.title = params.title;
         this.debug = params.debug != null ? params.debug : false;
         this.$container = params.$container != null ? params.$container : document.body; //容器
+
+        //滑动控制条
+        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
+        this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
 
         //其它
         var self = this;
@@ -437,9 +440,11 @@
 
     //初始化滑动控制条
     SimpleCrop.prototype.initScaleSlider = function (params) {
+        if (params) {
+            this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
+            this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
+        }
         this.scaleTimes = this.initScale;
-        this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
-        this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
         this.maxScale = this.initScale < this.maxScale ? this.maxScale : Math.ceil(this.initScale);
 
         this._scaleMoveX = 0;
@@ -453,7 +458,7 @@
         } else {
             this.$cropScale.style.visibility = 'hidden';
         }
-        this.transform();
+        this.transform(false, true);
     };
 
     //html结构
@@ -587,7 +592,7 @@
         this._changedX = 0;
         this.$lineation.style[transformProperty] = 'translateX(' + this._baseMoveX + 'px)';
 
-        this.initScaleSlider(this.__initParams);
+        this.initScaleSlider();
         this.endControl();
     };
 
