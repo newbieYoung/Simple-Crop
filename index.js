@@ -607,9 +607,6 @@
     SimpleCrop.prototype.setImage = function (image) {
         if (image != null && image != '') {
             var self = this;
-            if (self.$cropContent) {
-                self.$cropMask.removeChild(self.$cropContent);
-            }
             var type = Object.prototype.toString.call(image);
             if (type === '[object String]') { //字符串
                 self.src = image;
@@ -821,6 +818,9 @@
         if (this._orientation > 4) {
             this.contentWidth = this.originImage.height;
             this.contentHeight = this.originImage.width;
+        }
+        if (this.$cropContent) {
+            this.$cropMask.removeChild(this.$cropContent);
         }
 
         this.$cropContent = document.createElement('canvas');
