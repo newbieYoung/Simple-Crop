@@ -36,7 +36,7 @@ export class SimpleCrop extends React.Component {
         size: this.props.size,
         positionOffset: this.props.positionOffset,
         cropSizePercent: this.props.cropSizePercent
-      })
+      });
     }
 
     if (this.hasChanged(['visible'], prevProps)) {
@@ -62,21 +62,27 @@ export class SimpleCrop extends React.Component {
 
   //根据两个简单对象的值比较它们是否相同
   isEquivalent (a, b) {
-    var aProps = Object.getOwnPropertyNames(a);
-    var bProps = Object.getOwnPropertyNames(b);
+    if (a != null && b != null) {
+      var aProps = Object.getOwnPropertyNames(a);
+      var bProps = Object.getOwnPropertyNames(b);
 
-    if (aProps.length != bProps.length) {
-      return false;
-    }
-
-    for (var i = 0; i < aProps.length; i++) {
-      var propName = aProps[i];
-      if (a[propName] !== b[propName]) {
+      if (aProps.length != bProps.length) {
         return false;
       }
-    }
 
-    return true;
+      for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+        if (a[propName] !== b[propName]) {
+          return false;
+        }
+      }
+
+      return true;
+    } else if (a === b) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   render () {
