@@ -64,7 +64,6 @@
      * 配置
      * @param title 标题
      * @param visible 组件是否可见
-     * @param zIndex 组件层级
      * @param debug 是否开启调试模式（pc、mobile）
      * @param $container 容器（pc、mobile）
      * ------------------------------------
@@ -133,7 +132,6 @@
         this.__initParams = params;
         //配置
         this.id = 'crop-' + new Date().getTime();
-        this.zIndex = params.zIndex != null ? params.zIndex : 9999;
         this.visible = params.visible != null ? params.visible : true; //默认显示
         this.title = params.title;
         this.debug = params.debug != null ? params.debug : false;
@@ -506,7 +504,6 @@
         this.$target.id = this.id;
         this.$target.classList.add('crop-whole-cover');
         this.$target.innerHTML = html;
-        this.$target.style.zIndex = this.zIndex;
         this.$container.appendChild(this.$target);
         if (this.title) {
             this.$title = document.querySelector('#' + this.id + ' .crop-title');

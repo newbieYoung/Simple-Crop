@@ -10,6 +10,7 @@
     right: 0;
     bottom: 0;
     background-color: #5c5c5c;
+    z-index:9999;
 }
 
 .crop-component {

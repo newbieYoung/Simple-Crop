@@ -30,10 +30,6 @@ Component({
       type: String,
       value: '#fff'
     },
-    zIndex: { // 组件层级
-      type: Number,
-      value: '9999'
-    },
     boldCornerLen: { // 裁剪框边角加粗长度
       type: Number,
       value: 24,
@@ -121,7 +117,7 @@ Component({
         var borderDraw = this.data.borderDraw;
         var coverDraw = this.data.coverDraw;
         this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
-        this.coverDraw = coverDraw ? coverDraw.bind(this) : function(){};
+        this.coverDraw = coverDraw ? coverDraw.bind(this) : function () {};
         this.borderDraw();
         this.coverDraw();
       }
@@ -144,8 +140,8 @@ Component({
     contentWidth: 0,
     contentHeight: 0,
     fingerCenter: {
-      x:0,
-      y:0,
+      x: 0,
+      y: 0,
     }, //双指操作中心
     fingerLen: 0, //双指距离
     fingerScale: 1, //双指缩放倍数
@@ -593,7 +589,7 @@ Component({
       this._endAngle = this.data.endAngle;
       this._gapAngle = this.data.gapAngle;
       this._lineationItemWidth = this.data.lineationItemWidth;
-      this._lineationItemWidth = this._lineationItemWidth>=40.5?this._lineationItemWidth:40.5;//最小宽度限制
+      this._lineationItemWidth = this._lineationItemWidth >= 40.5 ? this._lineationItemWidth : 40.5; //最小宽度限制
 
       //开始角度需要小于0，结束角度需要大于0，且开始角度和结束角度之间存在大于0的整数个间隔
       this._startAngle = this._startAngle < 0 ? parseInt(this._startAngle) : 0;
@@ -749,7 +745,7 @@ Component({
         callback();
       });
 
-      
+
     },
 
     //设置裁剪图片
@@ -957,7 +953,7 @@ Component({
       this.scaleTimes = this.initScale;
       this._contentCurMoveX = -positionOffset.left;
       this._contentCurMoveY = -positionOffset.top;
-      
+
       this._rotateScale = 1;
       this._baseAngle = 0;
       this.rotateAngle = 0;
@@ -968,7 +964,7 @@ Component({
           curMoveX: -this._curMoveX
         });
       }
-      
+
       this.transform();
       this.endControl();
     },
@@ -1222,7 +1218,7 @@ Component({
           curMoveX: -this._curMoveX
         });
       }
-      this.transform(false,true);
+      this.transform(false, true);
       this.endControl();
     },
 
@@ -1306,7 +1302,7 @@ Component({
 
       this.isAttached = true;
       this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
-      this.coverDraw = coverDraw ? coverDraw.bind(this) : function(){};
+      this.coverDraw = coverDraw ? coverDraw.bind(this) : function () {};
 
       this.initRotateSlider();
       this.initFuncBtns();
