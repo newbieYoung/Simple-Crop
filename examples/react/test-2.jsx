@@ -20,15 +20,26 @@ class Test2 extends React.Component {
     };
   }
 
-  //图片裁剪回调函数
-  cropCallback () {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
-    document.body.appendChild(this.$resultCanvas);
+  //组件更新
+  updateComponent () {
+    let cropParams = this.state.cropParams;
+    cropParams.borderColor = "#0BFF00";
+    cropParams.cropSizePercent = 0.8;
+    cropParams.size = {
+      width: 600,
+      height: 600
+    };
+    cropParams.positionOffset = {
+      left: 0,
+      top: 20,
+    };
+    this.setState({
+      cropParams: cropParams
+    })
   }
 
-  //设置裁剪图片并显示
-  setCropImg () {
+  //设置裁剪图片
+  setCropImage () {
     let cropParams = this.state.cropParams;
     cropParams.src = "https://newbieyoung.github.io/Simple-Crop/img/test1.jpg";
     this.setState({
@@ -36,10 +47,18 @@ class Test2 extends React.Component {
     });
   }
 
+  //图片裁剪回调函数
+  cropCallback () {
+    this.$resultCanvas.style.marginRight = "10px";
+    this.$resultCanvas.style.width = "50%";
+    document.body.appendChild(this.$resultCanvas);
+  }
+
   render () {
     return (
       <div>
-        <button onClick={this.setCropImg.bind(this)}>设置裁剪图片并显示</button>
+        <button onClick={this.setCropImage.bind(this)}>设置裁剪图片</button>
+        <button onClick={this.updateComponent.bind(this)}>组件更新</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>
     );
