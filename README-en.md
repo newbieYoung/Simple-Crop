@@ -221,11 +221,11 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 		<td>Set title</td>
 	</tr>
 	<tr>
-		<td>updateFrame</td>
+		<td>updateBox</td>
 		<td>Set crop box</td>
 	</tr>
 	<tr>
-		<td>initFrameBorder</td>
+		<td>initBoxBorder</td>
 		<td>Set crop box border</td>
 	</tr>
 	<tr>

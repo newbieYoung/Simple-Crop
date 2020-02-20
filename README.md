@@ -224,11 +224,11 @@ npm install simple-crop
 		<td>初始化标题</td>
 	</tr>
 	<tr>
-		<td>updateFrame</td>
+		<td>updateBox</td>
 		<td>初始化裁剪框</td>
 	</tr>
 	<tr>
-		<td>initFrameBorder</td>
+		<td>initBoxBorder</td>
 		<td>初始化裁剪框边框以及遮罩</td>
 	</tr>
 	<tr>
