@@ -11,7 +11,7 @@ Compared with the currently popular Web picture cropping components, its advanta
 - Picture supports rotation at any angle.
 - Supports script, React, Vue, Wechat.
 - Supports mobile and PC.
-- Supports border judgment. When there is a blank in the crop frame, the picture is automatically absorbed to completely fill the crop frame.
+- Supports border judgment. When there is a blank in the crop box, the picture is automatically absorbed to completely fill the crop box.
 - Touch scaling is based on the center of two fingers.
 - Has an interactive experience comparable to native clients.
 
@@ -80,27 +80,27 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>positionOffset</td>
-		<td>Crop frame offset, the crop frame defaults to the center of the container.</td>
+		<td>Crop box offset, the crop box defaults to the center of the container.</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>borderWidth</td>
-		<td>Crop frame border width</td>
+		<td>Crop box border width</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>borderColor</td>
-		<td>Crop frame border color</td>
+		<td>Crop box border color</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>boldCornerLen</td>
-		<td>The bold length of the crop frame corners.</td>
+		<td>The bold length of the crop box corners.</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>The proportion of the crop frame to the crop display area, 0.9 means 90%.</td>
+		<td>The proportion of the crop box to the crop display area, 0.9 means 90%.</td>
 		<td>All</td>
 	</tr>
 	<tr>
@@ -140,12 +140,12 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>borderDraw</td>
-		<td>Crop frame custom border drawing function</td>
+		<td>Crop box custom border drawing function</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
-		<td>Crop frame custom auxiliary line drawing function</td>
+		<td>Crop box custom auxiliary line drawing function</td>
 		<td>All</td>
 	</tr>
 	<tr>
@@ -184,7 +184,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>maxScale</td>
-		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop frame, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop frame ).</td>
+		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop box, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop box ).</td>
 		<td>Not Wechat</td>
 	</tr>
 </table>
@@ -222,11 +222,11 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>updateFrame</td>
-		<td>Set crop frame</td>
+		<td>Set crop box</td>
 	</tr>
 	<tr>
 		<td>initFrameBorder</td>
-		<td>Set crop frame border</td>
+		<td>Set crop box border</td>
 	</tr>
 	<tr>
 		<td>initScaleSlider</td>
