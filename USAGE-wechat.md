@@ -15,7 +15,7 @@
 
 ## 2、以自定义组件的形式声明
 
-```
+```json
 {
   "usingComponents": {
     "simple-crop": "../simple-crop/index"
@@ -23,12 +23,29 @@
 }
 ```
 
-## 3、传入相关属性和回调函数即可使用
+## 3、传入相关属性和回调函数初始化
 
+```js
+Page({
+  data: {
+    src: null, // 裁剪图片路径
+    visible: false, // 是否显示
+    size:{ //裁剪图片尺寸
+      width:400,
+      height:400
+    },
+    result:'', //裁剪结果图片路径
+  }
+})
 ```
+
+```wxml
 <view class="test2">
-  <button bindtap="chooseCropImage">选取裁剪图片</button>
   <simple-crop wx:if="{{visible}}" size="{{size}}" src="{{src}}" bindcropUpload="uploadCallback" bindcropClose="closeCallback" bindcropCrop="cropCallback"></simple-crop>
   <image mode="widthFix" src="{{result}}"></image>
 </view>
 ```
+
+- bindcropUpload 选取裁剪图片自定义事件；
+- bindcropClose 裁剪组件关闭自定义事件；
+- bindcropCrop 获取裁剪结果自定义事件。
