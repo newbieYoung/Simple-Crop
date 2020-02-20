@@ -8,6 +8,8 @@
 </head>
 
 <body>
+  <input id="upload" type="file" accept="image/png,image/jpeg">
+
   <script src="../lib/prefix-umd.js"></script>
   <script src="../lib/exif.js"></script>
   <script src="../lib/transformation-matrix.js"></script>
@@ -18,18 +20,15 @@
         title: '上传图片过大，请裁剪',
         src: '../img/test2.jpg',
         size: {
-          width: 800,
-          height: 900
+          width: 1000,
+          height: 600
         },
-        positionOffset: {
-          left: 0,
-          top: 50
-        },
+        cropSizePercent: 0.65,
         scaleSlider: true,
-        maxScale: 2,
-        borderWidth: 2,
+        maxScale: 3,
+        borderWidth: 1,
         funcBtns: ['close', 'crop', 'upload'],
-        borderColor: '#0BFF00',
+        borderColor: "#fff",
         coverColor: 'rgba(0,0,0,.5)',
         startAngle: -360,
         endAngle: 360,
@@ -38,45 +37,16 @@
           this.$resultCanvas.style.width = '50%';
           document.body.appendChild(this.$resultCanvas);
         },
-        coverDraw: function () {
-          this.cropCoverContext.setLineDash([15, 20]);
-          this.cropCoverContext.lineWidth = 2;
+      });
 
-          this.cropCoverContext.beginPath();
-          var rect1 = {
-            left: this.cropRect.left * window.devicePixelRatio,
-            top: (this.cropRect.top + this.cropRect.height * 0.125) * window
-              .devicePixelRatio,
-            right: (this.cropRect.left + this.cropRect.width) * window.devicePixelRatio,
-            bottom: (this.cropRect.top + this.cropRect.height - this.cropRect.height *
-              0.125) * window.devicePixelRatio
-          }
-          this.cropCoverContext.moveTo(rect1.left, rect1.top);
-          this.cropCoverContext.lineTo(rect1.right, rect1.top);
-          this.cropCoverContext.moveTo(rect1.left, rect1.bottom);
-          this.cropCoverContext.lineTo(rect1.right, rect1.bottom);
-          this.cropCoverContext.strokeStyle = '#ffffff';
-          this.cropCoverContext.stroke();
-
-          this.cropCoverContext.beginPath();
-          var rect2 = {
-            left: (this.cropRect.left + this.cropRect.width * 0.2) * window
-              .devicePixelRatio,
-            top: (this.cropRect.top + this.cropRect.height * 0.2) * window
-              .devicePixelRatio,
-            right: (this.cropRect.left + this.cropRect.width - this.cropRect.width *
-              0.2) * window.devicePixelRatio,
-            bottom: (this.cropRect.top + this.cropRect.height - this.cropRect.height *
-              0.2) * window.devicePixelRatio
-          }
-          this.cropCoverContext.moveTo(rect2.left, rect2.top);
-          this.cropCoverContext.lineTo(rect2.right, rect2.top);
-          this.cropCoverContext.lineTo(rect2.right, rect2.bottom);
-          this.cropCoverContext.lineTo(rect2.left, rect2.bottom);
-          this.cropCoverContext.lineTo(rect2.left, rect2.top);
-          this.cropCoverContext.strokeStyle = '#ffeb3b';
-          this.cropCoverContext.stroke();
+      //上传图片
+      var $upload = document.querySelector('#upload');
+      $upload.addEventListener('change', function (evt) {
+        var files = evt.target.files;
+        if (files.length > 0) {
+          simpleCrop.show(files[0]);
         }
+        $upload.value = ''; //清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
       });
     }
   </script>

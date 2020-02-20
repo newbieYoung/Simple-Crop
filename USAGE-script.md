@@ -20,21 +20,21 @@
 <script src="./index.js"></script>
 ```
 
-### 3、初始化
+## 3、初始化
 
 - 移动端初始化参数示例：
 
 ```javascript
-new SimpleCrop({
-  src: "./img/test2.jpg",
-  size: {
+var simpleCrop = new SimpleCrop({
+  src: '../img/test2.jpg', //裁剪图片路径
+  size: { //裁剪尺寸
     width: 1000,
     height: 600
   },
-  cropSizePercent: 0.9,
-  cropCallback: function() {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
+  cropSizePercent: 0.9, //裁剪框显示比例
+  cropCallback: function () { //裁剪图片回调函数
+    this.$resultCanvas.style.marginRight = '10px';
+    this.$resultCanvas.style.width = '50%';
     document.body.appendChild(this.$resultCanvas);
   }
 });
@@ -43,32 +43,26 @@ new SimpleCrop({
 - PC 初始化参数示例：
 
 ```javascript
-new SimpleCrop({
-  title: "上传图片过大，请裁剪",
-  src: "./img/test1.jpg",
-  size: {
-    width: 800,
-    height: 900
+var simpleCrop = new SimpleCrop({
+  title: '上传图片过大，请裁剪', //标题
+  src: '../img/test2.jpg', //裁剪图片路径
+  size: { //裁剪尺寸
+    width: 1000,
+    height: 600
   },
-  positionOffset: {
-    left: 0,
-    top: 50
-  },
-  maxScale: 2,
-  borderWidth: 2,
-  funcBtns: ["close", "crop", "upload"],
-  borderColor: "#0BFF00",
-  coverColor: "rgba(0,0,0,.5)",
-  startAngle: -180,
-  endAngle: 180,
-  gapAngle: 10,
-  cropCallback: function() {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
+  cropSizePercent: 0.65, //裁剪框显示比例
+  scaleSlider: true, //是否显示滑动控制条
+  maxScale: 3, //最大缩放倍数
+  borderWidth: 1, //裁剪框边框宽度
+  funcBtns: ['close', 'crop', 'upload'], //功能按钮配置
+  borderColor: "#fff", //裁剪框边框颜色
+  coverColor: 'rgba(0,0,0,.5)', //裁剪框遮罩颜色
+  startAngle: -360, //旋转刻度盘开始角度
+  endAngle: 360, //旋转刻度盘结束角度
+  cropCallback: function () { //裁剪图片回调函数
+    this.$resultCanvas.style.marginRight = '10px';
+    this.$resultCanvas.style.width = '50%';
     document.body.appendChild(this.$resultCanvas);
   },
-  coverDraw: function() {
-    //...
-  }
 });
 ```
