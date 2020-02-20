@@ -27,11 +27,11 @@ export class SimpleCrop extends React.Component {
       if (this.hasChanged(['cropSizePercent'], prevProps)
         || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
         || !this.isEquivalent(this.props.size, prevProps.size)) {
-        this.instance.updateFrame(this.props);
+        this.instance.updateBox(this.props);
       }
 
       if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
-        this.instance.initFrameBorder(this.props)
+        this.instance.initBoxBorder(this.props)
       }
 
       if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {

@@ -178,8 +178,8 @@
         this.initFuncBtns(params); //初始化功能按钮
         this.initRotateSlider(params); //初始化旋转刻度盘
         this.initChilds();
-        this.initFrameBorder(params, true);
-        this.updateFrame(params);
+        this.initBoxBorder(params, true);
+        this.updateBox(params);
         this.bindEvent();
     }
 
@@ -196,7 +196,7 @@
     };
 
     //初始化裁剪框边框以及辅助线
-    SimpleCrop.prototype.initFrameBorder = function (params, onlyInit) {
+    SimpleCrop.prototype.initBoxBorder = function (params, onlyInit) {
         this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
         this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
         this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
@@ -393,7 +393,7 @@
     };
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-    SimpleCrop.prototype.updateFrame = function (params) {
+    SimpleCrop.prototype.updateBox = function (params) {
         this.size = params.size;
         this.positionOffset = params.positionOffset != null ? params.positionOffset : {
             top: 0,
