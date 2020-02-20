@@ -27,13 +27,13 @@ import { SimpleCrop } from "./index-react.jsx";
 
 ```jsx
 cropParams: {
-  src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg", // 裁剪图片路径
+  src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg", // 裁剪图片地址
   size: { // 裁剪尺寸
     width: 1000,
     height: 600
   },
   cropSizePercent: 0.9, //裁剪框显示比例
-  cropCallback: this.cropCallback //裁剪图片回调函数
+  cropCallback: this.cropCallback //图片裁剪完成回调函数
 }
 ```
 
@@ -42,7 +42,7 @@ cropParams: {
 ```jsx
 cropParams: {
   title: "上传图片过大，请裁剪", //标题
-  src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg", // 裁剪图片路径
+  src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg", // 裁剪图片地址
   size: { // 裁剪尺寸
     width: 1000,
     height: 600
@@ -56,6 +56,6 @@ cropParams: {
   coverColor: "rgba(0,0,0,.5)", //裁剪框遮罩颜色
   startAngle: -360, //旋转刻度盘开始角度
   endAngle: 360, //旋转刻度盘结束角度
-  cropCallback: this.cropCallback //裁剪图片回调函数
+  cropCallback: this.cropCallback //图片裁剪完成回调函数
 }
 ```

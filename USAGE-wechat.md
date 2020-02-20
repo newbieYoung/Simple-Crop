@@ -28,13 +28,13 @@
 ```js
 Page({
   data: {
-    src: null, // 裁剪图片路径
+    src: null, // 裁剪图片地址
     visible: false, // 是否显示
     size:{ //裁剪尺寸
       width:400,
       height:400
     },
-    result:'', //裁剪结果路径
+    result:'', //裁剪结果地址
   }
 })
 ```
@@ -48,4 +48,4 @@ Page({
 
 - bindcropUpload 选取裁剪图片自定义事件；
 - bindcropClose 裁剪组件关闭自定义事件；
-- bindcropCrop 获取裁剪结果自定义事件。
+- bindcropCrop 图片裁剪完成自定义事件。

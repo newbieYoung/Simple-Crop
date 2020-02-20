@@ -26,13 +26,13 @@
 
 ```javascript
 var simpleCrop = new SimpleCrop({
-  src: '../img/test2.jpg', //裁剪图片路径
+  src: '../img/test2.jpg', //裁剪图片地址
   size: { //裁剪尺寸
     width: 1000,
     height: 600
   },
   cropSizePercent: 0.9, //裁剪框显示比例
-  cropCallback: function () { //裁剪图片回调函数
+  cropCallback: function () { //图片裁剪完成回调函数
     this.$resultCanvas.style.marginRight = '10px';
     this.$resultCanvas.style.width = '50%';
     document.body.appendChild(this.$resultCanvas);
@@ -45,7 +45,7 @@ var simpleCrop = new SimpleCrop({
 ```javascript
 var simpleCrop = new SimpleCrop({
   title: '上传图片过大，请裁剪', //标题
-  src: '../img/test2.jpg', //裁剪图片路径
+  src: '../img/test2.jpg', //裁剪图片地址
   size: { //裁剪尺寸
     width: 1000,
     height: 600
@@ -59,7 +59,7 @@ var simpleCrop = new SimpleCrop({
   coverColor: 'rgba(0,0,0,.5)', //裁剪框遮罩颜色
   startAngle: -360, //旋转刻度盘开始角度
   endAngle: 360, //旋转刻度盘结束角度
-  cropCallback: function () { //裁剪图片回调函数
+  cropCallback: function () { //图片裁剪完成回调函数
     this.$resultCanvas.style.marginRight = '10px';
     this.$resultCanvas.style.width = '50%';
     document.body.appendChild(this.$resultCanvas);

@@ -51,212 +51,148 @@ npm install simple-crop
 
 - [script 标签用法](USAGE-script.md)
 - [微信小程序用法](USAGE-wechat.md)
-
-------
-
-## 用法
-
-### 1、引入样式
-
-目前提供了两种默认样式 `./dist/template-2.css` 适用移动设备，`./dist/template-1.css` 适用 PC。
-
-- link 标签
-
-```html
-<link rel="stylesheet" href="./dist/template-2.css" />
-```
-
-- React
-
-```javascript
-import "./dist/template-2.css";
-```
-
-### 2、引入组件代码
-
-SimpleCrop 期望实现全框架支持，但是目前仅支持 script 标签和 React 两种，对应代码如下：
-
-- script 标签
-
-```html
-<script src="./index.js"></script>
-```
-
-- React
-
-```javascript
-import { SimpleCrop } from "./index-react.jsx";
-```
-
-### 3、初始化
-
-- 移动端初始化参数示例：
-
-```javascript
-new SimpleCrop({
-  src: "./img/test2.jpg",
-  size: {
-    width: 1000,
-    height: 600
-  },
-  cropSizePercent: 0.9,
-  cropCallback: function() {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
-    document.body.appendChild(this.$resultCanvas);
-  }
-});
-```
-
-- PC 初始化参数示例：
-
-```javascript
-new SimpleCrop({
-  title: "上传图片过大，请裁剪",
-  src: "./img/test1.jpg",
-  size: {
-    width: 800,
-    height: 900
-  },
-  positionOffset: {
-    left: 0,
-    top: 50
-  },
-  maxScale: 2,
-  borderWidth: 2,
-  funcBtns: ["close", "crop", "upload"],
-  borderColor: "#0BFF00",
-  coverColor: "rgba(0,0,0,.5)",
-  startAngle: -180,
-  endAngle: 180,
-  gapAngle: 10,
-  cropCallback: function() {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
-    document.body.appendChild(this.$resultCanvas);
-  },
-  coverDraw: function() {
-    //...
-  }
-});
-```
+- [React 用法](USAGE-react.md)
 
 ## 开源许可协议
 
 [MIT](http://opensource.org/licenses/MIT) License.
 
-## 常用属性及方法说明
+## 属性说明
 
 <table style="word-break: normal;">
 	<tr>
-		<td>属性</td>
+		<td>名称</td>
 		<td>说明</td>
-	</tr>
-	<tr>
-		<td>debug</td>
-		<td>是否开启调试模式（开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程）</td>
-	</tr>
-	<tr>
-		<td>title</td>
-		<td>标题</td>
+		<td>适用</td>
 	</tr>
 	<tr>
 		<td>src</td>
 		<td>图片地址</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>visible</td>
 		<td>组件是否可见</td>
-	</tr>
-	<tr>
-		<td>$container</td>
-		<td>容器（如果不设置容器那么裁剪组件会默认添加到 body 元素中）</td>
-	</tr>
-	<tr>
-		<td>scaleSlider</td>
-		<td>是否开启缩放滑动控制条（PC建议开启，移动端默认会启动双指滑动缩放方式）</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>size</td>
-		<td>裁剪图片目标尺寸</td>
-	</tr>
-	<tr>
-		<td>zIndex</td>
-		<td>组件层级</td>
+		<td>裁剪尺寸</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>positionOffset</td>
 		<td>裁剪框偏移，一般默认裁剪框在画布中心，如果不想在中心则需要设置这个属性来对其位置进行一定的偏移</td>
-	</tr>
-	<tr>
-		<td>maxScale</td>
-		<td>最大缩放倍数，如果裁剪图片放大至设置的最大缩放倍数仍然不能完全填满裁剪框，则最大缩放倍数会强制等于 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>borderWidth</td>
 		<td>裁剪框边框宽度</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>borderColor</td>
 		<td>裁剪框边框颜色</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>boldCornerLen</td>
 		<td>裁剪框边角加粗长度</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>cropSizePercent</td>
-		<td>裁剪框占裁剪显示区域的比例，0.9表示所占比例为90%</td>
+		<td>裁剪框占裁剪显示区域的比例，0.9 表示所占比例为 90%</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>coverColor</td>
 		<td>遮罩背景颜色</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>funcBtns</td>
 		<td>默认功能按钮（目前支持 upload 重新上传、crop 裁剪图片、close 取消、around 90度旋转、reset 重置）</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>rotateSlider</td>
 		<td>是否开启旋转刻度盘（默认开启）</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>startAngle</td>
 		<td>旋转刻度盘开始角度</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>endAngle</td>
 		<td>旋转刻度盘结束角度</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>gapAngle</td>
 		<td>旋转刻度盘间隔角度</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>lineationItemWidth</td>
 		<td>旋转刻度盘间隔宽度（单位 px）</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>borderDraw</td>
 		<td>裁剪框自定义边框绘制函数</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>coverDraw</td>
 		<td>裁剪框自定义辅助线绘制函数</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>uploadCallback</td>
 		<td>重新上传裁剪图片回调函数</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>closeCallback</td>
 		<td>关闭裁剪组件回调函数</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>cropCallback</td>
-		<td>图片裁剪完成回调函数（在函数中通过 this.$resultCanvas 来获取裁剪结果）</td>
+		<td>图片裁剪完成回调函数</td>
+		<td>全部</td>
+	</tr>
+	<tr>
+		<td>debug</td>
+		<td>是否开启调试模式（开启调试模式会动态显示内容图片自动吸附填满裁剪框的过程）</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>title</td>
+		<td>标题</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>$container</td>
+		<td>容器（如果不设置容器那么裁剪组件会默认添加到 body 元素中）</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>scaleSlider</td>
+		<td>是否开启缩放滑动控制条（PC建议开启，移动端默认会启动双指滑动缩放方式）</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>maxScale</td>
+		<td>最大缩放倍数，如果裁剪图片放大至设置的最大缩放倍数仍然不能完全填满裁剪框，则最大缩放倍数会强制等于 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
+		<td>非微信小程序</td>
 	</tr>
 </table>
+
+## 方法说明
 
 <table style="word-break: normal;">
 	<tr>
@@ -274,6 +210,30 @@ new SimpleCrop({
 	<tr>
 		<td>hide</td>
 		<td>隐藏组件</td>
+	</tr>
+	<tr>
+		<td>initRotateSlider</td>
+		<td>初始化旋转刻度盘</td>
+	</tr>
+	<tr>
+		<td>initFuncBtns</td>
+		<td>初始化功能按钮</td>
+	</tr>
+	<tr>
+		<td>initTitle</td>
+		<td>初始化标题</td>
+	</tr>
+	<tr>
+		<td>updateFrame</td>
+		<td>初始化裁剪框</td>
+	</tr>
+	<tr>
+		<td>initFrameBorder</td>
+		<td>初始化裁剪框边框以及遮罩</td>
+	</tr>
+	<tr>
+		<td>initScaleSlider</td>
+		<td>初始化滑动控制条</td>
 	</tr>
 </table>
 
