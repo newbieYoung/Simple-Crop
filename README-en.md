@@ -110,32 +110,32 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>funcBtns</td>
-		<td>Function buttons ( Currently supported: upload, crop, close, around, reset.)</td>
+		<td>Function buttons ( Currently supports: upload, crop, close, around, reset.)</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>rotateSlider</td>
-		<td>Whether to turn the rotary dial ( On by default ).</td>
+		<td>Whether to turn rotary slider ( On by default ).</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>startAngle</td>
-		<td>Rotating dial start angle</td>
+		<td>Start angle of rotary slider</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>endAngle</td>
-		<td>Rotating dial end angle</td>
+		<td>End angle of rotary slider</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>gapAngle</td>
-		<td>Rotating dial interval angle</td>
+		<td>Interval angle of rotary slider</td>
 		<td>All</td>
 	</tr>
 	<tr>
 		<td>lineationItemWidth</td>
-		<td>Rotating dial interval width ( Unit px )</td>
+		<td>Interval width of rotary slider ( Unit px )</td>
 		<td>All</td>
 	</tr>
 	<tr>
@@ -179,7 +179,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
-		<td>Whether to enable the scale slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
+		<td>Whether to enable the scalable slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
 		<td>Not Wechat</td>
 	</tr>
 	<tr>
@@ -202,15 +202,15 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>show</td>
-		<td>Display component</td>
+		<td>Show component</td>
 	</tr>
 	<tr>
 		<td>hide</td>
-		<td>Hidden component</td>
+		<td>Hide component</td>
 	</tr>
 	<tr>
 		<td>initRotateSlider</td>
-		<td>Set Rotate Slider</td>
+		<td>Set rotary slider</td>
 	</tr>
 	<tr>
 		<td>initFuncBtns</td>
@@ -230,7 +230,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	</tr>
 	<tr>
 		<td>initScaleSlider</td>
-		<td>Set Scale Slider</td>
+		<td>Set scalable slider</td>
 	</tr>
 </table>
 
