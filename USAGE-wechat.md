@@ -1,6 +1,6 @@
 # 微信小程序用法
 
-[示例](examples/wechat)
+- [示例](examples/wechat)
 
 ## 1、复制组件代码至项目目录
 

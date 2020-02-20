@@ -1,7 +1,7 @@
 # script 标签用法
 
-[示例一](examples/react/test-1.html)
-[示例二](examples/react/test-2.html)
+- [PC 示例](examples/react/test-1.html)
+- [Mobile 示例](examples/react/test-2.html)
 
 ## 1、引入样式
 
