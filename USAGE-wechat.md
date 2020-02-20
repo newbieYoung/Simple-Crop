@@ -30,11 +30,11 @@ Page({
   data: {
     src: null, // 裁剪图片路径
     visible: false, // 是否显示
-    size:{ //裁剪图片尺寸
+    size:{ //裁剪尺寸
       width:400,
       height:400
     },
-    result:'', //裁剪结果图片路径
+    result:'', //裁剪结果路径
   }
 })
 ```
