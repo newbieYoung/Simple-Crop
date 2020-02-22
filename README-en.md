@@ -165,27 +165,27 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	<tr>
 		<td>debug</td>
 		<td>Debug mode (Turn on debugging mode will show the automatic adsorption process of picture.) </td>
-		<td>Not Wechat</td>
+		<td>No Wechat</td>
 	</tr>
 	<tr>
 		<td>title</td>
 		<td>Component title</td>
-		<td>Not Wechat</td>
+		<td>No Wechat</td>
 	</tr>
 	<tr>
 		<td>$container</td>
 		<td>Component container (If no container is set, the component will be added to the body element by default.)</td>
-		<td>Not Wechat</td>
+		<td>No Wechat</td>
 	</tr>
 	<tr>
 		<td>scaleSlider</td>
 		<td>Whether to enable the scalable slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
-		<td>Not Wechat</td>
+		<td>No Wechat</td>
 	</tr>
 	<tr>
 		<td>maxScale</td>
 		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop box, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop box ).</td>
-		<td>Not Wechat</td>
+		<td>No Wechat</td>
 	</tr>
 </table>
 
@@ -195,42 +195,52 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 	<tr>
 		<td>Method</td>
 		<td>Description</td>
+		<td>Platform</td>
 	</tr>
 	<tr>
 		<td>setImage</td>
 		<td>Set crop picture</td>
-	</tr>
-	<tr>
-		<td>show</td>
-		<td>Show component</td>
-	</tr>
-	<tr>
-		<td>hide</td>
-		<td>Hide component</td>
+		<td>All</td>
 	</tr>
 	<tr>
 		<td>initRotateSlider</td>
 		<td>Set rotary slider</td>
+		<td>All</td>
 	</tr>
 	<tr>
 		<td>initFuncBtns</td>
 		<td>Set function buttons</td>
-	</tr>
-	<tr>
-		<td>initTitle</td>
-		<td>Set title</td>
+		<td>All</td>
 	</tr>
 	<tr>
 		<td>updateBox</td>
 		<td>Set crop box</td>
+		<td>All</td>
 	</tr>
 	<tr>
 		<td>initBoxBorder</td>
 		<td>Set crop box border</td>
+		<td>All</td>
 	</tr>
 	<tr>
 		<td>initScaleSlider</td>
 		<td>Set scalable slider</td>
+		<td>No Wechat</td>
+	</tr>
+		<tr>
+		<td>show</td>
+		<td>Show component</td>
+		<td>No Wechat</td>
+	</tr>
+	<tr>
+		<td>hide</td>
+		<td>Hide component</td>
+		<td>No Wechat</td>
+	</tr>
+	<tr>
+		<td>initTitle</td>
+		<td>Set title</td>
+		<td>No Wechat</td>
 	</tr>
 </table>
 
