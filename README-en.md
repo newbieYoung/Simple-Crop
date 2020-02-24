@@ -227,7 +227,7 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 		<td>Set scalable slider</td>
 		<td>No Wechat</td>
 	</tr>
-		<tr>
+	<tr>
 		<td>show</td>
 		<td>Show component</td>
 		<td>No Wechat</td>

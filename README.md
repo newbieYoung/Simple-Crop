@@ -63,7 +63,7 @@ npm install simple-crop
 	<tr>
 		<td>名称</td>
 		<td>说明</td>
-		<td>适用</td>
+		<td>平台</td>
 	</tr>
 	<tr>
 		<td>src</td>
@@ -198,42 +198,52 @@ npm install simple-crop
 	<tr>
 		<td>方法</td>
 		<td>说明</td>
+		<td>平台</td>
 	</tr>
 	<tr>
 		<td>setImage</td>
 		<td>设置裁剪图片</td>
-	</tr>
-	<tr>
-		<td>show</td>
-		<td>显示组件</td>
-	</tr>
-	<tr>
-		<td>hide</td>
-		<td>隐藏组件</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>initRotateSlider</td>
 		<td>初始化旋转刻度盘</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>initFuncBtns</td>
 		<td>初始化功能按钮</td>
-	</tr>
-	<tr>
-		<td>initTitle</td>
-		<td>初始化标题</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>updateBox</td>
 		<td>初始化裁剪框</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>initBoxBorder</td>
 		<td>初始化裁剪框边框以及遮罩</td>
+		<td>全部</td>
 	</tr>
 	<tr>
 		<td>initScaleSlider</td>
 		<td>初始化滑动控制条</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>show</td>
+		<td>显示组件</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>hide</td>
+		<td>隐藏组件</td>
+		<td>非微信小程序</td>
+	</tr>
+	<tr>
+		<td>initTitle</td>
+		<td>初始化标题</td>
+		<td>非微信小程序</td>
 	</tr>
 </table>
 
