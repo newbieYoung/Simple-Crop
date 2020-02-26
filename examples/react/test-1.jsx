@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { SimpleCrop } from "../../index-react.jsx";
+import { SimpleCrop } from "../../index.jsx";
 import "../../dist/template-1.css";
 
 class Test1 extends React.Component {

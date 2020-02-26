@@ -109,7 +109,7 @@ Component({
     },
     'size, cropSizePercent, positionOffset': function () {
       if (this.isAttached) {
-        this.updateFrame();
+        this.updateBox();
       }
     },
     'borderWidth, borderColor, boldCornerLen, coverColor, borderDraw, coverDraw': function () {
@@ -694,7 +694,7 @@ Component({
         if (call_count >= total_count) {
           self.$cropCover.width = self.maskViewSize.width * SystemInfo.pixelRatio;
           self.$cropCover.height = self.maskViewSize.height * SystemInfo.pixelRatio;
-          self.updateFrame();
+          self.updateBox();
         }
       }
 
@@ -1091,7 +1091,7 @@ Component({
     },
 
     //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移等参数更新并重现绘制裁剪框
-    updateFrame: function () {
+    updateBox: function () {
       var src = this.data.src;
       var size = this.data.size;
       var cropSizePercent = this.data.cropSizePercent;
