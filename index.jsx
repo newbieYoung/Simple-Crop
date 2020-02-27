@@ -69,15 +69,15 @@ export class SimpleCrop extends React.Component {
   //根据两个简单对象的值比较它们是否相同
   isEquivalent (a, b) {
     if (a != null && b != null) {
-      var aProps = Object.getOwnPropertyNames(a);
-      var bProps = Object.getOwnPropertyNames(b);
+      let aProps = Object.getOwnPropertyNames(a);
+      let bProps = Object.getOwnPropertyNames(b);
 
       if (aProps.length != bProps.length) {
         return false;
       }
 
-      for (var i = 0; i < aProps.length; i++) {
-        var propName = aProps[i];
+      for (let i = 0; i < aProps.length; i++) {
+        let propName = aProps[i];
         if (a[propName] !== b[propName]) {
           return false;
         }
