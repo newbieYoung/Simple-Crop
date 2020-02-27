@@ -10,13 +10,25 @@ export default {
 
   mounted() {
     this.cropParams.cropCallback = this.cropCallback.bind(this);
+    this.cropParams.uploadCallback = this.uploadCallback.bind(this);
+    this.cropParams.closeCallback = this.closeCallback.bind(this);
     this.instance = new Core(this.cropParams);
   },
 
   methods: {
+    //关闭回调
+    closeCallback() {
+      this.$emit("close");
+    },
+    //上传图片回调
+    uploadCallback() {
+      var src = this.instance ? this.instance.src : this.cropParams.src;
+      this.$emit("upload", src);
+    },
     //裁剪回调
     cropCallback() {
-      this.$emit("crop", this.instance.$resultCanvas);
+      var $resultCanvas = this.instance ? this.instance.$resultCanvas : null;
+      this.$emit("crop", $resultCanvas);
     },
     //属性是否发生变化
     hasChanged(names, props) {

@@ -44,11 +44,21 @@ new Vue({
       this.cropParams.src = "../../img/test1.jpg";
     },
 
+    //关闭回调
+    closeCallback() {
+      console.log('Simple Crop 已关闭');
+    },
+
     //图片裁剪回调函数
     cropCallback($resultCanvas) {
       $resultCanvas.style.marginRight = "10px";
       $resultCanvas.style.width = "50%";
       document.body.appendChild($resultCanvas);
+    },
+
+    //上传图片回调函数
+    uploadCallback(src) {
+      console.log('上传裁剪图片成功：' + src);
     }
   }
 });
