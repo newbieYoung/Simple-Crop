@@ -9,7 +9,7 @@ class Test2 extends React.Component {
 
     this.state = {
       cropParams: {
-        src: "https://newbieyoung.github.io/Simple-Crop/img/test2.jpg",
+        src: "../../img/test2.jpg",
         size: {
           width: 1000,
           height: 600
@@ -41,7 +41,7 @@ class Test2 extends React.Component {
   //设置裁剪图片
   setCropImage () {
     let cropParams = this.state.cropParams;
-    cropParams.src = "https://newbieyoung.github.io/Simple-Crop/img/test1.jpg";
+    cropParams.src = "../../img/test1.jpg";
     this.setState({
       cropParams: cropParams
     });
