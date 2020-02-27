@@ -12,7 +12,7 @@ export default {
     this.cropParams.cropCallback = this.cropCallback.bind(this);
     this.cropParams.uploadCallback = this.uploadCallback.bind(this);
     this.cropParams.closeCallback = this.closeCallback.bind(this);
-    this.instance = new Core(this.cropParams);
+    this._instance = new Core(this.cropParams);
   },
 
   methods: {
@@ -20,16 +20,19 @@ export default {
     closeCallback() {
       this.$emit("close");
     },
+
     //上传图片回调
     uploadCallback() {
-      var src = this.instance ? this.instance.src : this.cropParams.src;
+      let src = this._instance ? this._instance.src : this.cropParams.src;
       this.$emit("upload", src);
     },
+
     //裁剪回调
     cropCallback() {
-      var $resultCanvas = this.instance ? this.instance.$resultCanvas : null;
+      let $resultCanvas = this._instance ? this._instance.$resultCanvas : null;
       this.$emit("crop", $resultCanvas);
     },
+
     //属性是否发生变化
     hasChanged(names, props) {
       let cur = {};
@@ -104,9 +107,9 @@ export default {
   //监听参数变化
   watch: {
     cropParams(val, oldVal) {
-      if (this.instance) {
+      if (this._instance) {
         if (this.hasChanged(["src"], oldVal)) {
-          this.instance.setImage(this.cropParams.src);
+          this._instance.setImage(this.cropParams.src);
         }
 
         if (
@@ -121,7 +124,7 @@ export default {
             oldVal
           )
         ) {
-          this.instance.initRotateSlider(this.cropParams);
+          this._instance.initRotateSlider(this.cropParams);
         }
 
         if (
@@ -136,7 +139,7 @@ export default {
             "height"
           ])
         ) {
-          this.instance.updateBox(this.cropParams);
+          this._instance.updateBox(this.cropParams);
         }
 
         if (
@@ -152,7 +155,7 @@ export default {
             oldVal
           )
         ) {
-          this.instance.initBoxBorder(this.cropParams);
+          this._instance.initBoxBorder(this.cropParams);
         }
 
         if (
@@ -162,21 +165,21 @@ export default {
             /^[0-9]*$/
           )
         ) {
-          this.instance.initFuncBtns(this.cropParams);
+          this._instance.initFuncBtns(this.cropParams);
         }
 
         if (this.hasChanged(["scaleSlider", "maxScale"], oldVal)) {
-          this.instance.initScaleSlider(this.cropParams);
+          this._instance.initScaleSlider(this.cropParams);
         }
 
         if (this.hasChanged(["title"], oldVal)) {
-          this.instance.initTitle(this.cropParams);
+          this._instance.initTitle(this.cropParams);
         }
 
         if (this.cropParams.visible == false) {
-          this.instance.hide();
+          this._instance.hide();
         } else {
-          this.instance.show();
+          this._instance.show();
         }
       }
     }
