@@ -928,7 +928,7 @@
             this._downPoints = [];
             this.scaleDownX = 0;
 
-            if (!this.isWholeCover(this.contentPoints, this.cropPoints) && this.$cropContent) { //如果没有完全包含则需要进行适配变换
+            if (this.$cropContent && !this.isWholeCover(this.contentPoints, this.cropPoints)) { //如果没有完全包含则需要进行适配变换
                 var scaleNum = this.scaleTimes / this.times * this._rotateScale;
                 var transform = '';
                 transform += ' scale(' + scaleNum + ')'; //缩放
