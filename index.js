@@ -928,7 +928,7 @@
             this._downPoints = [];
             this.scaleDownX = 0;
 
-            if (!this.isWholeCover(this.contentPoints, this.cropPoints)) { //如果没有完全包含则需要进行适配变换
+            if (!this.isWholeCover(this.contentPoints, this.cropPoints) && this.$cropContent) { //如果没有完全包含则需要进行适配变换
                 var scaleNum = this.scaleTimes / this.times * this._rotateScale;
                 var transform = '';
                 transform += ' scale(' + scaleNum + ')'; //缩放
@@ -1030,55 +1030,57 @@
 
     //旋转、缩放、移动
     SimpleCrop.prototype.transform = function (rotateCover, scaleKeepCover) {
-        var scaleNum = this.scaleTimes / this.times * this._rotateScale;
-        var transform = '';
-        transform += ' scale(' + scaleNum + ')'; //缩放
-        transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
-        transform += ' rotate(' + this.rotateAngle + 'deg)';
+        if (this.$cropContent) {
+            var scaleNum = this.scaleTimes / this.times * this._rotateScale;
+            var transform = '';
+            transform += ' scale(' + scaleNum + ')'; //缩放
+            transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
+            transform += ' rotate(' + this.rotateAngle + 'deg)';
 
-        if (scaleKeepCover) { //缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的位移变换
-            transform = this.getCoverTransform(transform, true);
-            var scMat = this.getTransformMatrix(transform);
-            this._contentCurMoveX = scMat.e;
-            this._contentCurMoveY = scMat.f;
-        }
-
-        if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
-            var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
-            var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
-            var changedX = this._changedX;
-            var curMoveX = this._curMoveX;
-            var totalMoveX = curMoveX - changedX - this._baseMoveX;
-            var rotateCenter = this.getPointsCenter(rotatePoints);
-            var centerVec = {
-                x: rotateCenter.x - this.cropCenter.x,
-                y: rotateCenter.y - this.cropCenter.y
+            if (scaleKeepCover) { //缩放时为了保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的位移变换
+                transform = this.getCoverTransform(transform, true);
+                var scMat = this.getTransformMatrix(transform);
+                this._contentCurMoveX = scMat.e;
+                this._contentCurMoveY = scMat.f;
             }
-            var percent = Math.abs(changedX) / Math.abs(totalMoveX);
-            if (coverScale > 1) {
-                this._rotateScale = this._rotateScale * coverScale;
-                scaleNum = scaleNum * coverScale;
-            } else if (this.vecLen(centerVec) < 1 && percent > 0) { //中心点接近重合时，旋转支持自适应缩小
-                if (coverScale < (1 - percent)) { //不能突变
-                    coverScale = 1 - percent;
+
+            if (rotateCover) { //旋转时需要保证裁剪框不出现空白，需要在原有变换的基础上再进行一定的适配变换
+                var rotatePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
+                var coverScale = this.getCoverRectScale(rotatePoints, this.cropPoints);
+                var changedX = this._changedX;
+                var curMoveX = this._curMoveX;
+                var totalMoveX = curMoveX - changedX - this._baseMoveX;
+                var rotateCenter = this.getPointsCenter(rotatePoints);
+                var centerVec = {
+                    x: rotateCenter.x - this.cropCenter.x,
+                    y: rotateCenter.y - this.cropCenter.y
                 }
-                if (this._rotateScale * coverScale > 1) {
+                var percent = Math.abs(changedX) / Math.abs(totalMoveX);
+                if (coverScale > 1) {
                     this._rotateScale = this._rotateScale * coverScale;
-                } else { //不能影响 scaleTimes
-                    this._rotateScale = 1;
-                    coverScale = 1;
+                    scaleNum = scaleNum * coverScale;
+                } else if (this.vecLen(centerVec) < 1 && percent > 0) { //中心点接近重合时，旋转支持自适应缩小
+                    if (coverScale < (1 - percent)) { //不能突变
+                        coverScale = 1 - percent;
+                    }
+                    if (this._rotateScale * coverScale > 1) {
+                        this._rotateScale = this._rotateScale * coverScale;
+                    } else { //不能影响 scaleTimes
+                        this._rotateScale = 1;
+                        coverScale = 1;
+                    }
+                    scaleNum = scaleNum * coverScale;
                 }
-                scaleNum = scaleNum * coverScale;
             }
-        }
 
-        //操作变换
-        transform = '';
-        transform += ' scale(' + scaleNum + ')'; //缩放
-        transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
-        transform += ' rotate(' + this.rotateAngle + 'deg)';
-        this.$cropContent.style[transformProperty] = this._initTransform + transform;
-        this.contentPoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
+            //操作变换
+            transform = '';
+            transform += ' scale(' + scaleNum + ')'; //缩放
+            transform += ' translateX(' + this._contentCurMoveX / scaleNum + 'px) translateY(' + this._contentCurMoveY / scaleNum + 'px)'; //移动
+            transform += ' rotate(' + this.rotateAngle + 'deg)';
+            this.$cropContent.style[transformProperty] = this._initTransform + transform;
+            this.contentPoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
+        }
     };
 
     //计算一个矩形刚好包含另一个矩形需要的缩放倍数
