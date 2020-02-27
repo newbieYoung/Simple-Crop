@@ -250,13 +250,13 @@
         //重新上传
         if (this.funcBtns.includes('upload')) {
             if (this.$uploadBtn) {
-                this.$uploadBtn.removeEventListener('change', this.uploadInput);
+                this.$uploadBtn.removeEventListener('change', this.__uploadInput);
             } else {
                 this.__uploadInput = this.uploadInput.bind(this);
             }
             this.$uploadBtn = document.querySelector('#' + this.id + ' .upload-btn-container');
             this.$uploadInput = document.querySelector('#' + this.id + ' .upload-btn-container input');
-            this.$uploadBtn.addEventListener('change', this.uploadInput);
+            this.$uploadBtn.addEventListener('change', this.__uploadInput);
         }
 
         //裁剪
