@@ -1,7 +1,7 @@
 # script 标签用法
 
-- [PC 示例](examples/react/test-1.html)
-- [Mobile 示例](examples/react/test-2.html)
+- [PC 示例](https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html)
+- [Mobile 示例](https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html)
 
 ## 1、引入样式
 
@@ -57,5 +57,17 @@ cropParams: {
   startAngle: -360, //旋转刻度盘开始角度
   endAngle: 360, //旋转刻度盘结束角度
   cropCallback: this.cropCallback //图片裁剪完成回调函数
+}
+```
+
+## 4、设置裁剪图片
+
+```jsx
+setCropImage () {
+  let cropParams = this.state.cropParams;
+  cropParams.src = "../../img/test1.jpg";
+  this.setState({
+    cropParams: cropParams
+  });
 }
 ```
