@@ -968,7 +968,9 @@
         touches = touches ? touches : [];
         if (!this._isControl || this.isTwoFingerEvent(touches)) {
             this._isControl = true;
-            this.$cropContent.style[transitionProperty] = 'none';
+            if (this.$cropContent) {
+                this.$cropContent.style[transitionProperty] = 'none';
+            }
             this._downPoints = touches;
         }
     };
