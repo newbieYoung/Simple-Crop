@@ -926,7 +926,7 @@
         var contentCtx = $contentCanvas.getContext('2d');
         contentCtx.translate(center.x, center.y);
         contentCtx.scale(scaleNum * this.times / ratio, scaleNum * this.times / ratio) // 缩放 this.times
-        contentCtx.translate((this._contentCurMoveX + this.positionOffset.left) / scaleNum, (this._contentCurMoveY + this.positionOffset.top) / scaleNum);
+        contentCtx.translate((this._contentCurMoveX + this.positionOffset.left) / scaleNum * ratio, (this._contentCurMoveY + this.positionOffset.top) / scaleNum * ratio);
         contentCtx.rotate(this.rotateAngle / 180 * Math.PI);
         contentCtx.translate(-center.x, -center.y);
         contentCtx.drawImage(this.$cropContent, 0, 0, contentWidth, contentHeight);

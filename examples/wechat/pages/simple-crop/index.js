@@ -871,20 +871,34 @@ Component({
       var contentHeight = this.contentHeight;
       var cropWidth = size.width;
       var cropHeight = size.height;
+
+      //需要考虑裁剪图片实际尺寸比裁剪尺寸小的情况
+      var ratio = 1;
+      if (contentWidth < cropWidth || contentHeight < cropHeight) { // 裁剪中间画布尺寸必须大于实际裁剪尺寸
+        if (cropWidth / contentWidth > cropHeight > contentHeight) {
+          ratio = cropWidth / contentWidth;
+          contentHeight = contentHeight * ratio;
+          contentWidth = cropWidth;
+        } else {
+          ratio = cropHeight / contentHeight;
+          contentWidth = contentWidth * ratio
+          contentHeight = cropHeight;
+        }
+      }
+      self.$cropResult.width = contentWidth;
+      self.$cropResult.height = contentHeight;
+
       var center = {
         x: contentWidth / 2,
         y: contentHeight / 2
       };
-      console.log('---1---');
-      console.log(center);
-      console.log(contentWidth+' '+contentHeight);
       var image1 = this.$cropResult.createImage();
       image1.onload = function () {
         var scaleNum = self.scaleTimes / self.times * self._rotateScale;
         self.cropResultCtx.clearRect(0, 0, contentWidth, contentHeight);
         self.cropResultCtx.save();
         self.cropResultCtx.translate(center.x, center.y);
-        self.cropResultCtx.scale(scaleNum * self.times, scaleNum * self.times) // 缩放 this.times
+        self.cropResultCtx.scale(scaleNum * self.times / ratio, scaleNum * self.times / ratio) // 缩放 this.times
         self.cropResultCtx.translate((self._contentCurMoveX + positionOffset.left) / scaleNum, (self._contentCurMoveY + positionOffset.top) / scaleNum);
         self.cropResultCtx.rotate(self.rotateAngle / 180 * Math.PI);
         self.cropResultCtx.translate(-center.x, -center.y);
