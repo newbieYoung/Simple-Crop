@@ -1,7 +1,8 @@
 <!--index.wxml-->
 <view class="test2">
+  <button bindtap="updateComponnet">组件更新</button>
   <button bindtap="chooseCropImage">选取裁剪图片</button>
-  <simple-crop wx:if="{{visible}}" size="{{size}}" src="{{src}}" bindcropUpload="uploadCallback" bindcropClose="closeCallback" bindcropCrop="cropCallback"></simple-crop>
+  <simple-crop wx:if="{{visible}}" size="{{size}}" src="{{src}}" cropSizePercent="{{cropSizePercent}}" borderColor="{{borderColor}}" bindcropUpload="uploadCallback" bindcropClose="closeCallback" bindcropCrop="cropCallback"></simple-crop>
   <image mode="widthFix" src="{{result}}"></image>
 </view>
 

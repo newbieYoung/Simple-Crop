@@ -116,10 +116,10 @@ Component({
       if (this.isAttached) {
         var borderDraw = this.data.borderDraw;
         var coverDraw = this.data.coverDraw;
-        this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
-        this.coverDraw = coverDraw ? coverDraw.bind(this) : function () {};
-        this.borderDraw();
-        this.coverDraw();
+        this.borderDraw = borderDraw ? borderDraw : this.defaultBorderDraw;
+        this.coverDraw = coverDraw ? coverDraw : function () {};
+        this.borderDraw(this.$cropCover);
+        this.coverDraw(this.$cropCover);
       }
     }
   },
@@ -1123,22 +1123,22 @@ Component({
       this.cropRect.top = (this.maskViewSize.height - this.cropRect.height) / 2 - positionOffset.top;
       this.cropPoints = this.rectToPoints(this.cropRect);
       this.cropCenter = this.getPointsCenter(this.cropPoints);
-      this.borderDraw();
-      this.coverDraw();
+      this.borderDraw(this.$cropCover);
+      this.coverDraw(this.$cropCover);
 
       this.setImage(src);
     },
 
     //默认绘制裁剪框
-    defaultBorderDraw: function () {
+    defaultBorderDraw: function ($cropCover) {
       var coverColor = this.data.coverColor;
       var borderColor = this.data.borderColor;
       var boldCornerLen = this.data.boldCornerLen;
       var borderWidth = this.data.borderWidth;
       boldCornerLen = boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2;
 
-      var coverWidth = this.$cropCover.width;
-      var coverHeight = this.$cropCover.height;
+      var coverWidth = $cropCover.width;
+      var coverHeight = $cropCover.height;
       this.cropCoverContext.clearRect(0, 0, coverWidth, coverHeight);
       this.cropCoverContext.fillStyle = coverColor;
       this.cropCoverContext.fillRect(0, 0, coverWidth, coverHeight);
@@ -1306,8 +1306,8 @@ Component({
       var coverDraw = this.data.coverDraw;
 
       this.isAttached = true;
-      this.borderDraw = borderDraw ? borderDraw.bind(this) : this.defaultBorderDraw;
-      this.coverDraw = coverDraw ? coverDraw.bind(this) : function () {};
+      this.borderDraw = borderDraw ? borderDraw : this.defaultBorderDraw;
+      this.coverDraw = coverDraw ? coverDraw: function () {};
 
       this.initRotateSlider();
       this.initFuncBtns();

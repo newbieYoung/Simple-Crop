@@ -10,6 +10,8 @@ Page({
       width: 400,
       height: 300
     },
+    cropSizePercent:0.9,
+    borderColor:'#fff',
     result: '',
   },
 
@@ -26,6 +28,19 @@ Page({
         })
       }
     });
+  },
+
+  //组件更新
+  updateComponnet:function(){
+    this.setData({
+      visible: true,
+      borderColor: "#0BFF00",
+      cropSizePercent: 0.7,
+      size : {
+        width: 400,
+        height: 400
+      }
+    })
   },
 
   //选取裁剪图片成功回调
