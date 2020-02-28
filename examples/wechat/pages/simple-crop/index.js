@@ -899,7 +899,7 @@ Component({
         self.cropResultCtx.save();
         self.cropResultCtx.translate(center.x, center.y);
         self.cropResultCtx.scale(scaleNum * self.times / ratio, scaleNum * self.times / ratio) // 缩放 this.times
-        self.cropResultCtx.translate((self._contentCurMoveX + positionOffset.left) / scaleNum, (self._contentCurMoveY + positionOffset.top) / scaleNum);
+        self.cropResultCtx.translate((self._contentCurMoveX + positionOffset.left) / scaleNum * ratio, (self._contentCurMoveY + positionOffset.top) / scaleNum * ratio);
         self.cropResultCtx.rotate(self.rotateAngle / 180 * Math.PI);
         self.cropResultCtx.translate(-center.x, -center.y);
         self.cropResultCtx.drawImage(image1, 0, 0, contentWidth, contentHeight); // canvas 不能直接绘制 canvas，需要先转换为图片
