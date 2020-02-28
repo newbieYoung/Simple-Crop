@@ -756,7 +756,7 @@ Component({
         if (type === '[object String]') { // 字符串
           this.load();
           this.triggerEvent('cropUpload', {
-            component: this
+            src: src
           }, {})
         }
       }
@@ -919,7 +919,7 @@ Component({
                   wx.hideLoading()
                   self.resultSrc = res.tempFilePath
                   self.triggerEvent('cropCrop', {
-                    component: self
+                    resultSrc: self.resultSrc
                   }, {})
                 }
               }, self);
@@ -1207,9 +1207,7 @@ Component({
 
     //关闭
     close: function () {
-      this.triggerEvent('cropClose', {
-        component: this
-      }, {})
+      this.triggerEvent('cropClose', {}, {})
     },
 
     //整角旋转 90 度

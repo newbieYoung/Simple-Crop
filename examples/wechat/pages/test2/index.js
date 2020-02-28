@@ -7,8 +7,8 @@ Page({
     src: null,
     visible: false,
     size: {
-      width: 1000,
-      height: 600
+      width: 400,
+      height: 300
     },
     result: '',
   },
@@ -30,20 +30,21 @@ Page({
 
   //选取裁剪图片成功回调
   uploadCallback: function (event) {
-    console.log('uploadCallback');
     console.log(event);
   },
 
   //裁剪图片回调
   cropCallback: function (event) {
+    console.log(event);
     this.setData({
       visible: false,
-      result: event.detail.component.resultSrc,
+      result: event.detail.resultSrc,
     });
   },
 
   //关闭回调
   closeCallback: function (event) {
+    console.log(event);
     this.setData({
       visible: false,
     });
