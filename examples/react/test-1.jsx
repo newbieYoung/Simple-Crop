@@ -53,10 +53,10 @@ class Test1 extends React.Component {
   }
 
   //图片裁剪回调函数
-  cropCallback () {
-    this.$resultCanvas.style.marginRight = "10px";
-    this.$resultCanvas.style.width = "50%";
-    document.body.appendChild(this.$resultCanvas);
+  cropCallback ($resultCanvas) {
+    $resultCanvas.style.marginRight = "10px";
+    $resultCanvas.style.width = "50%";
+    document.body.appendChild($resultCanvas);
   }
 
   render () {

@@ -201,12 +201,12 @@
         this.borderColor = params.borderColor != null ? params.borderColor : '#fff';
         this.boldCornerLen = params.boldCornerLen != null ? params.boldCornerLen : 24;
         this.coverColor = params.coverColor != null ? params.coverColor : 'rgba(0,0,0,.3)';
-        this.coverDraw = params.coverDraw != null ? params.coverDraw.bind(this) : function () {};
-        this.borderDraw = params.borderDraw != null ? params.borderDraw.bind(this) : this.defaultBorderDraw;
+        this.coverDraw = params.coverDraw != null ? params.coverDraw : function () {};
+        this.borderDraw = params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
 
         if (!onlyInit) {
-            this.borderDraw();
-            this.coverDraw();
+            this.borderDraw(this.$cropCover);
+            this.coverDraw(this.$cropCover);
         }
     };
 
@@ -221,9 +221,9 @@
          * reset 重置
          */
         this.funcBtns = params.funcBtns != null ? params.funcBtns : ['close', 'crop', 'around', 'reset'];
-        this.cropCallback = params.cropCallback != null ? params.cropCallback.bind(this) : function () {};
-        this.closeCallback = params.closeCallback != null ? params.closeCallback.bind(this) : function () {};
-        this.uploadCallback = params.uploadCallback != null ? params.uploadCallback.bind(this) : function () {};
+        this.cropCallback = params.cropCallback != null ? params.cropCallback : function () {};
+        this.closeCallback = params.closeCallback != null ? params.closeCallback : function () {};
+        this.uploadCallback = params.uploadCallback != null ? params.uploadCallback : function () {};
 
         this.$cropBtns = document.querySelector('#' + this.id + ' .crop-btns');
         var html = '';
@@ -412,8 +412,8 @@
         this.cropPoints = this.rectToPoints(this.cropRect);
         this.cropCenter = this.getPointsCenter(this.cropPoints);
 
-        this.borderDraw();
-        this.coverDraw();
+        this.borderDraw(this.$cropCover);
+        this.coverDraw(this.$cropCover);
 
         var src = params.src != null ? params.src : this.src;
         this.setImage(src)
@@ -525,13 +525,13 @@
     };
 
     //默认绘制裁剪框
-    SimpleCrop.prototype.defaultBorderDraw = function () {
+    SimpleCrop.prototype.defaultBorderDraw = function ($cropCover) {
         var borderWidth = this.borderWidth;
         var boldCornerLen = this.boldCornerLen;
         boldCornerLen = boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2;
 
-        var coverWidth = this.$cropCover.width;
-        var coverHeight = this.$cropCover.height;
+        var coverWidth = $cropCover.width;
+        var coverHeight = $cropCover.height;
         this.cropCoverContext.clearRect(0, 0, coverWidth, coverHeight);
         this.cropCoverContext.fillStyle = this.coverColor;
         this.cropCoverContext.fillRect(0, 0, coverWidth, coverHeight);
@@ -626,14 +626,14 @@
                 self.originImage = new Image();
                 self.originImage.src = self.src;
                 self.load();
-                self.uploadCallback();
+                self.uploadCallback(self.src);
             } else if (type === '[object File]') { //文件
                 self.fileToSrc(image, function (src) {
                     self.src = src;
                     self.originImage = new Image();
                     self.originImage.src = self.src;
                     self.load();
-                    self.uploadCallback();
+                    self.uploadCallback(self.src);
                 });
             }
         }
@@ -663,7 +663,7 @@
     //裁剪
     SimpleCrop.prototype.crop = function () {
         this.getCropImage();
-        this.cropCallback();
+        this.cropCallback(this.$resultCanvas);
         this.hide();
     };
 
@@ -899,19 +899,38 @@
         var scaleNum = this.scaleTimes / this.times * this._rotateScale;
         var contentWidth = this.contentWidth;
         var contentHeight = this.contentHeight;
+        var cropWidth = this.size.width;
+        var cropHeight = this.size.height;
+
+        //需要考虑裁剪图片实际尺寸比裁剪尺寸小的情况
+        var ratio = 1;
+        if (contentWidth < cropWidth || contentHeight < cropHeight) { // 裁剪中间画布尺寸必须大于实际裁剪尺寸
+            if (cropWidth / contentWidth > cropHeight > contentHeight) {
+                ratio = cropWidth / contentWidth;
+                contentHeight = contentHeight * ratio;
+                contentWidth = cropWidth;
+            } else {
+                ratio = cropHeight / contentHeight;
+                contentWidth = contentWidth * ratio
+                contentHeight = cropHeight;
+            }
+        }
+        var center = {
+            x: contentWidth / 2,
+            y: contentHeight / 2
+        };
+
         var $contentCanvas = document.createElement('canvas');
         $contentCanvas.width = contentWidth;
         $contentCanvas.height = contentHeight;
         var contentCtx = $contentCanvas.getContext('2d');
-        contentCtx.translate(contentWidth / 2, contentHeight / 2);
-        contentCtx.scale(scaleNum * this.times, scaleNum * this.times) // 缩放 this.times
+        contentCtx.translate(center.x, center.y);
+        contentCtx.scale(scaleNum * this.times / ratio, scaleNum * this.times / ratio) // 缩放 this.times
         contentCtx.translate((this._contentCurMoveX + this.positionOffset.left) / scaleNum, (this._contentCurMoveY + this.positionOffset.top) / scaleNum);
         contentCtx.rotate(this.rotateAngle / 180 * Math.PI);
-        contentCtx.translate(-contentWidth / 2, -contentHeight / 2);
+        contentCtx.translate(-center.x, -center.y);
         contentCtx.drawImage(this.$cropContent, 0, 0, contentWidth, contentHeight);
 
-        var cropWidth = this.size.width;
-        var cropHeight = this.size.height;
         var $cropCanvas = document.createElement('canvas');
         $cropCanvas.width = cropWidth;
         $cropCanvas.height = cropHeight;

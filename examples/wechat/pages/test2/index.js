@@ -7,8 +7,8 @@ Page({
     src: null,
     visible: false,
     size: {
-      width: 400,
-      height: 400
+      width: 1000,
+      height: 600
     },
     result: '',
   },

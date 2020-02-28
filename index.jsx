@@ -2,7 +2,7 @@ import React from "react";
 import Core from "./index.js";
 
 export class SimpleCrop extends React.Component {
-  instance; //组件实例
+  _instance; //组件实例
 
   constructor(props) {
     super(props);
@@ -10,46 +10,55 @@ export class SimpleCrop extends React.Component {
 
   //初次渲染
   componentDidMount () {
-    this.instance = new Core(this.props);
+    this.props.cropCallback = this.cropCallback;
+    this._instance = new Core(this.props);
+  }
+
+  //裁剪回调
+  cropCallback () {
+    if (this.props.cropCallback) {
+      let $resultCanvas = this._instance ? this._instance.$resultCanvas : null;
+      this.props.cropCallback($resultCanvas)
+    }
   }
 
   //更新
   componentDidUpdate (prevProps) {
-    if (this.instance) {
+    if (this._instance) {
       if (this.hasChanged(['src'], prevProps)) {
-        this.instance.setImage(this.props.src);
+        this._instance.setImage(this.props.src);
       }
 
       if (this.hasChanged(['rotateSlider', 'startAngle', 'endAngle', 'gapAngle', 'lineationItemWidth'], prevProps)) {
-        this.instance.initRotateSlider(this.props);
+        this._instance.initRotateSlider(this.props);
       }
 
       if (this.hasChanged(['cropSizePercent'], prevProps)
         || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
         || !this.isEquivalent(this.props.size, prevProps.size)) {
-        this.instance.updateBox(this.props);
+        this._instance.updateBox(this.props);
       }
 
       if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
-        this.instance.initBoxBorder(this.props)
+        this._instance.initBoxBorder(this.props)
       }
 
       if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {
-        this.instance.initFuncBtns(this.props);
+        this._instance.initFuncBtns(this.props);
       }
 
       if (this.hasChanged(['scaleSlider', 'maxScale'], prevProps)) {
-        this.instance.initScaleSlider(this.props)
+        this._instance.initScaleSlider(this.props)
       }
 
       if (this.hasChanged(['title'], prevProps)) {
-        this.instance.initTitle(this.props);
+        this._instance.initTitle(this.props);
       }
 
       if (this.props.visible == false) {
-        this.instance.hide();
+        this._instance.hide();
       } else {
-        this.instance.show();
+        this._instance.show();
       }
     }
   }

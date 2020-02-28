@@ -32,10 +32,10 @@
         coverColor: 'rgba(0,0,0,.5)',
         startAngle: -360,
         endAngle: 360,
-        cropCallback: function () {
-          this.$resultCanvas.style.marginRight = '10px';
-          this.$resultCanvas.style.width = '50%';
-          document.body.appendChild(this.$resultCanvas);
+        cropCallback: function ($resultCanvas) {
+          $resultCanvas.style.marginRight = '10px';
+          $resultCanvas.style.width = '50%';
+          document.body.appendChild($resultCanvas);
         },
       });
 

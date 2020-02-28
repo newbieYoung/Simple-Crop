@@ -875,6 +875,9 @@ Component({
         x: contentWidth / 2,
         y: contentHeight / 2
       };
+      console.log('---1---');
+      console.log(center);
+      console.log(contentWidth+' '+contentHeight);
       var image1 = this.$cropResult.createImage();
       image1.onload = function () {
         var scaleNum = self.scaleTimes / self.times * self._rotateScale;
