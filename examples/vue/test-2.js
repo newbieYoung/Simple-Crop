@@ -1,26 +1,18 @@
 import Vue from 'vue'
-import '../../dist/template-1.css'
+import '../../dist/template-2.css'
 import SimpleCrop from '../../index.vue';
 
 new Vue({
   el: '#app',
   data: {
     cropParams: {
-      title: "上传图片过大，请裁剪",
       src: "../../img/test2.jpg",
       size: {
         width: 800,
         height: 600
       },
-      cropSizePercent: 0.65,
-      scaleSlider: true,
-      maxScale: 3,
-      borderWidth: 1,
-      funcBtns: ["close", "crop", "upload"],
-      borderColor: "#fff",
-      coverColor: "rgba(0,0,0,.5)",
-      startAngle: -360,
-      endAngle: 360,
+      borderColor: '#fff',
+      cropSizePercent: 0.9
     }
   },
   components: {
@@ -31,7 +23,7 @@ new Vue({
     updateComponent() {
       this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
       this.cropParams.borderColor = '#0BFF00'; //更新值
-      this.cropParams.cropSizePercent = 0.5;
+      this.cropParams.cropSizePercent = 0.8;
       this.cropParams.size = {
         width: 600,
         height: 600
@@ -40,7 +32,6 @@ new Vue({
 
     //设置裁剪图片
     setCropImage(evt) {
-      console.log(evt);
       var files = evt.target.files;
       if (files.length > 0) {
         this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用

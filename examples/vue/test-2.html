@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Vue</title>
+  <style>
+    button {
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <input v-on:change="setCropImage" type="file" accept="image/png,image/jpeg"></input>
+    <button v-on:click="updateComponent">组件更新</button>
+    <simple-crop v-bind:crop-params="cropParams" v-on:crop="cropCallback" v-on:upload="uploadCallback"
+      v-on:close="closeCallback"></simple-crop>
+  </div>
+  <script src="../../dist/vue-test-2.js" type="text/javascript"></script>
+</body>
+
+</html>
