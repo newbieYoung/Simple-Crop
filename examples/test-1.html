@@ -34,10 +34,17 @@
         startAngle: -360,
         endAngle: 360,
         cropCallback: function ($resultCanvas) {
+          console.log('cropCallback');
           $resultCanvas.style.marginRight = '10px';
           $resultCanvas.style.width = '50%';
           document.body.appendChild($resultCanvas);
         },
+        uploadCallback: function (src) {
+          console.log('uploadCallback ' + src);
+        },
+        closeCallback: function () {
+          console.log('closeCallback');
+        }
       });
 
       //选取裁剪图片
@@ -47,7 +54,7 @@
         if (files.length > 0) {
           simpleCrop.show(files[0]);
         }
-        $upload.value = ''; //清空value属性，从而保证用户修改文件内容但是没有修改文件名时依然能上传成功
+        $upload.value = ''; //清空 input value属性
       });
 
       //组件更新

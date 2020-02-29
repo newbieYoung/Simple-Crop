@@ -8,6 +8,7 @@ class Test1 extends React.Component {
     super(props);
 
     this.state = {
+      inputValue: '',
       cropParams: {
         title: "上传图片过大，请裁剪",
         src: "../../img/test2.jpg",
@@ -46,12 +47,16 @@ class Test1 extends React.Component {
   }
 
   //设置裁剪图片
-  setCropImage () {
-    let cropParams = this.state.cropParams;
-    cropParams.src = "../../img/test1.jpg";
-    this.setState({
-      cropParams: cropParams
-    });
+  setCropImage (evt) {
+    var files = evt.target.files;
+    if (files.length > 0) {
+      let cropParams = this.state.cropParams;
+      cropParams.src = files[0];
+      this.setState({
+        cropParams: cropParams,
+        inputValue: '' // 清空 input value 属性
+      });
+    }
   }
 
   //图片裁剪回调函数
@@ -75,7 +80,7 @@ class Test1 extends React.Component {
   render () {
     return (
       <div>
-        <input onChange={this.setCropImage.bind(this)} type="file" accept="image/png,image/jpeg"></input>
+        <input onChange={this.setCropImage.bind(this)} type="file" accept="image/png,image/jpeg" value={this.state.inputValue}></input>
         <button onClick={this.updateComponent.bind(this)}>组件更新</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>

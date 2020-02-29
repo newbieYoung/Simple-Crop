@@ -57,7 +57,7 @@ class Test2 extends React.Component {
   render () {
     return (
       <div>
-        <button onClick={this.setCropImage.bind(this)}>设置裁剪图片</button>
+        <input onChange={this.setCropImage.bind(this)} type="file" accept="image/png,image/jpeg"></input>
         <button onClick={this.updateComponent.bind(this)}>组件更新</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>
