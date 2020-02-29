@@ -49,7 +49,7 @@ npm install simple-crop
 
 ## 用法
 
-- [script 标签用法](USAGE-script.md)
+- [script 用法](USAGE-script.md)
 - [微信小程序用法](USAGE-wechat.md)
 - [React 用法](USAGE-react.md)
 
