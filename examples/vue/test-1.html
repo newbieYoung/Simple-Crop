@@ -14,7 +14,7 @@
 
 <body>
   <div id="app">
-    <button v-on:click="setCropImage">设置裁剪图片</button>
+    <input v-on:change="setCropImage" type="file" accept="image/png,image/jpeg"></input>
     <button v-on:click="updateComponent">组件更新</button>
     <simple-crop v-bind:crop-params="cropParams" v-on:crop="cropCallback" v-on:upload="uploadCallback"
       v-on:close="closeCallback"></simple-crop>

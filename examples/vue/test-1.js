@@ -39,18 +39,24 @@ new Vue({
     },
 
     //设置裁剪图片
-    setCropImage() {
-      this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
-      this.cropParams.src = "../../img/test1.jpg";
+    setCropImage(evt) {
+      console.log(evt);
+      var files = evt.target.files;
+      if (files.length > 0) {
+        this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
+        this.cropParams.src = files[0];
+      }
+      evt.target.value = '';
     },
 
     //关闭回调
     closeCallback() {
-      console.log('Simple Crop 已关闭');
+      console.log('closeCallback');
     },
 
     //图片裁剪回调函数
     cropCallback($resultCanvas) {
+      console.log('cropCallback');
       $resultCanvas.style.marginRight = "10px";
       $resultCanvas.style.width = "50%";
       document.body.appendChild($resultCanvas);
@@ -58,7 +64,7 @@ new Vue({
 
     //上传图片回调函数
     uploadCallback(src) {
-      console.log('上传裁剪图片成功：' + src);
+      console.log('uploadCallback ' + src);
     }
   }
 });
