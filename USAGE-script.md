@@ -1,4 +1,4 @@
-# script 用法
+# Script 用法
 
 - [Mobile 示例](https://newbieyoung.github.io/Simple-Crop/examples/test-2.html)
 - [PC 示例](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
