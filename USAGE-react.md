@@ -1,4 +1,4 @@
-# script 标签用法
+# React 用法
 
 - [Mobile 示例](https://newbieyoung.github.io/Simple-Crop/examples/react/test-2.html)
 - [PC 示例](https://newbieyoung.github.io/Simple-Crop/examples/react/test-1.html)
@@ -30,7 +30,7 @@ this.state = {
   inputValue: '',
   cropParams: {
     src: "../../img/test2.jpg", // 裁剪图片地址
-    size: {
+    size: { //裁剪尺寸
       width: 800,
       height: 600
     },
@@ -93,11 +93,15 @@ setCropImage (evt) {
 ## 5、更新组件参数
 
 ```jsx
+<button onClick={this.updateComponent.bind(this)}>组件更新</button>
+```
+
+```jsx
 updateComponent () {
   let cropParams = this.state.cropParams;
-  cropParams.borderColor = "#0BFF00"; //更新裁剪框边框颜色
-  cropParams.cropSizePercent = 0.5; //更新裁剪框显示比例
-  cropParams.size = { //更新裁剪尺寸
+  cropParams.borderColor = "#0BFF00"; //更新值
+  cropParams.cropSizePercent = 0.5;
+  cropParams.size = {
     width: 600,
     height: 600
   };

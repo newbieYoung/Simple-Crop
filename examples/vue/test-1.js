@@ -40,7 +40,6 @@ new Vue({
 
     //设置裁剪图片
     setCropImage(evt) {
-      console.log(evt);
       var files = evt.target.files;
       if (files.length > 0) {
         this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用

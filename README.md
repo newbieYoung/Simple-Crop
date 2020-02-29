@@ -52,6 +52,7 @@ npm install simple-crop
 - [script 用法](USAGE-script.md)
 - [微信小程序用法](USAGE-wechat.md)
 - [React 用法](USAGE-react.md)
+- [Vue 用法](USAGE-vue.md)
 
 ## 开源许可协议
 
