@@ -255,4 +255,4 @@ This content is released under the [MIT](http://opensource.org/licenses/MIT) Lic
 
 ## More
 
-`全平台（Vue、React、微信小程序）极致体验图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
+`全平台（Vue、React、微信小程序）任意角度旋转 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
