@@ -24,7 +24,9 @@ class Test1 extends React.Component {
         coverColor: "rgba(0,0,0,.5)",
         startAngle: -360,
         endAngle: 360,
-        cropCallback: this.cropCallback
+        cropCallback: this.cropCallback,
+        uploadCallback: this.uploadCallback,
+        closeCallback: this.closeCallback
       }
     };
   }
@@ -54,15 +56,26 @@ class Test1 extends React.Component {
 
   //图片裁剪回调函数
   cropCallback ($resultCanvas) {
+    console.log('cropCallback');
     $resultCanvas.style.marginRight = "10px";
     $resultCanvas.style.width = "50%";
     document.body.appendChild($resultCanvas);
   }
 
+  //关闭组件回调
+  closeCallback () {
+    console.log('closeCallback');
+  }
+
+  //选取裁剪图片成功回调
+  uploadCallback (src) {
+    console.log('uploadCallback ' + src);
+  }
+
   render () {
     return (
       <div>
-        <button onClick={this.setCropImage.bind(this)}>设置裁剪图片</button>
+        <input onChange={this.setCropImage.bind(this)} type="file" accept="image/png,image/jpeg"></input>
         <button onClick={this.updateComponent.bind(this)}>组件更新</button>
         <SimpleCrop {...this.state.cropParams} />
       </div>

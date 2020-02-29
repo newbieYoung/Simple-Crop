@@ -10,8 +10,32 @@ export class SimpleCrop extends React.Component {
 
   //初次渲染
   componentDidMount () {
-    this.props.cropCallback = this.cropCallback;
-    this._instance = new Core(this.props);
+    let cropParams = JSON.parse(JSON.stringify(this.props))
+    cropParams.cropCallback = () => {
+      this.cropCallback();
+    }
+    cropParams.closeCallback = () => {
+      this.closeCallback();
+    }
+    cropParams.uploadCallback = () => {
+      this.uploadCallback();
+    }
+    this._instance = new Core(cropParams);
+  }
+
+  //选取裁剪图片成功回调
+  uploadCallback () {
+    if (this.props.uploadCallback) {
+      let src = this._instance ? this._instance.src : this.props.src;
+      this.props.uploadCallback(src);
+    }
+  }
+
+  //关闭回调
+  closeCallback () {
+    if (this.props.closeCallback) {
+      this.props.closeCallback();
+    }
   }
 
   //裁剪回调
@@ -34,8 +58,8 @@ export class SimpleCrop extends React.Component {
       }
 
       if (this.hasChanged(['cropSizePercent'], prevProps)
-        || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset)
-        || !this.isEquivalent(this.props.size, prevProps.size)) {
+        || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset, ['top', 'left'])
+        || !this.isEquivalent(this.props.size, prevProps.size, ['width', 'height'])) {
         this._instance.updateBox(this.props);
       }
 
@@ -43,7 +67,7 @@ export class SimpleCrop extends React.Component {
         this._instance.initBoxBorder(this.props)
       }
 
-      if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns)) {
+      if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns, /^[0-9]*$/)) {
         this._instance.initFuncBtns(this.props);
       }
 
@@ -72,14 +96,47 @@ export class SimpleCrop extends React.Component {
       cur[item] = this.props[item];
       prev[item] = props[item];
     }
-    return !this.isEquivalent(cur, prev);
+    return !this.isEquivalent(cur, prev, names);
   }
 
   //根据两个简单对象的值比较它们是否相同
-  isEquivalent (a, b) {
+  isEquivalent (a, b, include) {
     if (a != null && b != null) {
-      let aProps = Object.getOwnPropertyNames(a);
-      let bProps = Object.getOwnPropertyNames(b);
+      let aProps = [];
+      let aTemps = Object.getOwnPropertyNames(a);
+      let bProps = [];
+      let bTemps = Object.getOwnPropertyNames(b);
+
+      //只考虑 include
+      if (include instanceof Array) {
+        // 数组
+        for (let i = 0; i < include.length; i++) {
+          let item = include[i];
+          if (aTemps.includes(item)) {
+            aProps.push(item);
+          }
+          if (bTemps.includes(item)) {
+            bProps.push(item);
+          }
+        }
+      } else if (include instanceof RegExp) {
+        //正则
+        for (let i = 0; i < aTemps.length; i++) {
+          let item = aTemps[i];
+          if (include.test(item)) {
+            aProps.push(item);
+          }
+        }
+        for (let i = 0; i < bTemps.length; i++) {
+          let item = bTemps[i];
+          if (include.test(item)) {
+            bProps.push(item);
+          }
+        }
+      } else {
+        aProps = aTemps;
+        bTemps = bTemps;
+      }
 
       if (aProps.length != bProps.length) {
         return false;
@@ -94,9 +151,9 @@ export class SimpleCrop extends React.Component {
 
       return true;
     } else if (a === b) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
