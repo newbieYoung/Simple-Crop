@@ -43,7 +43,7 @@ class Test2 extends React.Component {
 
   //设置裁剪图片
   setCropImage (evt) {
-    var files = evt.target.files;
+    let files = evt.target.files;
     if (files.length > 0) {
       let cropParams = this.state.cropParams;
       cropParams.src = files[0];

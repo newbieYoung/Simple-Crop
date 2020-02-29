@@ -17,7 +17,7 @@
 <script src="../lib/prefix-umd.js"></script>
 <script src="../lib/exif.js"></script>
 <script src="../lib/transformation-matrix.js"></script>
-<script src="./index.js"></script>
+<script src="../index.js"></script>
 ```
 
 ## 3、初始化
