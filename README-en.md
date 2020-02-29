@@ -9,7 +9,7 @@ The only `full-platform` picture cropping component that `supports cropping pict
 Compared with the currently popular Web picture cropping components, its advantages are as follows:
 
 - Picture supports rotation at any angle.
-- Supports script, React, Vue, Wechat.
+- Supports Script, React, Vue, Wechat.
 - Supports mobile and PC.
 - Supports border judgment. When there is a blank in the crop box, the picture is automatically absorbed to completely fill the crop box.
 - Touch scaling is based on the center of two fingers.
@@ -47,9 +47,10 @@ Visit the following links:
 
 ## Usage
 
-- [script usage](USAGE-script.md)
-- [wechat usage](USAGE-wechat.md)
-- [React usage](USAGE-react.md)
+- [Script Usage](USAGE-script.md)
+- [Wechat Usage](USAGE-wechat.md)
+- [React Usage](USAGE-react.md)
+- [Vue Usage](USAGE-react.md)
 
 ## License
 

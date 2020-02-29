@@ -9,7 +9,7 @@
 和目前流行的图片裁剪组件相比，其优势在于以下几点：
 
 - 裁剪图片支持任意角度旋转；
-- 支持 script 标签、微信小程序、React、Vue；
+- 支持 Script 标签、微信小程序、React、Vue；
 - 支持移动和 PC 设备；
 - 支持边界判断、当裁剪框里出现空白时，图片自动吸附至完全填满裁剪框；
 - 移动端缩放以双指中心为基准点；
@@ -49,7 +49,7 @@ npm install simple-crop
 
 ## 用法
 
-- [script 用法](USAGE-script.md)
+- [Script 用法](USAGE-script.md)
 - [微信小程序用法](USAGE-wechat.md)
 - [React 用法](USAGE-react.md)
 - [Vue 用法](USAGE-vue.md)
