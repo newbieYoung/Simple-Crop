@@ -13,7 +13,7 @@ class Test1 extends React.Component {
         title: "上传图片过大，请裁剪",
         src: "../../img/test2.jpg",
         size: {
-          width: 1000,
+          width: 800,
           height: 600
         },
         cropSizePercent: 0.65,

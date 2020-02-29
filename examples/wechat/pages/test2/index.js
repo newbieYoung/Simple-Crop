@@ -10,8 +10,8 @@ Page({
       width: 400,
       height: 300
     },
-    cropSizePercent:0.9,
-    borderColor:'#fff',
+    cropSizePercent: 0.9,
+    borderColor: '#fff',
     result: '',
   },
 
@@ -31,14 +31,14 @@ Page({
   },
 
   //组件更新
-  updateComponnet:function(){
+  updateComponnet: function () {
     this.setData({
       visible: true,
       borderColor: "#0BFF00",
       cropSizePercent: 0.7,
-      size : {
-        width: 400,
-        height: 400
+      size: {
+        width: 300,
+        height: 300
       }
     })
   },
