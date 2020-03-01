@@ -338,7 +338,8 @@ Component({
       //计算放大后的新坐标
       if (scale > 1) {
         transform += ' scale(' + scale + ')';
-        this._rotateScale = this._rotateScale * scale;
+        this.scaleTimes = this.scaleTimes * scale;
+        //this._rotateScale = this._rotateScale * scale; // this._rotateScale 只能受旋转角度影响
         scalePoints = this.getTransformPoints('scaleY(-1)' + transform, this.initContentPoints);
       }
 
@@ -1214,10 +1215,11 @@ Component({
     around: function () {
       var rotateSlider = this.data.rotateSlider;
       this.startControl();
-      this.rotateAngle = this._baseAngle - 90;
+      this.rotateAngle = (this._baseAngle - 90) % 360;
       this._baseAngle = this.rotateAngle;
       this._curMoveX = this._baseMoveX;
       this._changedX = 0;
+      this._rotateScale = 1;
       if (rotateSlider) {
         this.setData({
           curMoveX: -this._curMoveX
@@ -1307,7 +1309,7 @@ Component({
 
       this.isAttached = true;
       this.borderDraw = borderDraw ? borderDraw : this.defaultBorderDraw;
-      this.coverDraw = coverDraw ? coverDraw: function () {};
+      this.coverDraw = coverDraw ? coverDraw : function () {};
 
       this.initRotateSlider();
       this.initFuncBtns();
