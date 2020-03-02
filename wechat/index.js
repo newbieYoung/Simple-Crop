@@ -1011,7 +1011,6 @@ Component({
     //操作结束
     endControl: function () {
       if (this._isControl) {
-        this._isControl = false;
         this._downPoints = [];
         this.scaleDownX = 0;
 
@@ -1034,6 +1033,8 @@ Component({
             cropContentStyle: style
           });
         }
+
+        this._isControl = false;
       }
     },
 

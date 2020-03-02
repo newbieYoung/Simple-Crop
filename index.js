@@ -943,7 +943,6 @@
     SimpleCrop.prototype.endControl = function () {
         if (this._isControl) {
             var self = this;
-            this._isControl = false;
             this._downPoints = [];
             this.scaleDownX = 0;
 
@@ -979,6 +978,8 @@
                     });
                 }
             }
+
+            this._isControl = false;
         }
     };
 
