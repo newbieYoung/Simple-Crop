@@ -610,6 +610,7 @@
         self.originImage.onload = function () {
             EXIF.getData(self.originImage, function () {
                 self._orientation = EXIF.getTag(this, 'Orientation');
+                self.getRealCotentSize();
                 self.transformCoordinates();
                 self.init();
             });
@@ -823,15 +824,19 @@
         }
     }
 
-    //处理图片方向
-    SimpleCrop.prototype.transformCoordinates = function () {
+    //根据图片方向计算源图片实际宽高
+    SimpleCrop.prototype.getRealCotentSize = function () {
         this.contentWidth = this.originImage.width;
         this.contentHeight = this.originImage.height;
-        //图片方向大于 4 时宽高互相
+        //图片方向大于 4 时宽高互换
         if (this._orientation > 4) {
             this.contentWidth = this.originImage.height;
             this.contentHeight = this.originImage.width;
         }
+    }
+
+    //处理图片方向
+    SimpleCrop.prototype.transformCoordinates = function () {
         if (this.$cropContent) {
             this.$cropMask.removeChild(this.$cropContent);
         }
