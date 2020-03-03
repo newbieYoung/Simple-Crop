@@ -23,6 +23,10 @@ npm install simple-crop
 
 ## 示例
 
+### 微信小程序示例
+
+![微信小程序示例](https://newbieyoung.github.io/images/simple-crop-16.jpg)
+
 ### 移动端示例
 
 ![移动端示例](https://newbieyoung.github.io/images/simple-crop-0.jpg)
@@ -44,8 +48,6 @@ npm install simple-crop
 链接如下：
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
-
-### 微信小程序示例
 
 ## 用法
 
