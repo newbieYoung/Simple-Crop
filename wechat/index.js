@@ -88,6 +88,8 @@ Component({
       reset: false,
     },
     curMoveX: 0,
+    _contentWidth:0,// ios canvas style width
+    _contentHeight:0,
   },
 
   //数据监听器
@@ -772,25 +774,38 @@ Component({
         success(res) {
           self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
-          var image = self.$cropContent.createImage();
-          image.onload = function () {
-            self.transformCoordinates(image);
-            self.init();
-          }
-          image.src = src;
+          self.getRealCotentSize();
+          setTimeout(function(){
+            var image = self.$cropContent.createImage();
+            image.onload = function () {
+              self.transformCoordinates(image);
+              self.init();
+            }
+            image.src = src;
+          },50) // ios delay 保证 canvas style 尺寸生效
         }
+      })
+    },
+
+    //根据图片方向计算源图片实际宽高
+    getRealCotentSize:function(){
+      this.contentWidth = this.originImage.width;
+      this.contentHeight = this.originImage.height;
+      //图片方向大于 4 时宽高互换
+      if (this._orientation > 4) {
+        this.contentWidth = this.originImage.height;
+        this.contentHeight = this.originImage.width;
+      }
+
+      //ios canvas style width height
+      this.setData({
+        _contentWidth: this.contentWidth,
+        _contentHeight: this.contentHeight,
       })
     },
 
     //处理图片方向
     transformCoordinates: function (image) {
-      this.contentWidth = this.originImage.width;
-      this.contentHeight = this.originImage.height;
-      //图片方向大于 4 时宽高互相
-      if (this._orientation > 4) {
-        this.contentWidth = this.originImage.height;
-        this.contentHeight = this.originImage.width;
-      }
       this._initSize = 'width:' + this.contentWidth + 'px;height:' + this.contentHeight + 'px;';
       this.$cropContent.width = this.contentWidth;
       this.$cropContent.height = this.contentHeight;

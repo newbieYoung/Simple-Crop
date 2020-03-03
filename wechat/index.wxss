@@ -39,8 +39,8 @@
 .crop-component .crop-result,
 .crop-component .crop-content{
   position: absolute;
-  top:-100%;
-  left:-100%;
+  top:-10000px; /* 裁剪图片实际尺寸不能超过 10000px * 10000px */
+  left:-10000px;
   visibility: hidden;
 }
 
