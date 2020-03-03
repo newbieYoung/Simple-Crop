@@ -775,12 +775,14 @@ Component({
           self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
           self.getRealCotentSize();
-          var image = self.$cropContent.createImage();
-          image.onload = function () {
-            self.transformCoordinates(image);
-            self.init();
-          }
-          image.src = src;
+          setTimeout(function(){
+            var image = self.$cropContent.createImage();
+            image.onload = function () {
+              self.transformCoordinates(image);
+              self.init();
+            }
+            image.src = src;
+          },50) // ios delay 保证 canvas style 尺寸生效
         }
       })
     },
