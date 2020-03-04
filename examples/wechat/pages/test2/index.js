@@ -21,6 +21,7 @@ Page({
   chooseCropImage: function () {
     let self = this;
     wx.chooseImage({
+      sizeType: ["compressed"],// ios 选择原图容易 crash
       success(res) {
         self.setData({
           visible: true,
