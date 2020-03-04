@@ -23,6 +23,10 @@ npm install simple-crop
 
 ## Examples
 
+### Wechat Example
+
+![WeChat example](https://newbieyoung.github.io/images/simple-crop-16.jpg)
+
 ### Mobile Example
 
 ![Mobile example](https://newbieyoung.github.io/images/simple-crop-0.jpg)
@@ -42,8 +46,6 @@ Visit the following links:
 ![PC example](https://newbieyoung.github.io/images/simple-crop-11.jpg)
 
 [https://newbieyoung.github.io/Simple-Crop/examples/test-1.html](https://newbieyoung.github.io/Simple-Crop/examples/test-1.html)
-
-### Wechat Example
 
 ## Usage
 
