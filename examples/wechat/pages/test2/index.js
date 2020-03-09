@@ -33,8 +33,10 @@ Page({
 
   //组件更新
   updateComponnet: function () {
+    let src = this.data.src ? this.data.src : '../test2/img/test1.jpg';//裁剪图片不存在时，使用默认图片，注意加载时的相对路径
     this.setData({
       visible: true,
+      src: src,
       borderColor: "#0BFF00",
       cropSizePercent: 0.7,
       size: {
