@@ -88,8 +88,8 @@ Component({
       reset: false,
     },
     curMoveX: 0,
-    _contentWidth:0,// ios canvas style width
-    _contentHeight:0,
+    _contentWidth: 0, // ios canvas style width
+    _contentHeight: 0,
   },
 
   //数据监听器
@@ -775,20 +775,20 @@ Component({
           self.originImage = res;
           self._orientation = self.orientationToNumber(res.orientation);
           self.getRealCotentSize();
-          setTimeout(function(){
+          setTimeout(function () {
             var image = self.$cropContent.createImage();
             image.onload = function () {
               self.transformCoordinates(image);
               self.init();
             }
             image.src = src;
-          },50) // ios delay 保证 canvas style 尺寸生效
+          }, 50) // ios delay 保证 canvas style 尺寸生效
         }
       })
     },
 
     //根据图片方向计算源图片实际宽高
-    getRealCotentSize:function(){
+    getRealCotentSize: function () {
       this.contentWidth = this.originImage.width;
       this.contentHeight = this.originImage.height;
       //图片方向大于 4 时宽高互换
@@ -891,7 +891,7 @@ Component({
       //需要考虑裁剪图片实际尺寸比裁剪尺寸小的情况
       var ratio = 1;
       if (contentWidth < cropWidth || contentHeight < cropHeight) { // 裁剪中间画布尺寸必须大于实际裁剪尺寸
-        if (cropWidth / contentWidth > cropHeight > contentHeight) {
+        if (cropWidth / contentWidth > cropHeight / contentHeight) {
           ratio = cropWidth / contentWidth;
           contentHeight = contentHeight * ratio;
           contentWidth = cropWidth;

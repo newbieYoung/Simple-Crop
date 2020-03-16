@@ -910,7 +910,7 @@
         //需要考虑裁剪图片实际尺寸比裁剪尺寸小的情况
         var ratio = 1;
         if (contentWidth < cropWidth || contentHeight < cropHeight) { // 裁剪中间画布尺寸必须大于实际裁剪尺寸
-            if (cropWidth / contentWidth > cropHeight > contentHeight) {
+            if (cropWidth / contentWidth > cropHeight / contentHeight) {
                 ratio = cropWidth / contentWidth;
                 contentHeight = contentHeight * ratio;
                 contentWidth = cropWidth;
