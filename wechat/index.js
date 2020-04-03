@@ -769,6 +769,11 @@ Component({
     load: function () {
       var self = this;
       var src = this.data.src;
+
+      wx.showLoading({
+        title: '正在加载图片...',
+      })
+      
       wx.getImageInfo({
         src: src,
         success(res) {
@@ -865,7 +870,12 @@ Component({
       var self = this;
       wx.canvasToTempFilePath({
         canvas: self.$cropContent,
+        width: self.$cropContent.width,
+        height: self.$cropContent.height,
+        destWidth: self.$cropContent.width,
+        destHeight: self.$cropContent.height,
         success(res) {
+          wx.hideLoading();
           self.setData({
             visibleSrc: res.tempFilePath
           })
@@ -923,6 +933,10 @@ Component({
 
         wx.canvasToTempFilePath({
           canvas: self.$cropResult,
+          width: self.$cropResult.width,
+          height: self.$cropResult.height,
+          destWidth: self.$cropResult.width,
+          destHeight: self.$cropResult.height,
           success(res) {
             var image2 = self.$cropFinal.createImage();
             image2.onload = function () {
@@ -931,6 +945,10 @@ Component({
 
               wx.canvasToTempFilePath({
                 canvas: self.$cropFinal,
+                width: self.$cropFinal.width,
+                height: self.$cropFinal.height,
+                destWidth: self.$cropFinal.width,
+                destHeight: self.$cropFinal.height,
                 success(res) {
                   wx.hideLoading()
                   self.resultSrc = res.tempFilePath
