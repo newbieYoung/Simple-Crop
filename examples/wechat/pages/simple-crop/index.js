@@ -769,6 +769,11 @@ Component({
     load: function () {
       var self = this;
       var src = this.data.src;
+
+      wx.showLoading({
+        title: '正在加载图片...',
+      })
+      
       wx.getImageInfo({
         src: src,
         success(res) {
@@ -870,6 +875,7 @@ Component({
         destWidth: self.$cropContent.width,
         destHeight: self.$cropContent.height,
         success(res) {
+          wx.hideLoading();
           self.setData({
             visibleSrc: res.tempFilePath
           })
