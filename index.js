@@ -751,8 +751,10 @@
                     self._downPoints = touches;
                 }
             }
-            e.stopPropagation(); //阻止事件冒泡
-            e.preventDefault();
+            if (self.visible) {
+                e.stopPropagation(); //阻止事件冒泡
+                e.preventDefault();
+            }
         });
         self.$cropRotate.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
@@ -799,7 +801,9 @@
                     self.transform(false, true);
                 }
             }
-            ev.preventDefault();
+            if (self.visible) { //组件显示状态才屏蔽掉一些事件的默认行为，防止组件关闭后继续影响页面
+                ev.preventDefault();
+            }
         }, options);
         $imageListenerEle.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         $imageListenerEle.addEventListener(controlEvents.cancel, self.endControl.bind(self));
