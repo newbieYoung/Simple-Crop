@@ -1,315 +1,331 @@
-.crop-component {
-    width: 700px;
-    background: #FFFFFF;
-    -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
-    border-radius: 4px;
-    font-size: 0;
-    position: relative;
+@font-face {
+  font-family: DINCondensed-Bold;
+  src: url(./font/DIN_Condensed_Bold.ttf);
 }
 
 .crop-whole-cover {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, .6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 9999;
+}
+
+.crop-component {
+  width: 700px;
+  background: #ffffff;
+  -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.22);
+  border-radius: 4px;
+  font-size: 0;
+  position: relative;
 }
 
 /* 标题 */
 .crop-component .crop-title {
-    margin: 0;
-    padding: 0;
-    display: inline-block;
-    width: 100%;
-    line-height: 40px;
-    height: 40px;
-    text-align: center;
-    font-size: 16px;
-    color: #222222;
-    position: relative;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  width: 100%;
+  line-height: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 16px;
+  color: #222222;
+  position: relative;
 }
 
 /* 画布 */
 .crop-component .crop-mask {
-    width: 100%;
-    height: 500px;
-    background-image: url(./img/mosaic-bk.jpg);
-    background-repeat: repeat;
-    position: relative;
-    cursor: move;
-    overflow: hidden;
+  width: 100%;
+  height: 500px;
+  background-image: url(./img/mosaic-bk.jpg);
+  background-repeat: repeat;
+  position: relative;
+  cursor: move;
+  overflow: hidden;
 }
 
 .crop-component .crop-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    cursor: move;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  cursor: move;
 }
 
 /* 旋转 */
 .crop-component .crop-rotate {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin: auto;
-    top: 474px;
-    width: 92%;
-    height: 66px;
-    margin: auto;
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
-    mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.64) 50%, rgba(255, 255, 255, 0.00) 100%);
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 474px;
+  width: 92%;
+  height: 66px;
+  margin: auto;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.64) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.64) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .crop-component .crop-rotate .current {
-    margin: auto;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 9px solid #D8D8D8;
-    border-radius: 1px;
+  margin: auto;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid #d8d8d8;
+  border-radius: 1px;
 }
 
 .crop-component .crop-rotate .lineation {
-    height: 50px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    font-size: 0;
-    margin: 0;
-    padding: 0 0 8px 0;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  height: 50px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 0;
+  margin: 0;
+  padding: 0 0 8px 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .crop-component .crop-rotate .lineation li {
-    flex: 1;
-    height: 100%;
-    display: inline-block;
+  flex: 1;
+  height: 100%;
+  display: inline-block;
 }
 
 .crop-component .crop-rotate .lineation .number {
-    width: 100%;
-    height: 32px;
-    font-size: 16px;
-    line-height: 36px;
-    text-align: center;
-    font-family: DINCondensed-Bold;
-    overflow: hidden;
-    color: #fff;
+  width: 100%;
+  height: 32px;
+  font-size: 16px;
+  line-height: 36px;
+  text-align: center;
+  font-family: DINCondensed-Bold;
+  overflow: hidden;
+  color: #fff;
 }
 
 .crop-component .crop-rotate .lineation .bg {
-    width: 100%;
-    height: 18px;
-    background-image: url(./img/lineation-bg.png);
-    background-size: contain;
-    background-repeat: no-repeat;
+  width: 100%;
+  height: 18px;
+  background-image: url(./img/lineation-bg.png);
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 /* 缩放 */
 .crop-component .crop-scale {
-    font-size: 0;
-    width: 100%;
-    height: 50px;
-    border-bottom: 1px solid #CCC;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    /* 主轴对齐方式 */
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    /* 交叉轴对齐方式 */
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
+  font-size: 0;
+  width: 100%;
+  height: 50px;
+  border-bottom: 1px solid #ccc;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  /* 主轴对齐方式 */
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  /* 交叉轴对齐方式 */
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .crop-component .crop-scale .one-times-icon {
-    display: inline-block;
-    width: 16px;
-    height: 13px;
-    background-image: url(./img/one-times-icon.png);
-    background-size: 100% 100%;
-    cursor: pointer;
-    margin-right: 5px;
+  display: inline-block;
+  width: 16px;
+  height: 13px;
+  background-image: url(./img/one-times-icon.png);
+  background-size: 100% 100%;
+  cursor: pointer;
+  margin-right: 5px;
 }
 
 .crop-component .crop-scale .two-times-icon {
-    display: inline-block;
-    width: 22px;
-    height: 17px;
-    background-image: url(./img/two-times-icon.png);
-    background-size: 100% 100%;
-    cursor: pointer;
+  display: inline-block;
+  width: 22px;
+  height: 17px;
+  background-image: url(./img/two-times-icon.png);
+  background-size: 100% 100%;
+  cursor: pointer;
 }
 
 .crop-component .crop-scale .max-scale {
-    font-size: 16px;
-    color: #000;
-    margin-left: 5px;
+  font-size: 16px;
+  color: #000;
+  margin-left: 5px;
 }
 
 .crop-component .crop-scale .scale-container {
-    position: relative;
-    width: 280px;
-    height: 30px;
-    cursor: pointer;
-    margin-left: 15px;
-    margin-right: 15px;
+  position: relative;
+  width: 280px;
+  height: 30px;
+  cursor: pointer;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .crop-component .crop-scale .scale-num {
-    display: inline-block;
-    width: 280px;
-    height: 3px;
-    background-color: #D8D8D8;
-    border-radius: 1px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+  display: inline-block;
+  width: 280px;
+  height: 3px;
+  background-color: #d8d8d8;
+  border-radius: 1px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
 }
 
 .crop-component .crop-scale .scale-value {
-    display: inline-block;
-    height: 100%;
-    background-color: #222;
-    border-radius: 1px;
+  display: inline-block;
+  height: 100%;
+  background-color: #222;
+  border-radius: 1px;
 }
 
 .crop-component .crop-scale .scale-btn {
-    position: absolute;
-    top: -7px;
-    display: inline-block;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    width: 17px;
-    height: 17px;
-    border-radius: 17px;
-    background-color: #FFF;
-    border: 1px solid #F2F2F2;
-    -webkit-box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.20);
-    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.20);
+  position: absolute;
+  top: -7px;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 17px;
+  height: 17px;
+  border-radius: 17px;
+  background-color: #fff;
+  border: 1px solid #f2f2f2;
+  -webkit-box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* 功能按钮 */
 .crop-component .crop-btns {
-    width: 100%;
-    height: 90px;
-    font-size: 0;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    /* 主轴对齐方式 */
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    /* 交叉轴对齐方式 */
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
+  width: 100%;
+  height: 90px;
+  font-size: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  /* 主轴对齐方式 */
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  /* 交叉轴对齐方式 */
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .crop-component .crop-btns .crop-btn,
 .crop-component .crop-btns .upload-btn {
-    width: 160px;
-    height: 40px;
-    border: 1px solid #222222;
-    border-radius: 48px;
-    cursor: pointer;
-    position: relative;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+  width: 160px;
+  height: 40px;
+  border: 1px solid #222222;
+  border-radius: 48px;
+  cursor: pointer;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .crop-component .crop-btns .upload-btn-container {
-    position: relative;
+  position: relative;
 }
 
 .crop-component .crop-btns .upload-btn {
-    background-color: #fff;
-    position: relative;
+  background-color: #fff;
+  position: relative;
 }
 
 .crop-component .crop-btns .upload-btn:after {
-    content: '重新上传';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    font-size: 18px;
-    color: #222;
-    text-align: center;
-    line-height: 40px;
-
+  content: "重新上传";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
+  color: #222;
+  text-align: center;
+  line-height: 40px;
 }
 
 .crop-component .crop-btns .upload-btn-container input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .crop-component .crop-btns .crop-btn {
-    position: relative;
-    background-color: #000;
-    margin-left: 36px;
+  position: relative;
+  background-color: #000;
+  margin-left: 36px;
 }
 
 .crop-component .crop-btns .crop-btn:after {
-    text-align: center;
-    color: #FFF;
-    line-height: 40px;
-    font-size: 18px;
-    content: '确定裁剪';
-    position: absolute;
-    display: inline-block;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+  text-align: center;
+  color: #fff;
+  line-height: 40px;
+  font-size: 18px;
+  content: "确定裁剪";
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .crop-component .crop-btns .crop-close {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    position: absolute;
-    right: 32px;
-    top: 18px;
-    background-image: url(./img/crop-close.png);
-    background-size: 100% 100%;
-    cursor: pointer;
-    border: none;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  position: absolute;
+  right: 32px;
+  top: 18px;
+  background-image: url(./img/crop-close.png);
+  background-size: 100% 100%;
+  cursor: pointer;
+  border: none;
 }
