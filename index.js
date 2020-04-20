@@ -751,10 +751,8 @@
                     self._downPoints = touches;
                 }
             }
-            if (self.visible) {
-                e.stopPropagation(); //阻止事件冒泡
-                e.preventDefault();
-            }
+            e.stopPropagation(); //阻止事件冒泡
+            e.preventDefault();
         });
         self.$cropRotate.addEventListener(controlEvents.end, self.endControl.bind(self)); //结束
         self.$cropRotate.addEventListener(controlEvents.cancel, self.endControl.bind(self));
