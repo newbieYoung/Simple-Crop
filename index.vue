@@ -101,7 +101,7 @@ export default {
       } else {
         return false;
       }
-    }
+    },
   },
 
   //监听参数变化
@@ -119,7 +119,7 @@ export default {
               "startAngle",
               "endAngle",
               "gapAngle",
-              "lineationItemWidth"
+              "lineationItemWidth",
             ],
             oldVal
           )
@@ -136,7 +136,7 @@ export default {
           ) ||
           !this.isEquivalent(this.cropParams.size, oldVal.size, [
             "width",
-            "height"
+            "height",
           ])
         ) {
           this._instance.updateBox(this.cropParams);
@@ -150,7 +150,7 @@ export default {
               "boldCornerLen",
               "coverColor",
               "borderDraw",
-              "coverDraw"
+              "coverDraw",
             ],
             oldVal
           )
@@ -182,10 +182,9 @@ export default {
           this._instance.show();
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

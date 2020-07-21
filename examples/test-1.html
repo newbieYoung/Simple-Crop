@@ -4,17 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <title>PC</title>
-  <link rel="stylesheet" href="../dist/template-1.css">
+  <link rel="stylesheet" href="../build/template-1.css">
 </head>
 
 <body>
   <input id="upload" type="file" accept="image/png,image/jpeg">
   <button id="update">组件更新</button>
 
-  <script src="../lib/prefix-umd.js"></script>
-  <script src="../lib/exif.js"></script>
-  <script src="../lib/transformation-matrix.js"></script>
-  <script src="../index.js"></script>
+  <script src="../build/index.min.js"></script>
   <script>
     window.onload = function () {
       var simpleCrop = new SimpleCrop({

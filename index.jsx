@@ -9,22 +9,22 @@ export class SimpleCrop extends React.Component {
   }
 
   //初次渲染
-  componentDidMount () {
-    let cropParams = JSON.parse(JSON.stringify(this.props))
+  componentDidMount() {
+    let cropParams = JSON.parse(JSON.stringify(this.props));
     cropParams.cropCallback = () => {
       this.cropCallback();
-    }
+    };
     cropParams.closeCallback = () => {
       this.closeCallback();
-    }
+    };
     cropParams.uploadCallback = () => {
       this.uploadCallback();
-    }
+    };
     this._instance = new Core(cropParams);
   }
 
   //选取裁剪图片成功回调
-  uploadCallback () {
+  uploadCallback() {
     if (this.props.uploadCallback) {
       let src = this._instance ? this._instance.src : this.props.src;
       this.props.uploadCallback(src);
@@ -32,50 +32,81 @@ export class SimpleCrop extends React.Component {
   }
 
   //关闭回调
-  closeCallback () {
+  closeCallback() {
     if (this.props.closeCallback) {
       this.props.closeCallback();
     }
   }
 
   //裁剪回调
-  cropCallback () {
+  cropCallback() {
     if (this.props.cropCallback) {
       let $resultCanvas = this._instance ? this._instance.$resultCanvas : null;
-      this.props.cropCallback($resultCanvas)
+      this.props.cropCallback($resultCanvas);
     }
   }
 
   //更新
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (this._instance) {
-      if (this.hasChanged(['src'], prevProps)) {
+      if (this.hasChanged(["src"], prevProps)) {
         this._instance.setImage(this.props.src);
       }
 
-      if (this.hasChanged(['rotateSlider', 'startAngle', 'endAngle', 'gapAngle', 'lineationItemWidth'], prevProps)) {
+      if (
+        this.hasChanged(
+          [
+            "rotateSlider",
+            "startAngle",
+            "endAngle",
+            "gapAngle",
+            "lineationItemWidth",
+          ],
+          prevProps
+        )
+      ) {
         this._instance.initRotateSlider(this.props);
       }
 
-      if (this.hasChanged(['cropSizePercent'], prevProps)
-        || !this.isEquivalent(this.props.positionOffset, prevProps.positionOffset, ['top', 'left'])
-        || !this.isEquivalent(this.props.size, prevProps.size, ['width', 'height'])) {
+      if (
+        this.hasChanged(["cropSizePercent"], prevProps) ||
+        !this.isEquivalent(
+          this.props.positionOffset,
+          prevProps.positionOffset,
+          ["top", "left"]
+        ) ||
+        !this.isEquivalent(this.props.size, prevProps.size, ["width", "height"])
+      ) {
         this._instance.updateBox(this.props);
       }
 
-      if (this.hasChanged(['borderWidth', 'borderColor', 'boldCornerLen', 'coverColor', 'borderDraw', 'coverDraw'], prevProps)) {
-        this._instance.initBoxBorder(this.props)
+      if (
+        this.hasChanged(
+          [
+            "borderWidth",
+            "borderColor",
+            "boldCornerLen",
+            "coverColor",
+            "borderDraw",
+            "coverDraw",
+          ],
+          prevProps
+        )
+      ) {
+        this._instance.initBoxBorder(this.props);
       }
 
-      if (!this.isEquivalent(this.props.funcBtns, prevProps.funcBtns, /^[0-9]*$/)) {
+      if (
+        !this.isEquivalent(this.props.funcBtns, prevProps.funcBtns, /^[0-9]*$/)
+      ) {
         this._instance.initFuncBtns(this.props);
       }
 
-      if (this.hasChanged(['scaleSlider', 'maxScale'], prevProps)) {
-        this._instance.initScaleSlider(this.props)
+      if (this.hasChanged(["scaleSlider", "maxScale"], prevProps)) {
+        this._instance.initScaleSlider(this.props);
       }
 
-      if (this.hasChanged(['title'], prevProps)) {
+      if (this.hasChanged(["title"], prevProps)) {
         this._instance.initTitle(this.props);
       }
 
@@ -88,7 +119,7 @@ export class SimpleCrop extends React.Component {
   }
 
   //属性是否发生变化
-  hasChanged (names, props) {
+  hasChanged(names, props) {
     let cur = {};
     let prev = {};
     for (let i = 0; i < names.length; i++) {
@@ -100,7 +131,7 @@ export class SimpleCrop extends React.Component {
   }
 
   //根据两个简单对象的值比较它们是否相同
-  isEquivalent (a, b, include) {
+  isEquivalent(a, b, include) {
     if (a != null && b != null) {
       let aProps = [];
       let aTemps = Object.getOwnPropertyNames(a);
@@ -157,7 +188,7 @@ export class SimpleCrop extends React.Component {
     }
   }
 
-  render () {
+  render() {
     return <div />;
   }
 }

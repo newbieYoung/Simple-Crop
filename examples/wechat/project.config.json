@@ -9,11 +9,24 @@
 		"postcss": true,
 		"minified": true,
 		"newFeature": true,
-		"autoAudits": false
+		"coverView": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": true,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		},
+		"useCompilerModule": false,
+		"userConfirmedUseCompilerModuleSwitch": false
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.8.2",
-	"appid": "wxdd0e379126c040ca",
+	"libVersion": "2.10.4",
+	"appid": "wx643cec2dc2b21044",
 	"projectname": "Simple-Crop",
 	"debugOptions": {
 		"hidedInDevtools": []

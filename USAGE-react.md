@@ -5,10 +5,10 @@
 
 ## 1、引入样式
 
-目前提供了两种默认样式 `./dist/template-2.css` 适用移动设备，`./dist/template-1.css` 适用 PC。
+目前提供了两种默认样式 `./build/template-2.css` 适用移动设备，`./build/template-1.css` 适用 PC。
 
 ```jsx
-import "../../dist/template-2.css";
+import "../../build/template-2.css";
 ```
 
 ## 2、引入组件代码
@@ -27,18 +27,19 @@ import { SimpleCrop } from "../../index.jsx";
 
 ```jsx
 this.state = {
-  inputValue: '',
+  inputValue: "",
   cropParams: {
     src: "../../img/test2.jpg", // 裁剪图片地址
-    size: { //裁剪尺寸
+    size: {
+      //裁剪尺寸
       width: 800,
-      height: 600
+      height: 600,
     },
     cropSizePercent: 0.9, //裁剪框显示比例
     cropCallback: this.cropCallback, //图片裁剪完成回调函数
     uploadCallback: this.uploadCallback, //上传裁剪图片成功回调函数
-    closeCallback: this.closeCallback //关闭组件回调函数
-  }
+    closeCallback: this.closeCallback, //关闭组件回调函数
+  },
 };
 ```
 
@@ -46,13 +47,14 @@ this.state = {
 
 ```jsx
 this.state = {
-  inputValue: '',
+  inputValue: "",
   cropParams: {
     title: "上传图片过大，请裁剪", //标题
     src: "../../img/test2.jpg", // 裁剪图片地址
-    size: { // 裁剪尺寸
+    size: {
+      // 裁剪尺寸
       width: 800,
-      height: 600
+      height: 600,
     },
     cropSizePercent: 0.65, //裁剪框显示比例
     scaleSlider: true, //是否显示滑动控制条
@@ -65,15 +67,20 @@ this.state = {
     endAngle: 360, //旋转刻度盘结束角度
     cropCallback: this.cropCallback, //图片裁剪完成回调函数
     uploadCallback: this.uploadCallback, //上传裁剪图片成功回调函数
-    closeCallback: this.closeCallback //关闭组件回调函数
-  }
+    closeCallback: this.closeCallback, //关闭组件回调函数
+  },
 };
 ```
 
 ## 4、选取裁剪图片
 
 ```jsx
-<input onChange={this.setCropImage.bind(this)} type="file" accept="image/png,image/jpeg" value={this.state.inputValue}></input>
+<input
+  onChange={this.setCropImage.bind(this)}
+  type="file"
+  accept="image/png,image/jpeg"
+  value={this.state.inputValue}
+></input>
 ```
 
 ```jsx

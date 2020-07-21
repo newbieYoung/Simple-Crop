@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import '../../dist/template-2.css'
+import '../../build/template-2.css'
 import SimpleCrop from '../../index.vue';
 
 new Vue({
