@@ -17,8 +17,10 @@ import "../../build/template-2.css";
 import SimpleCrop from '../../index.vue';
 ```
 
-```vue
-components: { 'simple-crop': SimpleCrop },
+```javascript
+components: {
+  'simple-crop': SimpleCrop
+},
 ```
 
 ## 3、初始化
@@ -34,23 +36,42 @@ components: { 'simple-crop': SimpleCrop },
 
 - 移动端初始化参数示例：
 
-```vue
-data: { cropParams: { src: "../../img/test2.jpg", // 裁剪图片地址 size: {
-//裁剪尺寸 width: 800, height: 600 }, borderColor: '#fff', //裁剪框边框颜色
-cropSizePercent: 0.9 //裁剪框显示比例 } },
+```javascript
+data: {
+  cropParams: {
+    src: "../../img/test2.jpg", // 裁剪图片地址
+    size: { // 裁剪尺寸
+      width: 800,
+      height: 600
+    },
+    borderColor: '#fff', //裁剪框边框颜色
+    cropSizePercent: 0.9 //裁剪框显示比例
+  }
+},
 ```
 
 - PC 初始化参数示例：
 
-```vue
-data: { cropParams: { title: "上传图片过大，请裁剪", //标题 src:
-"../../img/test2.jpg", // 裁剪图片地址 size: { // 裁剪尺寸 width: 800, height:
-600 }, cropSizePercent: 0.65, //裁剪框显示比例 scaleSlider: true,
-//是否显示滑动控制条 maxScale: 3, //最大缩放倍数 borderWidth: 1,
-//裁剪框边框宽度 funcBtns: ["close", "crop", "upload"], //功能按钮配置
-borderColor: "#fff", //裁剪框边框颜色 coverColor: "rgba(0,0,0,.5)",
-//裁剪框遮罩颜色 startAngle: -360, //旋转刻度盘开始角度 endAngle: 360,
-//旋转刻度盘结束角度 } },
+```javascript
+data: {
+  cropParams: {
+    title: "上传图片过大，请裁剪", //标题
+    src: "../../img/test2.jpg", // 裁剪图片地址
+    size: { // 裁剪尺寸
+      width: 800,
+      height: 600
+    },
+    cropSizePercent: 0.65, //裁剪框显示比例
+    scaleSlider: true, //是否显示滑动控制条
+    maxScale: 3, //最大缩放倍数
+    borderWidth: 1, //裁剪框边框宽度
+    funcBtns: ["close", "crop", "upload"], //功能按钮配置
+    borderColor: "#fff", //裁剪框边框颜色
+    coverColor: "rgba(0,0,0,.5)", //裁剪框遮罩颜色
+    startAngle: -360, //旋转刻度盘开始角度
+    endAngle: 360, //旋转刻度盘结束角度
+  }
+},
 ```
 
 ## 4、选取裁剪图片
@@ -59,22 +80,31 @@ borderColor: "#fff", //裁剪框边框颜色 coverColor: "rgba(0,0,0,.5)",
 <input v-on:change="setCropImage" type="file" accept="image/png,image/jpeg"></input>
 ```
 
-```vue
-setCropImage(evt) { var files = evt.target.files; if (files.length > 0) {
-this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
-this.cropParams.src = files[0]; } evt.target.value = ''; },
+```javascript
+setCropImage(evt) {
+  var files = evt.target.files;
+  if (files.length > 0) {
+    this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
+    this.cropParams.src = files[0];
+  }
+  evt.target.value = '';
+},
 ```
 
 ## 5、更新组件参数
 
-```vue
+```javascript
 <button v-on:click="updateComponent">组件更新</button>
 ```
 
-```vue
-updateComponent() { this.cropParams =
-JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
-this.cropParams.borderColor = '#0BFF00'; //更新值
-this.cropParams.cropSizePercent = 0.5; this.cropParams.size = { width: 600,
-height: 600 }; },
+```javascript
+updateComponent() {
+  this.cropParams = JSON.parse(JSON.stringify(this.cropParams)); //改变对象引用
+  this.cropParams.borderColor = '#0BFF00'; //更新值
+  this.cropParams.cropSizePercent = 0.5;
+  this.cropParams.size = {
+    width: 600,
+    height: 600
+  };
+},
 ```
