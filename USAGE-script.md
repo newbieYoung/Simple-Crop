@@ -11,13 +11,10 @@
 <link rel="stylesheet" href="./build/template-2.css" />
 ```
 
-## 2、引入相关依赖和组件源代码
+## 2、引入打包编译的组件代码
 
 ```html
-<script src="../lib/prefix-umd.js"></script>
-<script src="../lib/exif.js"></script>
-<script src="../lib/transformation-matrix.js"></script>
-<script src="../index.js"></script>
+<script src="../build/index.min.js"></script>
 ```
 
 ## 3、初始化
