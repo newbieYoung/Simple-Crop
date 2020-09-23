@@ -60,6 +60,17 @@ npm install simple-crop
 
 [MIT](http://opensource.org/licenses/MIT) License.
 
+## 兼容性自测
+
+<table style="word-break: normal;">
+  <tr>
+    <td>设备</td>
+    <td>浏览器</td>
+    <td>版本</td>
+    <td>结果</td>
+  </tr>
+</table>
+
 ## 属性说明
 
 <table style="word-break: normal;">
