@@ -56,18 +56,48 @@ npm install simple-crop
 - [React 用法](USAGE-react.md)
 - [Vue 用法](USAGE-vue.md)
 
-## 开源许可协议
-
-[MIT](http://opensource.org/licenses/MIT) License.
-
-## 兼容性自测
+## TodoList
 
 <table style="word-break: normal;">
   <tr>
-    <td>设备</td>
-    <td>浏览器</td>
-    <td>版本</td>
-    <td>结果</td>
+    <td>类型</td>
+    <td>描述</td>
+    <td>状态</td>
+  </tr>
+  <tr>
+    <td>feature</td>
+    <td>支持镜像变换</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>支持常用滤镜</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>旋转时以裁剪框为中心</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>触摸移动时如果没有在图片区域是否应该触发</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>支持 flutter、Angular 等</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>微信小程序交互使用 wxs 优化</td>
+    <td></td>
+  </tr>
+	<tr>
+    <td>feature</td>
+    <td>裁剪图片类型默认和上传图片类型一致，另外提供图片类型以及图片质量参数</td>
+    <td></td>
   </tr>
 </table>
 
@@ -272,3 +302,18 @@ npm install simple-crop
 ## 原理及实现
 
 `全平台（Vue、React、微信小程序）任意角度旋转 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
+
+## 开源许可协议
+
+[MIT](http://opensource.org/licenses/MIT) License.
+
+## 兼容性自测
+
+<table style="word-break: normal;">
+  <tr>
+    <td>设备</td>
+    <td>浏览器</td>
+    <td>版本</td>
+    <td>结果</td>
+  </tr>
+</table>
