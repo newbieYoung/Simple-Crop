@@ -202,7 +202,3 @@
 
 `全平台（Vue、React、微信小程序）任意角度旋转 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
 
-## 开源许可协议
-
-[MIT](http://opensource.org/licenses/MIT) License.
-
