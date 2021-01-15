@@ -27,7 +27,7 @@ export interface ICropConfig {
   lineationItemWidth?: number; // 旋转刻度盘间隔宽度
 }
 
-export declare class SimpleCrop {
+declare class SimpleCrop {
   constructor(params: ICropConfig);
   show(image?: File); // 显示
   hide(); // 隐藏
@@ -39,3 +39,5 @@ export declare class SimpleCrop {
   updateBox(params: ICropConfig);
   setImage(image: File);
 }
+
+export default SimpleCrop;
