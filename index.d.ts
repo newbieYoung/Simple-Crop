@@ -5,7 +5,7 @@ export interface ICropConfig {
   $container?: HTMLElement; // 容器
   src: string | File; // 图片文件或者地址
   size: { width: number; height: number }; // 裁剪图片目标尺寸
-  positionOffset?: { top: number; height: number }; // 裁剪框屏幕偏移
+  positionOffset?: { top: number; left: number }; // 裁剪框屏幕偏移
   boldCornerLen?: number; // 裁剪框边角加粗长度
   coverColor?: string; // 遮罩背景颜色
   cropSizePercent?: number; // 裁剪框占裁剪显示区域的比例
