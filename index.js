@@ -740,6 +740,7 @@
         //字符串
         self.src = image;
         self.originImage = new Image();
+        self.originImage.crossOrigin = "Anonymous";
         self.originImage.src = self.src;
         self.load();
         self.uploadCallback(self.src);
@@ -748,6 +749,7 @@
         self.fileToSrc(image, function (src) {
           self.src = src;
           self.originImage = new Image();
+          self.originImage.crossOrigin = "Anonymous";
           self.originImage.src = self.src;
           self.load();
           self.uploadCallback(self.src);
