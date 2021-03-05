@@ -104,10 +104,6 @@
    * @param uploadCallback 重新上传裁剪图片回调函数
    * @param closeCallback 关闭裁剪组件回调函数
    * ------------------------------------
-   * 滑动控制条
-   * @param scaleSlider 是否开启滑动控制条（pc、mobile）
-   * @param maxScale 最大缩放倍数（pc、mobile）
-   * ------------------------------------
    * 旋转刻度盘
    * @param rotateSlider 是否开启旋转刻度盘
    * @param startAngle 旋转刻度盘开始角度
@@ -128,6 +124,9 @@
    * initContentPoints 图片初始顶点坐标
    * _contentCurMoveX 图片 X 轴方向上的总位移
    * _contentCurMoveY 图片 Y 轴方向上的总位移
+   * ------------------------------------
+   * 鼠标滚轮缩放
+   * _wheelTimeout 定时器
    * ------------------------------------
    * 双指缩放
    * _multiPoint 是否开始多点触控
@@ -152,10 +151,6 @@
     this.$container =
       params.$container != null ? params.$container : document.body; //容器
 
-    //滑动控制条
-    this.scaleSlider = params.scaleSlider != null ? params.scaleSlider : false;
-    this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
-
     //其它
     var self = this;
     self.passiveSupported = false; //判断是否支持 passive
@@ -179,7 +174,6 @@
     this._changedX = 0; //旋转刻度盘当前偏移量
     this._downPoints = []; //操作点坐标数组
     this._isControl = false; //是否正在操作
-    this._scaleMoveX = 0; //滑动缩放控件偏移量
     /**
      * 旋转交互分为两种：
      * 一种是整角旋转（90度）；
@@ -426,26 +420,6 @@
     this.cropCoverContext = this.$cropCover.getContext("2d");
     this.$cropCover.width = this.maskViewSize.width * window.devicePixelRatio;
     this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
-
-    //滑动控制条
-    this.$cropScale = document.querySelector("#" + this.id + " .crop-scale");
-    this.$scaleBtn = document.querySelector("#" + this.id + " .scale-btn");
-    this.$scaleNum = document.querySelector("#" + this.id + " .scale-num");
-    this.$scaleOneTimes = document.querySelector(
-      "#" + this.id + " .one-times-icon"
-    );
-    this.$scaleTwoTimes = document.querySelector(
-      "#" + this.id + " .two-times-icon"
-    );
-    this.$scaleContainer = document.querySelector(
-      "#" + this.id + " .scale-container"
-    );
-    this.$scaleValue = document.querySelector("#" + this.id + " .scale-value");
-    this.$maxScale = document.querySelector("#" + this.id + " .max-scale");
-    this.scaleDownX = 0;
-    this.scaleInitLeft = this.$scaleBtn.getBoundingClientRect().left;
-    this.scaleCurLeft = this.scaleInitLeft;
-    this.scaleWidth = this.$scaleNum.getBoundingClientRect().width;
   };
 
   //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
@@ -520,33 +494,6 @@
     }
   };
 
-  //初始化滑动控制条
-  SimpleCrop.prototype.initScaleSlider = function (params) {
-    if (params) {
-      this.scaleSlider =
-        params.scaleSlider != null ? params.scaleSlider : false;
-      this.maxScale = params.maxScale ? params.maxScale : 1; //最大缩放倍数，默认为原始尺寸
-    }
-    this.scaleTimes = this.initScale;
-    this.maxScale =
-      this.initScale < this.maxScale
-        ? this.maxScale
-        : Math.ceil(this.initScale);
-
-    this._scaleMoveX = 0;
-    this.scaleCurLeft = this.scaleInitLeft;
-    this.$maxScale.innerText = "(x" + this.maxScale + ")";
-    this.$scaleBtn.style[transformProperty] = "translateX(0px)";
-    this.$scaleValue.style.width = "0px";
-
-    if (this.scaleSlider) {
-      this.$cropScale.style.visibility = "";
-    } else {
-      this.$cropScale.style.visibility = "hidden";
-    }
-    this.transform(false, true);
-  };
-
   //html结构
   SimpleCrop.prototype.construct = function () {
     var html = "";
@@ -554,21 +501,6 @@
     html += '<p class="crop-title">' + this.title + "</p>";
     html += '<div class="crop-mask">';
     html += '<canvas class="crop-cover"></canvas>';
-    html += "</div>";
-
-    //滑动控制条
-    if (this.scaleSlider) {
-      html += '<div class="crop-scale">';
-    } else {
-      html += '<div class="crop-scale" style="visibility:hidden;">';
-    }
-    html += '<div class="one-times-icon"></div>';
-    html += '<div class="scale-container">';
-    html +=
-      '<div class="scale-num"><span class="scale-value" style="width:0px;"></span><span class="scale-btn" style="left:-8px;"></span></div>';
-    html += "</div>";
-    html += '<div class="two-times-icon"></div>';
-    html += '<div class="max-scale"></div>';
     html += "</div>";
 
     //旋转刻度盘
@@ -714,7 +646,8 @@
     this.$lineation.style[transformProperty] =
       "translateX(" + this._baseMoveX + "px)";
 
-    this.initScaleSlider();
+    this.scaleTimes = this.initScale;
+    this.transform(false, true);
     this.endControl();
   };
 
@@ -813,47 +746,6 @@
   SimpleCrop.prototype.bindEvent = function () {
     var self = this;
     var controlEvents = this.getControlEvents();
-
-    //滑动控制条
-    // ------------------ //
-    self.$scaleBtn.addEventListener(controlEvents.start, function (ev) {
-      self.scaleDownX = self.getControlPoints(ev)[0].clientX;
-      self.startControl();
-    });
-    self.$scaleContainer.addEventListener(controlEvents.move, function (ev) {
-      self.scaleMove(ev);
-      ev.stopPropagation();
-    });
-    self.$scaleContainer.addEventListener(
-      controlEvents.cancel,
-      self.endControl.bind(self)
-    ); //结束
-    self.$scaleContainer.addEventListener(
-      controlEvents.end,
-      self.endControl.bind(self)
-    );
-    self.$scaleContainer.addEventListener("click", function (ev) {
-      self.startControl();
-      var rect = self.$scaleBtn.getBoundingClientRect();
-      if (self.scaleDownX <= 0) {
-        self.scaleDownX = rect.left + (rect.width * 1.0) / 2;
-      }
-      self.scaleMove(ev);
-      self.endControl();
-    });
-    self.$scaleOneTimes.addEventListener("click", function () {
-      //极小
-      self.startControl();
-      self.scaleMoveAt(0);
-      self.endControl();
-    });
-    self.$scaleTwoTimes.addEventListener("click", function () {
-      //极大
-      self.startControl();
-      self.scaleMoveAt(self.scaleWidth);
-      self.endControl();
-    });
-    // ------------------ //
 
     //旋转刻度盘
     // ------------------ //
@@ -984,6 +876,28 @@
       controlEvents.cancel,
       self.endControl.bind(self)
     );
+    // ------------------ //
+
+    //鼠标滚轮缩放
+    // ------------------ //
+    $imageListenerEle.addEventListener("wheel", function (e) {
+      if (!self._wheelTimeout) {
+        self.startControl();
+      }
+      if (e.wheelDelta > 0) {
+        self.scaleTimes = self.scaleTimes * (e.wheelDelta / 12000 + 1);
+      } else {
+        self.scaleTimes = self.scaleTimes / (1 - e.wheelDelta / 12000);
+      }
+      self.transform(false, true);
+      if (self._wheelTimeout) {
+        clearTimeout(self._wheelTimeout);
+      }
+      self._wheelTimeout = setTimeout(function () {
+        self.endControl();
+        self._wheelTimeout = null;
+      }, 50);
+    });
     // ------------------ //
   };
 
@@ -1147,7 +1061,6 @@
     if (this._isControl) {
       var self = this;
       this._downPoints = [];
-      this.scaleDownX = 0;
 
       if (
         this.$cropContent &&
@@ -1232,39 +1145,6 @@
       return true;
     }
     return false;
-  };
-
-  //滑动控制条按钮移动
-  SimpleCrop.prototype.scaleMove = function (ev) {
-    if (this.scaleDownX > 0) {
-      var pointX = this.getControlPoints(ev)[0].clientX;
-      var moveX = pointX - this.scaleDownX;
-      var newCurLeft = this.scaleCurLeft + moveX;
-      if (
-        newCurLeft >= this.scaleInitLeft &&
-        newCurLeft <= this.scaleWidth + this.scaleInitLeft
-      ) {
-        var lastMoveX = this._scaleMoveX;
-        if (!lastMoveX) {
-          lastMoveX = 0;
-        }
-        var curMoveX = lastMoveX + moveX;
-        this.scaleDownX = pointX;
-        this.scaleMoveAt(curMoveX);
-      }
-    }
-  };
-
-  //移动滑动控制条按钮到某个位置
-  SimpleCrop.prototype.scaleMoveAt = function (curMoveX) {
-    this.$scaleBtn.style[transformProperty] = "translateX(" + curMoveX + "px)";
-    this.$scaleValue.style.width = curMoveX + "px";
-    this._scaleMoveX = curMoveX;
-    this.scaleCurLeft = this.scaleInitLeft + curMoveX;
-    this.scaleTimes =
-      this.initScale +
-      ((curMoveX * 1.0) / this.scaleWidth) * (this.maxScale - this.initScale);
-    this.transform(false, true);
   };
 
   //内容图片移动

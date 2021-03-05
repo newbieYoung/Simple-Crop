@@ -1,76 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PC</title>
+    <link rel="stylesheet" href="../build/template-1.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>PC</title>
-  <link rel="stylesheet" href="../build/template-1.css">
-</head>
+  <body>
+    <input id="upload" type="file" accept="image/png,image/jpeg" />
+    <button id="update">组件更新</button>
 
-<body>
-  <input id="upload" type="file" accept="image/png,image/jpeg">
-  <button id="update">组件更新</button>
-
-  <script src="../build/index.min.js"></script>
-  <script>
-    window.onload = function () {
-      var simpleCrop = new SimpleCrop({
-        title: '上传图片过大，请裁剪',
-        src: '../img/test2.jpg',
-        size: {
-          width: 800,
-          height: 600
-        },
-        cropSizePercent: 0.65,
-        scaleSlider: true,
-        maxScale: 3,
-        borderWidth: 1,
-        funcBtns: ['close', 'crop', 'upload'],
-        borderColor: "#fff",
-        coverColor: 'rgba(0,0,0,.5)',
-        startAngle: -360,
-        endAngle: 360,
-        cropCallback: function ($resultCanvas) {
-          console.log('cropCallback');
-          $resultCanvas.style.marginRight = '10px';
-          $resultCanvas.style.width = '50%';
-          document.body.appendChild($resultCanvas);
-        },
-        uploadCallback: function (src) {
-          console.log('uploadCallback ' + src);
-        },
-        closeCallback: function () {
-          console.log('closeCallback');
-        }
-      });
-
-      //选取裁剪图片
-      var $upload = document.querySelector('#upload');
-      $upload.addEventListener('change', function (evt) {
-        var files = evt.target.files;
-        if (files.length > 0) {
-          simpleCrop.show(files[0]);
-        }
-        $upload.value = ''; //清空 input value属性
-      });
-
-      //组件更新
-      var $update = document.querySelector('#update');
-      $update.addEventListener('click', function () {
-        simpleCrop.updateBox({
-          cropSizePercent: 0.7,
+    <script src="../build/index.min.js"></script>
+    <script>
+      window.onload = function () {
+        var simpleCrop = new SimpleCrop({
+          title: "上传图片过大，请裁剪",
+          src: "../img/test2.jpg",
           size: {
-            width: 600,
+            width: 800,
             height: 600,
-          }
+          },
+          cropSizePercent: 0.65,
+          borderWidth: 1,
+          funcBtns: ["close", "crop", "upload"],
+          borderColor: "#fff",
+          coverColor: "rgba(0,0,0,.5)",
+          startAngle: -360,
+          endAngle: 360,
+          cropCallback: function ($resultCanvas) {
+            console.log("cropCallback");
+            $resultCanvas.style.marginRight = "10px";
+            $resultCanvas.style.width = "50%";
+            document.body.appendChild($resultCanvas);
+          },
+          uploadCallback: function (src) {
+            console.log("uploadCallback " + src);
+          },
+          closeCallback: function () {
+            console.log("closeCallback");
+          },
         });
-        simpleCrop.initBoxBorder({
-          borderColor: "#0BFF00",
-        });
-        simpleCrop.show();
-      });
-    }
-  </script>
-</body>
 
+        //选取裁剪图片
+        var $upload = document.querySelector("#upload");
+        $upload.addEventListener("change", function (evt) {
+          var files = evt.target.files;
+          if (files.length > 0) {
+            simpleCrop.show(files[0]);
+          }
+          $upload.value = ""; //清空 input value属性
+        });
+
+        //组件更新
+        var $update = document.querySelector("#update");
+        $update.addEventListener("click", function () {
+          simpleCrop.updateBox({
+            cropSizePercent: 0.7,
+            size: {
+              width: 600,
+              height: 600,
+            },
+          });
+          simpleCrop.initBoxBorder({
+            borderColor: "#0BFF00",
+          });
+          simpleCrop.show();
+        });
+      };
+    </script>
+  </body>
 </html>

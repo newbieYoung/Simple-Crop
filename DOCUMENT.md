@@ -123,16 +123,6 @@
 		<td>容器（如果不设置容器那么裁剪组件会默认添加到 body 元素中）</td>
 		<td>非微信小程序</td>
 	</tr>
-	<tr>
-		<td>scaleSlider</td>
-		<td>是否开启缩放滑动控制条（PC建议开启，移动端默认会启动双指滑动缩放方式）</td>
-		<td>非微信小程序</td>
-	</tr>
-	<tr>
-		<td>maxScale</td>
-		<td>最大缩放倍数，如果裁剪图片放大至设置的最大缩放倍数仍然不能完全填满裁剪框，则最大缩放倍数会强制等于 Math.ceil(填满裁剪框的初始化缩放倍数)</td>
-		<td>非微信小程序</td>
-	</tr>
 </table>
 
 ## 方法说明
@@ -169,11 +159,6 @@
 		<td>全部</td>
 	</tr>
 	<tr>
-		<td>initScaleSlider</td>
-		<td>初始化滑动控制条</td>
-		<td>非微信小程序</td>
-	</tr>
-	<tr>
 		<td>show</td>
 		<td>显示组件</td>
 		<td>非微信小程序</td>
@@ -201,4 +186,3 @@
 ## 原理及实现
 
 `全平台（Vue、React、微信小程序）任意角度旋转 图片裁剪组件` [https://newbieweb.lione.me/2019/05/16/simple-crop/](https://newbieweb.lione.me/2019/05/16/simple-crop/)
-

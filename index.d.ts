@@ -18,8 +18,6 @@ export interface ICropConfig {
   closeCallback?(): void; // 关闭裁剪组件回调函数
   uploadCallback?(src: string): void; // 重新上传裁剪图片回调函数
 
-  scaleSlider?: boolean; // 是否开启滑动控制条
-  maxScale?: number; // 最大缩放倍数
   rotateSlider?: boolean; // 是否开启旋转刻度盘
   startAngle?: number; // 旋转刻度盘开始角度
   endAngle?: number; // 旋转刻度盘结束角度
@@ -32,7 +30,6 @@ declare class SimpleCrop {
   show(image?: File); // 显示
   hide(); // 隐藏
   initFuncBtns(params: ICropConfig);
-  initScaleSlider(params: ICropConfig);
   initTitle(params: ICropConfig);
   initBoxBorder(params: ICropConfig);
   initRotateSlider(params: ICropConfig);

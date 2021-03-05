@@ -168,10 +168,6 @@ export default {
           this._instance.initFuncBtns(this.cropParams);
         }
 
-        if (this.hasChanged(["scaleSlider", "maxScale"], oldVal)) {
-          this._instance.initScaleSlider(this.cropParams);
-        }
-
         if (this.hasChanged(["title"], oldVal)) {
           this._instance.initTitle(this.cropParams);
         }

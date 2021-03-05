@@ -17,8 +17,6 @@ class Test1 extends React.Component {
           height: 600,
         },
         cropSizePercent: 0.65,
-        scaleSlider: true,
-        maxScale: 3,
         borderWidth: 1,
         funcBtns: ["close", "crop", "upload"],
         borderColor: "#fff",

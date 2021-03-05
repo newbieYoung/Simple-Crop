@@ -102,10 +102,6 @@ export class SimpleCrop extends React.Component {
         this._instance.initFuncBtns(this.props);
       }
 
-      if (this.hasChanged(["scaleSlider", "maxScale"], prevProps)) {
-        this._instance.initScaleSlider(this.props);
-      }
-
       if (this.hasChanged(["title"], prevProps)) {
         this._instance.initTitle(this.props);
       }

@@ -122,16 +122,6 @@
 		<td>Component container (If no container is set, the component will be added to the body element by default.)</td>
 		<td>No Wechat</td>
 	</tr>
-	<tr>
-		<td>scaleSlider</td>
-		<td>Whether to enable the scalable slider（Recommended for PC, Two-finger operation is activated by default on the mobile.）</td>
-		<td>No Wechat</td>
-	</tr>
-	<tr>
-		<td>maxScale</td>
-		<td>Maximum zoom factor, If the cropped picture is enlarged to the set maximum zoom factor and still cannot completely fill the crop box, the maximum zoom factor will be forced to equal Math.ceil( Initial zoom factor to fill the crop box ).</td>
-		<td>No Wechat</td>
-	</tr>
 </table>
 
 ## Methods
@@ -166,11 +156,6 @@
 		<td>initBoxBorder</td>
 		<td>Set crop box border</td>
 		<td>All</td>
-	</tr>
-	<tr>
-		<td>initScaleSlider</td>
-		<td>Set scalable slider</td>
-		<td>No Wechat</td>
 	</tr>
 	<tr>
 		<td>show</td>

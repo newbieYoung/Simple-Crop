@@ -60,8 +60,6 @@ var simpleCrop = new SimpleCrop({
     height: 600,
   },
   cropSizePercent: 0.65, //裁剪框显示比例
-  scaleSlider: true, //是否显示滑动控制条
-  maxScale: 3, //最大缩放倍数
   borderWidth: 1, //裁剪框边框宽度
   funcBtns: ["close", "crop", "upload"], //功能按钮配置
   borderColor: "#fff", //裁剪框边框颜色
