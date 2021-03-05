@@ -1,6 +1,6 @@
 /* global define */
 /// <reference path="./index.d.ts" />
-(function (factory) {
+(function(factory) {
   if (typeof define === "function" && define.amd) {
     // AMD. Register as an anonymous module.
     define(["prefix-umd", "exif-js", "transformation-matrix"], factory);
@@ -19,7 +19,7 @@
       window.TransformationMatrix
     );
   }
-})(function (Prefix, EXIF, TransformationMatrix) {
+})(function(Prefix, EXIF, TransformationMatrix) {
   //兼容性处理
   function whichTransitionEvent() {
     var t;
@@ -44,7 +44,7 @@
   //includes方法兼容
   if (!Array.prototype.includes) {
     Object.defineProperty(Array.prototype, "includes", {
-      value: function (valueToFind, fromIndex) {
+      value: function(valueToFind, fromIndex) {
         var o = Object(this);
         var len = o.length >>> 0;
         if (len === 0) {
@@ -156,7 +156,7 @@
     self.passiveSupported = false; //判断是否支持 passive
     try {
       var options = Object.defineProperty({}, "passive", {
-        get: function () {
+        get: function() {
           self.passiveSupported = true;
         },
       });
@@ -194,7 +194,7 @@
   }
 
   //初始化标题
-  SimpleCrop.prototype.initTitle = function (params) {
+  SimpleCrop.prototype.initTitle = function(params) {
     this.title = params.title != null ? params.title : "";
     this.$title = document.querySelector("#" + this.id + " .crop-title");
     this.$title.innerText = this.title;
@@ -206,7 +206,7 @@
   };
 
   //初始化裁剪框边框以及辅助线
-  SimpleCrop.prototype.initBoxBorder = function (params, onlyInit) {
+  SimpleCrop.prototype.initBoxBorder = function(params, onlyInit) {
     this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
     this.borderColor = params.borderColor != null ? params.borderColor : "#fff";
     this.boldCornerLen =
@@ -214,7 +214,7 @@
     this.coverColor =
       params.coverColor != null ? params.coverColor : "rgba(0,0,0,.3)";
     this.coverDraw =
-      params.coverDraw != null ? params.coverDraw : function () {};
+      params.coverDraw != null ? params.coverDraw : function() {};
     this.borderDraw =
       params.borderDraw != null ? params.borderDraw : this.defaultBorderDraw;
 
@@ -225,7 +225,7 @@
   };
 
   //初始化功能按钮
-  SimpleCrop.prototype.initFuncBtns = function (params) {
+  SimpleCrop.prototype.initFuncBtns = function(params) {
     /**
      * 默认功能按钮为取消、裁剪、90度旋转、重置
      * upload 重新上传
@@ -239,11 +239,11 @@
         ? params.funcBtns
         : ["close", "crop", "around", "reset"];
     this.cropCallback =
-      params.cropCallback != null ? params.cropCallback : function () {};
+      params.cropCallback != null ? params.cropCallback : function() {};
     this.closeCallback =
-      params.closeCallback != null ? params.closeCallback : function () {};
+      params.closeCallback != null ? params.closeCallback : function() {};
     this.uploadCallback =
-      params.uploadCallback != null ? params.uploadCallback : function () {};
+      params.uploadCallback != null ? params.uploadCallback : function() {};
 
     this.$cropBtns = document.querySelector("#" + this.id + " .crop-btns");
     var html = "";
@@ -335,7 +335,7 @@
   };
 
   //初始化旋转刻度盘
-  SimpleCrop.prototype.initRotateSlider = function (params) {
+  SimpleCrop.prototype.initRotateSlider = function(params) {
     this.rotateSlider =
       params.rotateSlider != null ? params.rotateSlider : true; //默认开启
     this.startAngle = params.startAngle != null ? params.startAngle : -90;
@@ -409,7 +409,7 @@
   };
 
   //初始化相关子元素
-  SimpleCrop.prototype.initChilds = function () {
+  SimpleCrop.prototype.initChilds = function() {
     this.$cropMask = document.querySelector("#" + this.id + " .crop-mask");
     var maskStyle = window.getComputedStyle(this.$cropMask);
     this.maskViewSize = {
@@ -423,7 +423,7 @@
   };
 
   //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-  SimpleCrop.prototype.updateBox = function (params) {
+  SimpleCrop.prototype.updateBox = function(params) {
     this.size = params.size;
     this.positionOffset =
       params.positionOffset != null
@@ -462,7 +462,7 @@
   };
 
   //获取操作点
-  SimpleCrop.prototype.getControlPoints = function (e) {
+  SimpleCrop.prototype.getControlPoints = function(e) {
     if (e.touches) {
       return e.touches;
     } else {
@@ -476,7 +476,7 @@
   };
 
   //获取操作事件名称
-  SimpleCrop.prototype.getControlEvents = function () {
+  SimpleCrop.prototype.getControlEvents = function() {
     if (this.isSupportTouch) {
       return {
         start: "touchstart",
@@ -495,7 +495,7 @@
   };
 
   //html结构
-  SimpleCrop.prototype.construct = function () {
+  SimpleCrop.prototype.construct = function() {
     var html = "";
     html += '<div class="crop-component">';
     html += '<p class="crop-title">' + this.title + "</p>";
@@ -531,7 +531,7 @@
   };
 
   //默认绘制裁剪框
-  SimpleCrop.prototype.defaultBorderDraw = function ($cropCover) {
+  SimpleCrop.prototype.defaultBorderDraw = function($cropCover) {
     var borderWidth = this.borderWidth;
     var boldCornerLen = this.boldCornerLen;
     boldCornerLen =
@@ -596,7 +596,7 @@
   };
 
   //初始化
-  SimpleCrop.prototype.init = function () {
+  SimpleCrop.prototype.init = function() {
     var width = this.contentWidth / 2;
     var height = this.contentHeight / 2;
     this.initContentPoints = [
@@ -633,7 +633,7 @@
   };
 
   //重置
-  SimpleCrop.prototype.reset = function () {
+  SimpleCrop.prototype.reset = function() {
     this.startControl();
     this._contentCurMoveX = -this.positionOffset.left;
     this._contentCurMoveY = -this.positionOffset.top;
@@ -652,10 +652,10 @@
   };
 
   //加载图片
-  SimpleCrop.prototype.load = function () {
+  SimpleCrop.prototype.load = function() {
     var self = this;
-    self.originImage.onload = function () {
-      EXIF.getData(self.originImage, function () {
+    self.originImage.onload = function() {
+      EXIF.getData(self.originImage, function() {
         self._orientation = EXIF.getTag(this, "Orientation");
         self.getRealCotentSize();
         self.transformCoordinates();
@@ -665,7 +665,7 @@
   };
 
   //设置裁剪图片
-  SimpleCrop.prototype.setImage = function (image) {
+  SimpleCrop.prototype.setImage = function(image) {
     if (image != null && image != "") {
       var self = this;
       var type = Object.prototype.toString.call(image);
@@ -679,7 +679,7 @@
         self.uploadCallback(self.src);
       } else if (type === "[object File]") {
         //文件
-        self.fileToSrc(image, function (src) {
+        self.fileToSrc(image, function(src) {
           self.src = src;
           self.originImage = new Image();
           self.originImage.crossOrigin = "Anonymous";
@@ -692,7 +692,7 @@
   };
 
   //显示
-  SimpleCrop.prototype.show = function (image) {
+  SimpleCrop.prototype.show = function(image) {
     if (image) {
       this.setImage(image);
     }
@@ -701,26 +701,26 @@
   };
 
   //隐藏
-  SimpleCrop.prototype.hide = function () {
+  SimpleCrop.prototype.hide = function() {
     this.visible = false;
     this.$target.style.visibility = "hidden";
   };
 
   //关闭
-  SimpleCrop.prototype.close = function () {
+  SimpleCrop.prototype.close = function() {
     this.hide();
     this.closeCallback();
   };
 
   //裁剪
-  SimpleCrop.prototype.crop = function () {
+  SimpleCrop.prototype.crop = function() {
     this.getCropImage();
     this.cropCallback(this.$resultCanvas);
     this.hide();
   };
 
   //上传
-  SimpleCrop.prototype.uploadInput = function (evt) {
+  SimpleCrop.prototype.uploadInput = function(evt) {
     var files = evt.target.files;
     if (files.length > 0) {
       this.show(files[0]);
@@ -729,7 +729,7 @@
   };
 
   //整角旋转
-  SimpleCrop.prototype.around = function () {
+  SimpleCrop.prototype.around = function() {
     this.startControl();
     this.rotateAngle = (this._baseAngle - 90) % 360;
     this._baseAngle = this.rotateAngle;
@@ -743,17 +743,17 @@
   };
 
   //事件监听
-  SimpleCrop.prototype.bindEvent = function () {
+  SimpleCrop.prototype.bindEvent = function() {
     var self = this;
     var controlEvents = this.getControlEvents();
 
     //旋转刻度盘
     // ------------------ //
-    self.$cropRotate.addEventListener(controlEvents.start, function (e) {
+    self.$cropRotate.addEventListener(controlEvents.start, function(e) {
       var touches = self.getControlPoints(e);
       self.startControl(touches);
     });
-    self.$cropRotate.addEventListener(controlEvents.move, function (e) {
+    self.$cropRotate.addEventListener(controlEvents.move, function(e) {
       var touches = self.getControlPoints(e);
       if (
         self._downPoints &&
@@ -799,7 +799,7 @@
     var $imageListenerEle = self.isSupportTouch
       ? self.$container
       : self.$cropMask;
-    $imageListenerEle.addEventListener(controlEvents.start, function (ev) {
+    $imageListenerEle.addEventListener(controlEvents.start, function(ev) {
       var touches = self.getControlPoints(ev);
       self.startControl(touches);
       self._multiPoint = false;
@@ -838,7 +838,7 @@
       : false;
     $imageListenerEle.addEventListener(
       controlEvents.move,
-      function (ev) {
+      function(ev) {
         var touches = self.getControlPoints(ev);
         if (self._downPoints && self._downPoints.length > 0) {
           if (!self._multiPoint) {
@@ -880,7 +880,7 @@
 
     //鼠标滚轮缩放
     // ------------------ //
-    $imageListenerEle.addEventListener("wheel", function (e) {
+    $imageListenerEle.addEventListener("wheel", function(e) {
       if (!self._wheelTimeout) {
         self.startControl();
       }
@@ -893,16 +893,16 @@
       if (self._wheelTimeout) {
         clearTimeout(self._wheelTimeout);
       }
-      self._wheelTimeout = setTimeout(function () {
+      self._wheelTimeout = setTimeout(function() {
         self.endControl();
         self._wheelTimeout = null;
-      }, 50);
+      }, 100);
     });
     // ------------------ //
   };
 
   //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
-  SimpleCrop.prototype.getFingerScaleTranslate = function (scale) {
+  SimpleCrop.prototype.getFingerScaleTranslate = function(scale) {
     var fingerPoints = []; //以双指中心缩放的新坐标
     var center = this.getPointsCenter(this.contentPoints); //中心点不变
     for (var i = 0; i < this.contentPoints.length; i++) {
@@ -920,7 +920,7 @@
   };
 
   //根据图片方向计算源图片实际宽高
-  SimpleCrop.prototype.getRealCotentSize = function () {
+  SimpleCrop.prototype.getRealCotentSize = function() {
     this.contentWidth = this.originImage.width;
     this.contentHeight = this.originImage.height;
     //图片方向大于 4 时宽高互换
@@ -931,7 +931,7 @@
   };
 
   //处理图片方向
-  SimpleCrop.prototype.transformCoordinates = function () {
+  SimpleCrop.prototype.transformCoordinates = function() {
     if (this.$cropContent) {
       this.$cropMask.removeChild(this.$cropContent);
     }
@@ -995,7 +995,7 @@
   };
 
   //获取裁剪图片
-  SimpleCrop.prototype.getCropImage = function () {
+  SimpleCrop.prototype.getCropImage = function() {
     var scaleNum = (this.scaleTimes / this.times) * this._rotateScale;
     var contentWidth = this.contentWidth;
     var contentHeight = this.contentHeight;
@@ -1057,7 +1057,7 @@
   };
 
   //操作结束
-  SimpleCrop.prototype.endControl = function () {
+  SimpleCrop.prototype.endControl = function() {
     if (this._isControl) {
       var self = this;
       this._downPoints = [];
@@ -1101,7 +1101,7 @@
           var no = 0;
           var tr = this._initTransform + transform + coverTrAr[no];
           this.$cropContent.style[transformProperty] = tr;
-          this.$cropContent.addEventListener(transitionEndEvent, function () {
+          this.$cropContent.addEventListener(transitionEndEvent, function() {
             no++;
             if (no < coverTr.length) {
               tr += coverTrAr[no];
@@ -1116,7 +1116,7 @@
   };
 
   //操作开始
-  SimpleCrop.prototype.startControl = function (touches) {
+  SimpleCrop.prototype.startControl = function(touches) {
     touches = touches ? touches : [];
     if (!this._isControl || this.isTwoFingerEvent(touches)) {
       this._isControl = true;
@@ -1128,7 +1128,7 @@
   };
 
   //双指操作事件
-  SimpleCrop.prototype.isTwoFingerEvent = function (touches) {
+  SimpleCrop.prototype.isTwoFingerEvent = function(touches) {
     /**
      * 微信小程序双指操作时，会触发两次 touchstart 事件且前后两次事件触摸点坐标有一个坐标相同
      */
@@ -1148,7 +1148,7 @@
   };
 
   //内容图片移动
-  SimpleCrop.prototype.contentMove = function (touches) {
+  SimpleCrop.prototype.contentMove = function(touches) {
     var point = touches[0];
     var moveX = point.clientX - this._downPoints[0].clientX;
     var moveY = point.clientY - this._downPoints[0].clientY;
@@ -1161,7 +1161,7 @@
   };
 
   //旋转、缩放、移动
-  SimpleCrop.prototype.transform = function (rotateCover, scaleKeepCover) {
+  SimpleCrop.prototype.transform = function(rotateCover, scaleKeepCover) {
     if (this.$cropContent) {
       var scaleNum = (this.scaleTimes / this.times) * this._rotateScale;
       var transform = "";
@@ -1238,7 +1238,7 @@
   };
 
   //计算一个矩形刚好包含另一个矩形需要的缩放倍数
-  SimpleCrop.prototype.getCoverRectScale = function (outer, inner) {
+  SimpleCrop.prototype.getCoverRectScale = function(outer, inner) {
     var scale = 0;
     for (var i = 0; i < inner.length; i++) {
       var num = this.getCoverPointScale(inner[i], outer);
@@ -1250,7 +1250,7 @@
   };
 
   //判断 矩形A 是否完全包含 矩形B
-  SimpleCrop.prototype.isWholeCover = function (rectA, rectB) {
+  SimpleCrop.prototype.isWholeCover = function(rectA, rectB) {
     for (var i = 0; i < rectB.length; i++) {
       if (!this.isPointInRectCheckByLen(rectB[i], rectA)) {
         return false;
@@ -1260,7 +1260,7 @@
   };
 
   //计算一个矩形刚好包含矩形外一点需要的缩放倍数
-  SimpleCrop.prototype.getCoverPointScale = function (point, rectPoints) {
+  SimpleCrop.prototype.getCoverPointScale = function(point, rectPoints) {
     var pcv = this.getPCVectorProjOnUpAndRight(point, rectPoints);
 
     //计算矩形外一点到矩形中心向量在矩形边框向量上的投影距离
@@ -1278,7 +1278,7 @@
   };
 
   //计算图片内容刚好包含裁剪框的transform变换
-  SimpleCrop.prototype.getCoverTransform = function (transform, onlyTranslate) {
+  SimpleCrop.prototype.getCoverTransform = function(transform, onlyTranslate) {
     var cRect = this.getCoveRect(this.cropPoints, this.rotateAngle);
     onlyTranslate = onlyTranslate ? onlyTranslate : false;
 
@@ -1352,7 +1352,7 @@
       outDetails = this.getOutDetails(this.cropPoints, scalePoints);
       if (outDetails.length > 0) {
         count++;
-        outDetails.sort(function (a, b) {
+        outDetails.sort(function(a, b) {
           //找出距离最远的点
           var aLen = self.vecLen(a.iv);
           var bLen = self.vecLen(b.iv);
@@ -1414,7 +1414,7 @@
   };
 
   //找出一个矩形在另一个矩形外的顶点数据
-  SimpleCrop.prototype.getOutDetails = function (inner, outer) {
+  SimpleCrop.prototype.getOutDetails = function(inner, outer) {
     var outDetails = [];
     for (var i = 0; i < inner.length; i++) {
       var pt = inner[i];
@@ -1454,7 +1454,7 @@
   };
 
   //获取刚好包含某个矩形的新矩形
-  SimpleCrop.prototype.getCoveRect = function (rect, angle) {
+  SimpleCrop.prototype.getCoveRect = function(rect, angle) {
     if (angle < 0) {
       angle = 90 + (angle % 90);
     } else {
@@ -1494,7 +1494,7 @@
   };
 
   //计算新的变换坐标
-  SimpleCrop.prototype.getTransformPoints = function (transform, points) {
+  SimpleCrop.prototype.getTransformPoints = function(transform, points) {
     var matrix = this.getTransformMatrix(transform);
     var nPoints = [];
     for (var i = 0; i < points.length; i++) {
@@ -1511,7 +1511,7 @@
   };
 
   //获得矩形点坐标中心
-  SimpleCrop.prototype.getPointsCenter = function (points) {
+  SimpleCrop.prototype.getPointsCenter = function(points) {
     var center = {
       x: (points[0].x + points[2].x) / 2,
       y: (points[0].y + points[2].y) / 2,
@@ -1520,7 +1520,7 @@
   };
 
   //矩形位置形式转换为顶点坐标形式
-  SimpleCrop.prototype.rectToPoints = function (rect) {
+  SimpleCrop.prototype.rectToPoints = function(rect) {
     var points = [];
     points.push({
       x: -(this.maskViewSize.width / 2 - rect.left),
@@ -1543,7 +1543,7 @@
   };
 
   //获取 css transform 属性对应的矩形形式
-  SimpleCrop.prototype.getTransformMatrix = function (transform) {
+  SimpleCrop.prototype.getTransformMatrix = function(transform) {
     var transforms = transform.split(" ");
     var params = [];
     for (var i = 0; i < transforms.length; i++) {
@@ -1567,7 +1567,7 @@
   };
 
   //根据 css transform 属性获取 transformation-matrix 对应的函数名称以及参数
-  SimpleCrop.prototype.getTransformFunctionName = function (transform) {
+  SimpleCrop.prototype.getTransformFunctionName = function(transform) {
     var start = transform.indexOf("(");
     var end = transform.indexOf(")");
     var func = {};
@@ -1608,7 +1608,7 @@
   };
 
   //计算向量 a 在向量 b 上的投影向量
-  SimpleCrop.prototype.getProjectionVector = function (vecA, vecB) {
+  SimpleCrop.prototype.getProjectionVector = function(vecA, vecB) {
     var bLen = this.vecLen(vecB);
     var ab = vecA.x * vecB.x + vecA.y * vecB.y;
 
@@ -1621,7 +1621,7 @@
   };
 
   //计算矩形中心到某点的向量在矩形自身坐标系上方向和右方向上的投影向量
-  SimpleCrop.prototype.getPCVectorProjOnUpAndRight = function (
+  SimpleCrop.prototype.getPCVectorProjOnUpAndRight = function(
     point,
     rectPoints
   ) {
@@ -1654,7 +1654,7 @@
   };
 
   //根据矩形中心到某一点向量在矩形边框向量的投影长度判断该点是否在矩形内
-  SimpleCrop.prototype.isPointInRectCheckByLen = function (point, rectPoints) {
+  SimpleCrop.prototype.isPointInRectCheckByLen = function(point, rectPoints) {
     var pcv = this.getPCVectorProjOnUpAndRight(point, rectPoints);
 
     var precision = 100; //保留两位小数
@@ -1672,10 +1672,7 @@
   };
 
   //根据角度和判断点是否在矩形内
-  SimpleCrop.prototype.isPointInRectCheckByAngle = function (
-    point,
-    rectPoints
-  ) {
+  SimpleCrop.prototype.isPointInRectCheckByAngle = function(point, rectPoints) {
     //先计算四个向量
     var vecs = [];
     for (var i = 0; i < rectPoints.length; i++) {
@@ -1730,7 +1727,7 @@
   };
 
   //计算向量数组的中向量和目标向量的最小夹角
-  SimpleCrop.prototype.getMinAngle = function (tVec, aVec) {
+  SimpleCrop.prototype.getMinAngle = function(tVec, aVec) {
     var minAngle = this.vecAngle(tVec, aVec[0]);
     var minIndex = 0;
     for (var i = 1; i < aVec.length; i++) {
@@ -1748,7 +1745,7 @@
   };
 
   //计算向量夹角
-  SimpleCrop.prototype.vecAngle = function (vec1, vec2) {
+  SimpleCrop.prototype.vecAngle = function(vec1, vec2) {
     var acos =
       (vec1.x * vec2.x + vec1.y * vec2.y) /
       (this.vecLen(vec1) * this.vecLen(vec2));
@@ -1762,14 +1759,14 @@
   };
 
   //计算向量的模
-  SimpleCrop.prototype.vecLen = function (vec) {
+  SimpleCrop.prototype.vecLen = function(vec) {
     return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
   };
 
   //file转image
-  SimpleCrop.prototype.fileToSrc = function (file, callback) {
+  SimpleCrop.prototype.fileToSrc = function(file, callback) {
     var reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function(e) {
       callback(e.target.result);
     };
     reader.readAsDataURL(file);
