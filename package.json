@@ -1,6 +1,6 @@
 {
   "name": "simple-crop",
-  "version": "4.0.20",
+  "version": "4.0.21",
   "description": "全平台（Vue、React、微信小程序）任意角度旋转 图片裁剪组件。",
   "main": "index.js",
   "babel": {
