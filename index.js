@@ -884,6 +884,7 @@
       if (!self._wheelTimeout) {
         self.startControl();
       }
+      e.preventDefault();
       if (e.wheelDelta > 0) {
         self.scaleTimes = self.scaleTimes * (e.wheelDelta / 12000 + 1);
       } else {
