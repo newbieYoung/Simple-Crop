@@ -224,13 +224,14 @@
 
 .crop-component .crop-btns .crop-close {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   position: absolute;
-  right: 32px;
-  top: 18px;
-  background-image: url(./img/crop-close.png);
+  right: 20px;
+  top: 11px;
+  background-image: url(./img/crop-close.svg);
   background-size: 100% 100%;
   cursor: pointer;
   border: none;
+  background-color:#fff;
 }

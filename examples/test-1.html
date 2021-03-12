@@ -12,9 +12,9 @@
 
     <script src="../build/index.min.js"></script>
     <script>
-      window.onload = function () {
+      window.onload = function() {
         var simpleCrop = new SimpleCrop({
-          title: "上传图片过大，请裁剪",
+          title: "图片裁剪",
           src: "../img/test2.jpg",
           size: {
             width: 800,
@@ -27,23 +27,23 @@
           coverColor: "rgba(0,0,0,.5)",
           startAngle: -360,
           endAngle: 360,
-          cropCallback: function ($resultCanvas) {
+          cropCallback: function($resultCanvas) {
             console.log("cropCallback");
             $resultCanvas.style.marginRight = "10px";
             $resultCanvas.style.width = "50%";
             document.body.appendChild($resultCanvas);
           },
-          uploadCallback: function (src) {
+          uploadCallback: function(src) {
             console.log("uploadCallback " + src);
           },
-          closeCallback: function () {
+          closeCallback: function() {
             console.log("closeCallback");
           },
         });
 
         //选取裁剪图片
         var $upload = document.querySelector("#upload");
-        $upload.addEventListener("change", function (evt) {
+        $upload.addEventListener("change", function(evt) {
           var files = evt.target.files;
           if (files.length > 0) {
             simpleCrop.show(files[0]);
@@ -53,7 +53,7 @@
 
         //组件更新
         var $update = document.querySelector("#update");
-        $update.addEventListener("click", function () {
+        $update.addEventListener("click", function() {
           simpleCrop.updateBox({
             cropSizePercent: 0.7,
             size: {

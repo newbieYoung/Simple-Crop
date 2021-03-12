@@ -146,7 +146,6 @@
     //配置
     this.id = "crop-" + new Date().getTime();
     this.visible = params.visible != null ? params.visible : true; //默认显示
-    this.title = params.title != null ? params.title : "";
     this.debug = params.debug != null ? params.debug : false;
     this.$container =
       params.$container != null ? params.$container : document.body; //容器
@@ -188,6 +187,7 @@
     this.initFuncBtns(params); //初始化功能按钮
     this.initRotateSlider(params); //初始化旋转刻度盘
     this.initChilds();
+    this.initTitle(params);
     this.initBoxBorder(params, true);
     this.updateBox(params);
     this.bindEvent();
@@ -198,11 +198,6 @@
     this.title = params.title != null ? params.title : "";
     this.$title = document.querySelector("#" + this.id + " .crop-title");
     this.$title.innerText = this.title;
-    if (!params.title) {
-      this.$title.style.visibility = "";
-    } else {
-      this.$title.style.visibility = "hidden";
-    }
   };
 
   //初始化裁剪框边框以及辅助线
@@ -498,7 +493,7 @@
   SimpleCrop.prototype.construct = function() {
     var html = "";
     html += '<div class="crop-component">';
-    html += '<p class="crop-title">' + this.title + "</p>";
+    html += '<p class="crop-title"></p>'; // 标题
     html += '<div class="crop-mask">';
     html += '<canvas class="crop-cover"></canvas>';
     html += "</div>";

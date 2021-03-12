@@ -152,28 +152,28 @@
 .crop-component .crop-close:after {
   width: 18px;
   height: 18px;
-  background-image: url(./img/crop-close-white.png);
+  background-image: url(./img/crop-close-white.svg);
   background-size: 100% 100%;
 }
 
 .crop-component .crop-btn:after {
   width: 21px;
   height: 15px;
-  background-image: url(./img/crop-btn.png);
+  background-image: url(./img/crop-btn.svg);
   background-size: 100% 100%;
 }
 
 .crop-component .crop-reset:after {
   width: 22px;
   height: 19px;
-  background-image: url(./img/crop-reset.png);
+  background-image: url(./img/crop-reset.svg);
   background-size: 100% 100%;
 }
 
 .crop-component .crop-around:after {
   width: 18px;
   height: 22px;
-  background-image: url(./img/crop-rotate.png);
+  background-image: url(./img/crop-rotate.svg);
   background-size: 100% 100%;
 }
 

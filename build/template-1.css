@@ -224,13 +224,14 @@
 
 .crop-component .crop-btns .crop-close {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   position: absolute;
-  right: 32px;
-  top: 18px;
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAgklEQVR42m3QsRFAQBCF4VeAlFyiCE2oQC9iHew7IxAIrovrQaYEHQgwZxh3ezb9Nvh3AbC2GZJhZUqwlpPLmMdkGtm5wmZcNHuSUzoAYx7zQ/2zGbKikIc2oYCPH/IztDdtuvzL2H4OezN0uYpXrOMDZpXGT4VncTAl1/tRiFkc5wuPN4DZROZKrAAAAABJRU5ErkJggg==);
+  right: 20px;
+  top: 11px;
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4wMSIvPjxwYXRoIGQ9Ik04IDhMNDAgNDAiIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNOCA0MEw0MCA4IiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+);
   background-size: 100% 100%;
   cursor: pointer;
   border: none;
+  background-color:#fff;
 }
