@@ -47,7 +47,6 @@
   background-image: url(./img/mosaic-bk.jpg);
   background-repeat: repeat;
   position: relative;
-  cursor: move;
   overflow: hidden;
 }
 

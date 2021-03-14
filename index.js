@@ -130,6 +130,16 @@
    * _wheelTimeout 定时器
    * ------------------------------------
    * 拖动裁剪框
+   * _moveCursor 拖拽状态
+   * move 图片拖拽
+   * crop_leftTop 裁剪框左上拖拽
+   * crop_leftBottom 裁剪框左下拖拽
+   * crop_rightTop 裁剪框右上拖拽
+   * crop_rightBottom 裁剪框右下拖拽
+   * crop_left 裁剪框左拖拽
+   * crop_right 裁剪框右拖拽
+   * crop_top 裁剪框上拖拽
+   * crop_bottom 裁剪框下拖拽
    * ------------------------------------
    * 双指缩放
    * _multiPoint 是否开始多点触控
@@ -744,22 +754,83 @@
     this.endControl();
   };
 
-  SimpleCrop.prototype.moveCursor = function(element, touches) {
-    //console.log("---");
+  // 裁剪框拖拽鼠标样式
+  SimpleCrop.prototype.moveCursor = function(touches) {
     var point = {
       x: touches[0].clientX - this.maskViewSize.left,
       y: touches[0].clientY - this.maskViewSize.top,
     };
-    //console.log(point);
-    //console.log(this.cropRect);
+    var borderWidth = this.borderWidth * 2;
+    var innerRect = {
+      left: this.cropRect.left + borderWidth,
+      top: this.cropRect.top + borderWidth,
+      width: this.cropRect.width - 2 * borderWidth,
+      height: this.cropRect.height - 2 * borderWidth,
+    };
+    var outerRect = {
+      left: this.cropRect.left - borderWidth,
+      top: this.cropRect.top - borderWidth,
+      width: this.cropRect.width + 2 * borderWidth,
+      height: this.cropRect.height + 2 * borderWidth,
+    };
     if (
-      point.x >= this.cropRect.left &&
-      point.x <= this.cropRect.left + this.cropRect.width &&
-      point.y >= this.cropRect.top &&
-      point.y <= this.cropRect.height + this.cropRect.top
+      point.x >= outerRect.left &&
+      point.x <= outerRect.left + outerRect.width &&
+      point.y >= outerRect.top &&
+      point.y <= outerRect.height + outerRect.top &&
+      !(
+        point.x >= innerRect.left &&
+        point.x <= innerRect.left + innerRect.width &&
+        point.y >= innerRect.top &&
+        point.y <= innerRect.height + innerRect.top
+      )
     ) {
-      console.log("222");
-      this.$cropMask.style.cursor = "auto";
+      if (
+        point.x <= outerRect.left + this.boldCornerLen &&
+        point.y <= outerRect.top + this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "nwse-resize"; // 左上角
+        this._moveCursor = "crop_leftTop";
+      } else if (
+        point.x <= outerRect.left + this.boldCornerLen &&
+        point.y >= outerRect.height + outerRect.top - this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "nesw-resize"; // 左下角
+        this._moveCursor = "crop_leftBottom";
+      } else if (
+        point.x >= outerRect.width + outerRect.left - this.boldCornerLen &&
+        point.y <= outerRect.top + this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "nesw-resize"; // 右上角
+        this._moveCursor = "crop_rightTop";
+      } else if (
+        point.x >= outerRect.width + outerRect.left - this.boldCornerLen &&
+        point.y >= outerRect.height + outerRect.top - this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "nwse-resize"; // 右下角
+        this._moveCursor = "crop_rightBottom";
+      } else if (point.y <= outerRect.top + this.boldCornerLen) {
+        this.$cropCover.style.cursor = "ns-resize"; // 水平上
+        this._moveCursor = "crop_top";
+      } else if (
+        point.y >=
+        outerRect.height + outerRect.top - this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "ns-resize"; // 水平下
+        this._moveCursor = "crop_bottom";
+      } else if (point.x <= outerRect.left + this.boldCornerLen) {
+        this.$cropCover.style.cursor = "ew-resize"; // 竖直左
+        this._moveCursor = "crop_left";
+      } else if (
+        point.x >=
+        outerRect.width + outerRect.left - this.boldCornerLen
+      ) {
+        this.$cropCover.style.cursor = "ew-resize"; // 竖直右
+        this._moveCursor = "crop_right";
+      }
+    } else {
+      this.$cropCover.style.cursor = "move";
+      this._moveCursor = "move";
     }
   };
 
@@ -882,7 +953,7 @@
             self.transform(false, true);
           }
         } else {
-          self.moveCursor($imageListenerEle, touches);
+          self.moveCursor(touches);
         }
         if (self.visible) {
           //组件显示状态才屏蔽掉一些事件的默认行为，防止组件关闭后继续影响页面
