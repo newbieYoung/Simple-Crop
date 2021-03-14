@@ -1,66 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mobile</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <link rel="stylesheet" href="../build/template-2.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Mobile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="../build/template-2.css" />
-</head>
+  <body>
+    <input id="upload" type="file" accept="image/png,image/jpeg" />
+    <button id="update">组件更新</button>
 
-<body>
-  <input id="upload" type="file" accept="image/png,image/jpeg" />
-  <button id="update">组件更新</button>
-
-  <script src="../build/index.min.js"></script>
-  <script>
-    var simpleCrop = new SimpleCrop({
-      src: "../img/test2.jpg",
-      size: {
-        width: 800,
-        height: 600,
-      },
-      cropSizePercent: 0.9,
-      cropCallback: function ($resultCanvas) {
-        console.log("cropCallback");
-        $resultCanvas.style.marginRight = "10px";
-        $resultCanvas.style.width = "50%";
-        document.body.appendChild($resultCanvas);
-      },
-      uploadCallback: function (src) {
-        console.log("uploadCallback " + src);
-      },
-      closeCallback: function () {
-        console.log("closeCallback");
-      },
-    });
-
-    //上传图片
-    var $upload = document.querySelector("#upload");
-    $upload.addEventListener("change", function (evt) {
-      var files = evt.target.files;
-      if (files.length > 0) {
-        simpleCrop.show(files[0]);
-      }
-      $upload.value = ""; //清空 input value
-    });
-
-    //组件更新
-    var $update = document.querySelector("#update");
-    $update.addEventListener("click", function () {
-      simpleCrop.updateBox({
-        cropSizePercent: 0.7,
+    <script src="../build/index.min.js"></script>
+    <script>
+      var simpleCrop = new SimpleCrop({
+        src: "../img/test2.jpg",
         size: {
-          width: 600,
+          width: 800,
           height: 600,
         },
+        cropSizePercent: 0.8,
+        positionOffset: {
+          top: 66,
+          left: 0,
+        },
+        cropCallback: function($resultCanvas) {
+          console.log("cropCallback");
+          $resultCanvas.style.marginRight = "10px";
+          $resultCanvas.style.width = "50%";
+          document.body.appendChild($resultCanvas);
+        },
+        uploadCallback: function(src) {
+          console.log("uploadCallback " + src);
+        },
+        closeCallback: function() {
+          console.log("closeCallback");
+        },
       });
-      simpleCrop.initBoxBorder({
-        borderColor: "#0BFF00",
-      });
-      simpleCrop.show();
-    });
-  </script>
-</body>
 
+      //上传图片
+      var $upload = document.querySelector("#upload");
+      $upload.addEventListener("change", function(evt) {
+        var files = evt.target.files;
+        if (files.length > 0) {
+          simpleCrop.show(files[0]);
+        }
+        $upload.value = ""; //清空 input value
+      });
+
+      //组件更新
+      var $update = document.querySelector("#update");
+      $update.addEventListener("click", function() {
+        simpleCrop.updateBox({
+          cropSizePercent: 0.7,
+          size: {
+            width: 600,
+            height: 600,
+          },
+        });
+        simpleCrop.initBoxBorder({
+          borderColor: "#0BFF00",
+        });
+        simpleCrop.show();
+      });
+    </script>
+  </body>
 </html>

@@ -98,6 +98,8 @@
    * @param borderColor 裁剪框边框颜色
    * @param coverDraw 裁剪框辅助线绘制函数
    * @param borderDraw 裁剪框边框绘制函数
+   *
+   * @param cursorHoverWidth 裁剪框拖动触发范围
    * ------------------------------------
    * 功能按钮
    * @param funcBtns 功能按钮配置数组
@@ -116,7 +118,8 @@
    * ------------------------------------
    * 尺寸（为了减少计算的复杂性，所有坐标都统一为屏幕坐标及尺寸）
    * maskViewSize 容器屏幕尺寸
-   * cropRect 截图框屏幕尺寸
+   * initCropRect 初始裁剪框屏幕尺寸
+   * cropRect 裁剪框屏幕尺寸
    * cropPoints 裁剪框顶点坐标
    * cropCenter 裁剪框中心点坐标
    * contentWidth 图片显示宽度
@@ -131,6 +134,8 @@
    * ------------------------------------
    * 拖动裁剪框
    * _moveCursor 拖拽状态
+   * _moveCursorAction 裁剪框拖动进行时
+   *
    * move 图片拖拽
    * crop_leftTop 裁剪框左上拖拽
    * crop_leftBottom 裁剪框左下拖拽
@@ -202,7 +207,9 @@
     this.initChilds();
     this.initTitle(params);
     this.initBoxBorder(params, true);
+    this.initBoxCursor(params);
     this.updateBox(params);
+    this.setImage(params.src != null ? params.src : this.src);
     this.bindEvent();
   }
 
@@ -215,10 +222,10 @@
 
   //初始化裁剪框边框以及辅助线
   SimpleCrop.prototype.initBoxBorder = function(params, onlyInit) {
-    this.borderWidth = params.borderWidth != null ? params.borderWidth : 1;
+    this.borderWidth = params.borderWidth != null ? params.borderWidth : 2;
     this.borderColor = params.borderColor != null ? params.borderColor : "#fff";
     this.boldCornerLen =
-      params.boldCornerLen != null ? params.boldCornerLen : 24;
+      params.boldCornerLen != null ? params.boldCornerLen : 32;
     this.boldCornerWidth = params.boldCornerWidth ? params.boldCornerWidth : 4;
     this.coverColor =
       params.coverColor != null ? params.coverColor : "rgba(0,0,0,.3)";
@@ -231,6 +238,17 @@
       this.borderDraw(this.$cropCover);
       this.coverDraw(this.$cropCover);
     }
+  };
+
+  // 初始化裁剪框拖动相关参数
+  SimpleCrop.prototype.initBoxCursor = function(params) {
+    const defaultCursorWidth = this.isSupportTouch
+      ? this.borderWidth * 10
+      : this.borderWidth * 2;
+    this.cursorHoverWidth =
+      params.cursorHoverWidth != null
+        ? params.cursorHoverWidth
+        : defaultCursorWidth;
   };
 
   //初始化功能按钮
@@ -445,6 +463,7 @@
           };
     this.cropSizePercent =
       params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
+
     this.times =
       this.size.width / this.maskViewSize.width >
       this.size.height / this.maskViewSize.height
@@ -462,14 +481,18 @@
     this.cropRect.top =
       (this.maskViewSize.height - this.cropRect.height) / 2 -
       this.positionOffset.top;
+    this.initCropRect = {
+      left: this.cropRect.left,
+      top: this.cropRect.top,
+      width: this.cropRect.width,
+      height: this.cropRect.height,
+    };
     this.cropPoints = this.rectToPoints(this.cropRect);
     this.cropCenter = this.getPointsCenter(this.cropPoints);
 
     this.borderDraw(this.$cropCover);
     this.coverDraw(this.$cropCover);
-
-    var src = params.src != null ? params.src : this.src;
-    this.setImage(src);
+    this.transform(false, true);
   };
 
   //获取操作点
@@ -760,18 +783,17 @@
       x: touches[0].clientX - this.maskViewSize.left,
       y: touches[0].clientY - this.maskViewSize.top,
     };
-    var borderWidth = this.borderWidth * 2;
     var innerRect = {
-      left: this.cropRect.left + borderWidth,
-      top: this.cropRect.top + borderWidth,
-      width: this.cropRect.width - 2 * borderWidth,
-      height: this.cropRect.height - 2 * borderWidth,
+      left: this.cropRect.left + this.cursorHoverWidth,
+      top: this.cropRect.top + this.cursorHoverWidth,
+      width: this.cropRect.width - 2 * this.cursorHoverWidth,
+      height: this.cropRect.height - 2 * this.cursorHoverWidth,
     };
     var outerRect = {
-      left: this.cropRect.left - borderWidth,
-      top: this.cropRect.top - borderWidth,
-      width: this.cropRect.width + 2 * borderWidth,
-      height: this.cropRect.height + 2 * borderWidth,
+      left: this.cropRect.left - this.cursorHoverWidth,
+      top: this.cropRect.top - this.cursorHoverWidth,
+      width: this.cropRect.width + 2 * this.cursorHoverWidth,
+      height: this.cropRect.height + 2 * this.cursorHoverWidth,
     };
     if (
       point.x >= outerRect.left &&
@@ -832,6 +854,65 @@
       this.$cropCover.style.cursor = "move";
       this._moveCursor = "move";
     }
+  };
+
+  //裁剪框移动
+  SimpleCrop.prototype.cropMove = function(touches) {
+    var movePos = touches[0];
+    var startPos = this._downPoints[0];
+    var moveCursorAction = this._moveCursorAction.toLowerCase();
+    var changeX = movePos.clientX - startPos.clientX;
+    var finalMovePos = {
+      clientX: movePos.clientX,
+      clientY: movePos.clientY,
+    };
+    if (
+      (moveCursorAction.indexOf("left") != -1 ||
+        moveCursorAction.indexOf("right") != -1) &&
+      (moveCursorAction.indexOf("top") != -1 ||
+        moveCursorAction.indexOf("bottom") != -1)
+    ) {
+      var tag = 0;
+      if (["crop_lefttop", "crop_rightbottom"].includes(moveCursorAction)) {
+        tag = 1;
+      } else {
+        tag = -1;
+      }
+      var fixedChangeY =
+        (changeX * this.initCropRect.height) / this.initCropRect.width;
+      finalMovePos.clientY = startPos.clientY + fixedChangeY * tag; // 以宽度变化为基准
+    }
+
+    if (moveCursorAction.indexOf("left") != -1) {
+      this.cropRect.left =
+        this.initCropRect.left + (finalMovePos.clientX - startPos.clientX);
+      this.cropRect.width =
+        this.initCropRect.width - (finalMovePos.clientX - startPos.clientX);
+    }
+    if (moveCursorAction.indexOf("right") != -1) {
+      this.cropRect.width =
+        this.initCropRect.width + (finalMovePos.clientX - startPos.clientX);
+    }
+    if (moveCursorAction.indexOf("top") != -1) {
+      this.cropRect.top =
+        this.initCropRect.top + (finalMovePos.clientY - startPos.clientY);
+      this.cropRect.height =
+        this.initCropRect.height - (finalMovePos.clientY - startPos.clientY);
+    }
+    if (moveCursorAction.indexOf("bottom") != -1) {
+      this.cropRect.height =
+        this.initCropRect.height + (finalMovePos.clientY - startPos.clientY);
+    }
+
+    if (this.cropRect.width <= this.boldCornerLen) {
+      this.cropRect.width = this.boldCornerLen;
+    }
+    if (this.cropRect.height <= this.boldCornerLen) {
+      this.cropRect.height = this.boldCornerLen;
+    }
+
+    this.borderDraw(this.$cropCover);
+    this.coverDraw(this.$cropCover);
   };
 
   //事件监听
@@ -895,6 +976,7 @@
       var touches = self.getControlPoints(ev);
       self.startControl(touches);
       self._multiPoint = false;
+      self.moveCursor(touches);
       if (self._downPoints && self._downPoints.length >= 2) {
         self._multiPoint = true;
         var center = {
@@ -919,6 +1001,8 @@
           x: center.clientX - self.maskViewSize.width / 2,
           y: self.maskViewSize.height / 2 - center.clientY,
         };
+      } else if (self._moveCursor && self._moveCursor.indexOf("crop_") != -1) {
+        self._moveCursorAction = self._moveCursor;
       }
     });
     var options = self.passiveSupported
@@ -934,8 +1018,11 @@
         var touches = self.getControlPoints(ev);
         if (self._downPoints && self._downPoints.length > 0) {
           if (!self._multiPoint) {
-            // 单指移动
-            self.contentMove(touches);
+            if (!self._moveCursorAction) {
+              self.contentMove(touches); // 单指移动
+            } else {
+              self.cropMove(touches); // 裁剪框移动
+            }
           } else {
             // 双指缩放
             var newFingerLen = Math.sqrt(
@@ -944,8 +1031,9 @@
             );
             var newScale = newFingerLen / self.fingerLen;
             self.scaleTimes = (self.scaleTimes / self.fingerScale) * newScale;
-            var translate = self.getFingerScaleTranslate(
-              newScale / self.fingerScale
+            var translate = self.getScaleTranslate(
+              newScale / self.fingerScale,
+              self.fingerCenter
             );
             self._contentCurMoveX -= translate.translateX;
             self._contentCurMoveY += translate.translateY;
@@ -996,15 +1084,15 @@
     // ------------------ //
   };
 
-  //双指缩放优化为以双指中心为基础点，实际变换以中心点为基准点，因此需要计算两者的偏移
-  SimpleCrop.prototype.getFingerScaleTranslate = function(scale) {
+  // 裁剪图片默认以图片中心为基准点，但是实际缩放操作时，操作中心并不一定是图片中心，因此需要计算两者的偏移动
+  SimpleCrop.prototype.getScaleTranslate = function(scale, scaleCenter) {
     var fingerPoints = []; //以双指中心缩放的新坐标
     var center = this.getPointsCenter(this.contentPoints); //中心点不变
     for (var i = 0; i < this.contentPoints.length; i++) {
       var point = this.contentPoints[i];
       fingerPoints.push({
-        x: point.x * scale - this.fingerCenter.x * (scale - 1),
-        y: point.y * scale - this.fingerCenter.y * (scale - 1),
+        x: point.x * scale - scaleCenter.x * (scale - 1),
+        y: point.y * scale - scaleCenter.y * (scale - 1),
       });
     }
     var newCenter = this.getPointsCenter(fingerPoints);
@@ -1156,6 +1244,112 @@
     if (this._isControl) {
       var self = this;
       this._downPoints = [];
+
+      // 拖动裁剪框
+      if (this._moveCursorAction) {
+        const newSize = {
+          width:
+            (this.cropRect.width / this.initCropRect.width) * this.size.width,
+          height:
+            (this.cropRect.height / this.initCropRect.height) *
+            this.size.height,
+        };
+        const newTimes =
+          newSize.width / this.maskViewSize.width >
+          newSize.height / this.maskViewSize.height
+            ? newSize.width / this.maskViewSize.width / this.cropSizePercent
+            : newSize.height / this.maskViewSize.height / this.cropSizePercent;
+
+        // 求新裁剪框四个顶点与原有裁剪框相应顶点距离最近的顶点
+        var newRectPoints = this.rectToPoints(this.cropRect);
+        var newRectCenter = this.getPointsCenter(newRectPoints);
+        var pLens = [];
+        for (var i = 0; i < newRectPoints.length; i++) {
+          pLens.push(
+            this.vecLen({
+              x: newRectPoints[i].x - this.cropPoints[i].x,
+              y: newRectPoints[i].y - this.cropPoints[i].y,
+            })
+          );
+        }
+        var minIndexs = [0];
+        var minLen = pLens[0];
+        for (var j = 1; j < pLens.length; j++) {
+          if (pLens[j] < minLen) {
+            minLen = pLens[j];
+            minIndexs = [j];
+          } else if (pLens[j] == minLen) {
+            minIndexs.push(j);
+          }
+        }
+
+        // 拖动缩放中心点
+        var cropScaleCenter = {
+          x: this.cropPoints[minIndexs[0]].x,
+          y: this.cropPoints[minIndexs[0]].y,
+        };
+        if (minIndexs.length == 2) {
+          cropScaleCenter.x =
+            (this.cropPoints[minIndexs[0]].x +
+              this.cropPoints[minIndexs[1]].x) /
+            2;
+          cropScaleCenter.y =
+            (this.cropPoints[minIndexs[0]].y +
+              this.cropPoints[minIndexs[1]].y) /
+            2;
+        }
+
+        // 判断裁剪框拖动方向
+        var moveCursorAction = this._moveCursorAction.toLowerCase();
+        this._moveCursorAction = null;
+        var horizontal =
+          moveCursorAction.indexOf("left") != -1 ||
+          moveCursorAction.indexOf("right") != -1; // 裁剪框水平移动
+        var vertical =
+          moveCursorAction.indexOf("top") != -1 ||
+          moveCursorAction.indexOf("bottom") != -1; // 裁剪框竖直移动
+
+        // 拖动缩放系数
+        var cropScale = horizontal
+          ? this.initCropRect.width / this.cropRect.width
+          : this.initCropRect.height / this.cropRect.height;
+        var translate = self.getScaleTranslate(cropScale, {
+          x: cropScaleCenter.x,
+          y: cropScaleCenter.y,
+        });
+
+        // 拖动缩放位移
+        if (horizontal && vertical) {
+          this._contentCurMoveX -= translate.translateX;
+          this._contentCurMoveY += translate.translateY;
+        } else if (horizontal) {
+          if (Math.abs(this.times / newTimes - cropScale) <= 0.00001) {
+            this._contentCurMoveX -=
+              ((translate.translateX * cropScale) / this.times) * newTimes;
+          } else {
+            this._contentCurMoveX -= newRectCenter.x;
+            this._contentCurMoveX *= this.times / newTimes;
+          }
+        } else if (vertical) {
+          if (Math.abs(this.times / newTimes - cropScale) <= 0.00001) {
+            this._contentCurMoveY +=
+              ((translate.translateY * cropScale) / this.times) * newTimes;
+          } else {
+            this._contentCurMoveY += newRectCenter.y;
+            this._contentCurMoveY *= this.times / newTimes;
+          }
+        }
+
+        // 更新裁剪框
+        this.updateBox({
+          positionOffset: this.positionOffset,
+          cropSizePercent: this.cropSizePercent,
+          size: {
+            width: newSize.width,
+            height: newSize.height,
+          },
+        });
+      }
 
       if (
         this.$cropContent &&
