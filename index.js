@@ -91,6 +91,7 @@
    * 裁剪框
    * @param positionOffset 裁剪框屏幕偏移
    * @param boldCornerLen 裁剪框边角加粗长度
+   * @param boldCornerWidth 裁剪框边角加粗宽度
    * @param coverColor 遮罩背景颜色
    * @param cropSizePercent 裁剪框占裁剪显示区域的比例
    * @param borderWidth 裁剪框边框宽度
@@ -127,6 +128,8 @@
    * ------------------------------------
    * 鼠标滚轮缩放
    * _wheelTimeout 定时器
+   * ------------------------------------
+   * 拖动裁剪框
    * ------------------------------------
    * 双指缩放
    * _multiPoint 是否开始多点触控
@@ -206,6 +209,7 @@
     this.borderColor = params.borderColor != null ? params.borderColor : "#fff";
     this.boldCornerLen =
       params.boldCornerLen != null ? params.boldCornerLen : 24;
+    this.boldCornerWidth = params.boldCornerWidth ? params.boldCornerWidth : 4;
     this.coverColor =
       params.coverColor != null ? params.coverColor : "rgba(0,0,0,.3)";
     this.coverDraw =
@@ -406,10 +410,12 @@
   //初始化相关子元素
   SimpleCrop.prototype.initChilds = function() {
     this.$cropMask = document.querySelector("#" + this.id + " .crop-mask");
-    var maskStyle = window.getComputedStyle(this.$cropMask);
+    var maskRect = this.$cropMask.getBoundingClientRect();
     this.maskViewSize = {
-      width: parseInt(maskStyle.getPropertyValue("width")),
-      height: parseInt(maskStyle.getPropertyValue("height")),
+      top: maskRect.top,
+      left: maskRect.left,
+      width: maskRect.width,
+      height: maskRect.height,
     };
     this.$cropCover = document.querySelector("#" + this.id + " .crop-cover");
     this.cropCoverContext = this.$cropCover.getContext("2d");
@@ -528,9 +534,10 @@
   //默认绘制裁剪框
   SimpleCrop.prototype.defaultBorderDraw = function($cropCover) {
     var borderWidth = this.borderWidth;
+    var boldCornerWidth = this.boldCornerWidth;
     var boldCornerLen = this.boldCornerLen;
     boldCornerLen =
-      boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2;
+      boldCornerLen >= borderWidth * 2 ? boldCornerLen : borderWidth * 2; // 边角加粗长度至少是边框的两倍
 
     var coverWidth = $cropCover.width;
     var coverHeight = $cropCover.height;
@@ -556,26 +563,26 @@
     if (this.boldCornerLen > 0) {
       //边框四个角加粗
       this.cropCoverContext.fillRect(
-        borderRect.left - borderWidth,
-        borderRect.top - borderWidth,
+        borderRect.left - boldCornerWidth,
+        borderRect.top - boldCornerWidth,
         boldCornerLen,
         boldCornerLen
       ); //左上角
       this.cropCoverContext.fillRect(
-        borderRect.left + borderRect.width - boldCornerLen + borderWidth,
-        borderRect.top - borderWidth,
+        borderRect.left + borderRect.width - boldCornerLen + boldCornerWidth,
+        borderRect.top - boldCornerWidth,
         boldCornerLen,
         boldCornerLen
       ); //右上角
       this.cropCoverContext.fillRect(
-        borderRect.left - borderWidth,
-        borderRect.top + borderRect.height - boldCornerLen + borderWidth,
+        borderRect.left - boldCornerWidth,
+        borderRect.top + borderRect.height - boldCornerLen + boldCornerWidth,
         boldCornerLen,
         boldCornerLen
       ); //左下角
       this.cropCoverContext.fillRect(
-        borderRect.left + borderRect.width - boldCornerLen + borderWidth,
-        borderRect.top + borderRect.height - boldCornerLen + borderWidth,
+        borderRect.left + borderRect.width - boldCornerLen + boldCornerWidth,
+        borderRect.top + borderRect.height - boldCornerLen + boldCornerWidth,
         boldCornerLen,
         boldCornerLen
       ); //右下角
@@ -737,6 +744,25 @@
     this.endControl();
   };
 
+  SimpleCrop.prototype.moveCursor = function(element, touches) {
+    //console.log("---");
+    var point = {
+      x: touches[0].clientX - this.maskViewSize.left,
+      y: touches[0].clientY - this.maskViewSize.top,
+    };
+    //console.log(point);
+    //console.log(this.cropRect);
+    if (
+      point.x >= this.cropRect.left &&
+      point.x <= this.cropRect.left + this.cropRect.width &&
+      point.y >= this.cropRect.top &&
+      point.y <= this.cropRect.height + this.cropRect.top
+    ) {
+      console.log("222");
+      this.$cropMask.style.cursor = "auto";
+    }
+  };
+
   //事件监听
   SimpleCrop.prototype.bindEvent = function() {
     var self = this;
@@ -855,6 +881,8 @@
             self.fingerScale = newScale;
             self.transform(false, true);
           }
+        } else {
+          self.moveCursor($imageListenerEle, touches);
         }
         if (self.visible) {
           //组件显示状态才屏蔽掉一些事件的默认行为，防止组件关闭后继续影响页面
