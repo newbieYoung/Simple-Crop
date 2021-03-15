@@ -88,7 +88,7 @@
    * originImage 初始图片
    * _orientation 图片方向
    * ------------------------------------
-   * 裁剪框
+   * 裁剪框样式
    * @param positionOffset 裁剪框屏幕偏移
    * @param boldCornerLen 裁剪框边角加粗长度
    * @param boldCornerWidth 裁剪框边角加粗宽度
@@ -98,8 +98,10 @@
    * @param borderColor 裁剪框边框颜色
    * @param coverDraw 裁剪框辅助线绘制函数
    * @param borderDraw 裁剪框边框绘制函数
-   *
+   * ------------------------------------
+   * 裁剪框拖拽
    * @param cursorHoverWidth 裁剪框拖动触发范围
+   * @param isFixedAspectRatio 是否固定宽高比
    * ------------------------------------
    * 功能按钮
    * @param funcBtns 功能按钮配置数组
@@ -240,7 +242,7 @@
     }
   };
 
-  // 初始化裁剪框拖动相关参数
+  // 初始化裁剪框拖拽相关参数
   SimpleCrop.prototype.initBoxCursor = function(params) {
     const defaultCursorWidth = this.isSupportTouch
       ? this.borderWidth * 10
@@ -249,6 +251,9 @@
       params.cursorHoverWidth != null
         ? params.cursorHoverWidth
         : defaultCursorWidth;
+
+    this.isFixedAspectRatio =
+      params.isFixedAspectRatio != null ? params.isFixedAspectRatio : false;
   };
 
   //初始化功能按钮
@@ -863,21 +868,27 @@
       ) {
         this.$cropCover.style.cursor = "nwse-resize"; // 右下角
         this._moveCursor = "crop_rightBottom";
-      } else if (point.y <= outerRect.top + this.boldCornerLen) {
+      } else if (
+        point.y <= outerRect.top + this.boldCornerLen &&
+        !this.isFixedAspectRatio
+      ) {
         this.$cropCover.style.cursor = "ns-resize"; // 水平上
         this._moveCursor = "crop_top";
       } else if (
-        point.y >=
-        outerRect.height + outerRect.top - this.boldCornerLen
+        point.y >= outerRect.height + outerRect.top - this.boldCornerLen &&
+        !this.isFixedAspectRatio
       ) {
         this.$cropCover.style.cursor = "ns-resize"; // 水平下
         this._moveCursor = "crop_bottom";
-      } else if (point.x <= outerRect.left + this.boldCornerLen) {
+      } else if (
+        point.x <= outerRect.left + this.boldCornerLen &&
+        !this.isFixedAspectRatio
+      ) {
         this.$cropCover.style.cursor = "ew-resize"; // 竖直左
         this._moveCursor = "crop_left";
       } else if (
-        point.x >=
-        outerRect.width + outerRect.left - this.boldCornerLen
+        point.x >= outerRect.width + outerRect.left - this.boldCornerLen &&
+        !this.isFixedAspectRatio
       ) {
         this.$cropCover.style.cursor = "ew-resize"; // 竖直右
         this._moveCursor = "crop_right";

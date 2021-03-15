@@ -17,6 +17,7 @@ export interface ICropConfig {
   borderDraw?($coverCanvas: HTMLCanvasElement): void; // 裁剪框边框绘制函数
 
   cursorHoverWidth?: number; // 裁剪框拖动触发范围
+  isFixedAspectRatio?: boolean; // 是否固定宽高比
 
   funcBtns?: string[]; // 功能按钮配置数组
   cropCallback?($resultCanvas: HTMLCanvasElement): void; // 图片裁剪完成回调函数
