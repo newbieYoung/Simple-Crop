@@ -621,6 +621,38 @@
       ); //右下角
     }
 
+    // 文字
+    var txtCanvas = document.createElement("canvas");
+    txtCanvas.width = borderRect.width;
+    txtCanvas.height = 24;
+    var ctx = txtCanvas.getContext("2d");
+    ctx.font = "24px Calibri";
+    ctx.fillStyle = this.borderColor;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    var curSizeWidth = parseInt(
+      (this.size.width * this.cropRect.width) / this.initCropRect.width
+    );
+    var curSizeHeight = parseInt(
+      (this.size.height * this.cropRect.height) / this.initCropRect.height
+    );
+    ctx.fillText(
+      curSizeWidth + " x " + curSizeHeight,
+      txtCanvas.width / 2,
+      txtCanvas.height / 2
+    );
+    this.cropCoverContext.drawImage(
+      txtCanvas,
+      0,
+      0,
+      txtCanvas.width,
+      txtCanvas.height,
+      borderRect.left,
+      borderRect.top - 24 - 2 * this.boldCornerWidth,
+      txtCanvas.width,
+      txtCanvas.height
+    );
+
     //清空内容区域
     this.cropCoverContext.clearRect(
       borderRect.left + borderWidth,
