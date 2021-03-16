@@ -166,18 +166,10 @@
   function SimpleCrop(params) {
     //配置
     this.id = "crop-" + new Date().getTime();
-    this.size = params.size;
     this.initSize = {
-      width: this.size.width,
-      height: this.size.height,
-    };
-    this.positionOffset =
-      params.positionOffset != null
-        ? params.positionOffset
-        : {
-            top: 0,
-            left: 0,
-          };
+      width: params.size.width,
+      height: params.size.height,
+    }; // 初始尺寸
     this.visible = params.visible != null ? params.visible : true; //默认显示
     this.debug = params.debug != null ? params.debug : false;
     this.$container =
@@ -221,6 +213,7 @@
     this.initRotateSlider(params); //初始化旋转刻度盘
     this.initChilds();
     this.initTitle(params);
+    this.initBox(params);
     this.initBoxBorder(params, true);
     this.initBoxCursor(params);
     this.setImage(params.src != null ? params.src : this.src);
@@ -468,8 +461,8 @@
     this.$cropCover.height = this.maskViewSize.height * window.devicePixelRatio;
   };
 
-  //根据裁剪图片目标尺寸、裁剪框显示比例、裁剪框偏移更新等参数更新并重现绘制裁剪框
-  SimpleCrop.prototype.updateBox = function(params) {
+  // 初始化裁剪图片目标尺寸、裁剪框显示比例、偏移等参数
+  SimpleCrop.prototype.initBox = function(params) {
     this.size = params.size;
     this.positionOffset =
       params.positionOffset != null
@@ -480,6 +473,11 @@
           };
     this.cropSizePercent =
       params.cropSizePercent != null ? params.cropSizePercent : 0.5; //默认0.5则表示高度或者宽度最多占50%
+  };
+
+  // 根据裁剪图片目标尺寸、裁剪框显示比例、偏移等参数重现绘制裁剪框
+  SimpleCrop.prototype.updateBox = function(params) {
+    this.initBox(params);
 
     this.times =
       this.size.width / this.maskViewSize.width >
