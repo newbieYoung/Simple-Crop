@@ -1387,7 +1387,7 @@
             this._contentCurMoveX -=
               ((translate.translateX * cropScale) / this.times) * newTimes;
           } else {
-            this._contentCurMoveX -= newRectCenter.x;
+            this._contentCurMoveX -= newRectCenter.x - this.positionOffset.left;
             this._contentCurMoveX *= this.times / newTimes;
           }
         } else if (vertical) {
@@ -1395,7 +1395,7 @@
             this._contentCurMoveY +=
               ((translate.translateY * cropScale) / this.times) * newTimes;
           } else {
-            this._contentCurMoveY += newRectCenter.y;
+            this._contentCurMoveY += newRectCenter.y - this.positionOffset.top;
             this._contentCurMoveY *= this.times / newTimes;
           }
         }
