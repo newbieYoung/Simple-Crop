@@ -85,6 +85,7 @@
    * 裁剪图片
    * @param src   图片地址
    * @param size 裁剪图片目标尺寸
+   * initSize 裁剪图片初始尺寸
    * originImage 初始图片
    * _orientation 图片方向
    * ------------------------------------
@@ -165,6 +166,18 @@
   function SimpleCrop(params) {
     //配置
     this.id = "crop-" + new Date().getTime();
+    this.size = params.size;
+    this.initSize = {
+      width: this.size.width,
+      height: this.size.height,
+    };
+    this.positionOffset =
+      params.positionOffset != null
+        ? params.positionOffset
+        : {
+            top: 0,
+            left: 0,
+          };
     this.visible = params.visible != null ? params.visible : true; //默认显示
     this.debug = params.debug != null ? params.debug : false;
     this.$container =
@@ -210,7 +223,6 @@
     this.initTitle(params);
     this.initBoxBorder(params, true);
     this.initBoxCursor(params);
-    this.updateBox(params);
     this.setImage(params.src != null ? params.src : this.src);
     this.bindEvent();
   }
@@ -717,9 +729,16 @@
     this._changedX = 0;
     this.$lineation.style[transformProperty] =
       "translateX(" + this._baseMoveX + "px)";
-
     this.scaleTimes = this.initScale;
-    this.transform(false, true);
+
+    this.updateBox({
+      positionOffset: this.positionOffset,
+      cropSizePercent: this.cropSizePercent,
+      size: {
+        width: this.initSize.width,
+        height: this.initSize.height,
+      },
+    });
     this.endControl();
   };
 
