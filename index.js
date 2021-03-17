@@ -162,6 +162,7 @@
    * resultSrc 裁剪结果（wechat）
    * isSupportTouch 是否支持 touch 事件（pc、mobile）
    * passiveSupported 事件是否支持 passive（pc、mobile）
+   * _precision 计算精度
    */
   function SimpleCrop(params) {
     //配置
@@ -189,6 +190,7 @@
       //nothing
     }
     this.isSupportTouch = "ontouchend" in document ? true : false; //判断是否支持 touch 事件
+    this._precision = 5; // 计算精度
 
     //操作状态
     this._multiPoint = false; //是否开始多点触控
@@ -1009,6 +1011,12 @@
           self._changedX = moveX;
           self.$lineation.style[transformProperty] =
             "translateX(" + curMoveX + "px)";
+          var translate = self.getRotateTranslate(
+            self._baseAngle + angle - self.rotateAngle,
+            self.cropCenter
+          );
+          self._contentCurMoveX -= translate.translateX;
+          self._contentCurMoveY += translate.translateY;
           self.rotateAngle = self._baseAngle + angle;
           self.transform(true);
           self._downPoints = touches;
@@ -1144,7 +1152,7 @@
     // ------------------ //
   };
 
-  // 裁剪图片默认以图片中心为基准点，但是实际缩放操作时，操作中心并不一定是图片中心，因此需要计算两者的偏移动
+  // 裁剪图片默认以图片中心为基准点，但是实际缩放操作时，操作中心并不一定是图片中心，因此需要计算两者的偏移
   SimpleCrop.prototype.getScaleTranslate = function(scale, scaleCenter) {
     var fingerPoints = []; //以双指中心缩放的新坐标
     var center = this.getPointsCenter(this.contentPoints); //中心点不变
@@ -1160,6 +1168,32 @@
       translateX: center.x - newCenter.x,
       translateY: center.y - newCenter.y,
     };
+  };
+
+  // 裁剪图片默认以图片中心为基准点，但是实际旋转时，操作中心并不一定是图片中心，因此需要计算两者的偏移
+  SimpleCrop.prototype.getRotateTranslate = function(angle, rotateCenter) {
+    var center = this.getPointsCenter(this.contentPoints);
+    var vec = {
+      x: (center.x - rotateCenter.x).toFixed(this._precision),
+      y: (center.y - rotateCenter.y).toFixed(this._precision),
+    };
+    var vLen = this.vecLen(vec);
+    if (vLen > 0 && angle != 0) {
+      var rad = (angle / 180) * Math.PI;
+      var newVec = {
+        x: Math.cos(-rad) * vec.x - Math.sin(-rad) * vec.y,
+        y: Math.sin(-rad) * vec.x + Math.cos(-rad) * vec.y,
+      };
+      return {
+        translateX: vec.x - newVec.x,
+        translateY: vec.y - newVec.y,
+      };
+    } else {
+      return {
+        translateX: 0,
+        translateY: 0,
+      };
+    }
   };
 
   //根据图片方向计算源图片实际宽高
@@ -1383,7 +1417,11 @@
           this._contentCurMoveX -= translate.translateX;
           this._contentCurMoveY += translate.translateY;
         } else if (horizontal) {
-          if (Math.abs(this.times / newTimes - cropScale) <= 0.00001) {
+          if (
+            Math.abs(this.times / newTimes - cropScale).toFixed(
+              this._precision
+            ) == 0
+          ) {
             this._contentCurMoveX -=
               ((translate.translateX * cropScale) / this.times) * newTimes;
           } else {
@@ -1391,7 +1429,11 @@
             this._contentCurMoveX *= this.times / newTimes;
           }
         } else if (vertical) {
-          if (Math.abs(this.times / newTimes - cropScale) <= 0.00001) {
+          if (
+            Math.abs(this.times / newTimes - cropScale).toFixed(
+              this._precision
+            ) == 0
+          ) {
             this._contentCurMoveY +=
               ((translate.translateY * cropScale) / this.times) * newTimes;
           } else {
@@ -2006,12 +2048,10 @@
   SimpleCrop.prototype.isPointInRectCheckByLen = function(point, rectPoints) {
     var pcv = this.getPCVectorProjOnUpAndRight(point, rectPoints);
 
-    var precision = 100; //保留两位小数
-
-    var uLen = Math.round(this.vecLen(pcv.uproj) * precision);
-    var height = Math.round((this.vecLen(pcv.up) / 2) * precision);
-    var rLen = Math.round(this.vecLen(pcv.rproj) * precision);
-    var width = Math.round((this.vecLen(pcv.right) / 2) * precision);
+    var uLen = Math.round(this.vecLen(pcv.uproj) * this._precision);
+    var height = Math.round((this.vecLen(pcv.up) / 2) * this._precision);
+    var rLen = Math.round(this.vecLen(pcv.rproj) * this._precision);
+    var width = Math.round((this.vecLen(pcv.right) / 2) * this._precision);
 
     if (uLen <= height && rLen <= width) {
       return true;
@@ -2066,8 +2106,8 @@
       sum += angles[i];
     }
 
-    //向量之间的夹角等于360度则表示点在矩形内
-    sum = sum.toPrecision(12); //取12位精度能在大部分情况下解决浮点数误差导致的精度问题
+    // 向量之间的夹角等于360度则表示点在矩形内
+    sum = sum.toFixed(this._precision);
     if (sum < 360) {
       return false;
     } else {
